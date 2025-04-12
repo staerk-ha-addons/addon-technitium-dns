@@ -15,5 +15,3 @@ on:
 jobs:
   workflows:
     uses: staerk-ha-addons/workflows/.github/workflows/addon-deploy.yaml@main
-    secrets:
-      DISPATCH_TOKEN: ${{ secrets.DISPATCH_TOKEN }}
