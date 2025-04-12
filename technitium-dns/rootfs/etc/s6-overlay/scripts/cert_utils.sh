@@ -14,6 +14,24 @@ if [ -z "$PASSWORD" ]; then
     PASSWORD="TechnitiumDNS!SSL"
 fi
 
+generate_self_signed_cert() {
+    bashio::log.warning "Generating self-signed certificate as fallback..."
+    local selfsigned_cert="/config/ssl/selfsigned.pem"
+    local selfsigned_key="/config/ssl/selfsigned.key"
+    local hostname
+    hostname=$(bashio::info.hostname)
+
+    openssl req -x509 -newkey rsa:2048 -keyout "$selfsigned_key" -out "$selfsigned_cert" -days 365 -nodes \
+        -subj "/CN=${hostname}"
+    if [ $? -eq 0 ]; then
+        bashio::log.info "Successfully generated self-signed certificate"
+        CERTFILE="$selfsigned_cert"
+        KEYFILE="$selfsigned_key"
+    else
+        bashio::log.error "Failed to generate self-signed certificate"
+    fi
+}
+
 generate_cert() {
     bashio::log.info "Generating new PKCS #12 certificate..."
     if openssl pkcs12 -export \
@@ -29,8 +47,8 @@ generate_cert() {
 
 check_and_generate() {
     if ! bashio::fs.file_exists "$CERTFILE" || ! bashio::fs.file_exists "$KEYFILE"; then
-        bashio::log.warning "Certificate files missing — skipping generation"
-        return
+        bashio::log.warning "Certificate files missing — generating self-signed certificate"
+        generate_self_signed_cert
     fi
 
     if bashio::fs.file_exists "$PKCS12FILE"; then
