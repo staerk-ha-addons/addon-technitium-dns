@@ -4,9 +4,9 @@
 # Generate PKCS #12 certificate from Let's Encrypt certificates on startup
 # ==============================================================================
 
-source /etc/s6-overlay/scripts/cert_utils.sh
+source "/etc/s6-overlay/scripts/cert_utils.sh"
 
-bashio::log.info "Checking SSL PFX generation config..."
+bashio::log.info "SSL PFX generation check starting..."
 
 if ! bashio::config.true 'generate_ssl_pfx'; then
     bashio::log.info "SSL PFX generation disabled"
@@ -18,4 +18,6 @@ if ! command -v openssl >/dev/null 2>&1; then
     exit 1
 fi
 
-check_and_generate
+check_and_generate || bashio::exit.nok "SSL PFX generation failed"
+
+bashio::log.info "SSL PFX generation completed successfully"
