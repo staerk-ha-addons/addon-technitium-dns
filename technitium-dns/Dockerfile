@@ -20,7 +20,7 @@ RUN source /etc/os-release \
     && curl -sSL -O "https://packages.microsoft.com/config/${ID}/${VERSION_ID}/packages-microsoft-prod.deb" \
     && dpkg -i packages-microsoft-prod.deb \
     && apt-get update \
-    && apt-get install -y --no-install-recommends git libmsquic libc6 libgcc-s1 libgssapi-krb5-2 libicu72 libssl3 libstdc++6 zlib1g \
+    && apt-get install -y --no-install-recommends git libmsquic openssl inotify-tools libc6 libgcc-s1 libgssapi-krb5-2 libicu72 libssl3 libstdc++6 zlib1g \
     && curl -sSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh \
     && bash dotnet-install.sh --channel "${DOTNET_SDK_VERSION}" --install-dir $DOTNET_ROOT \
     && git clone --branch "${DNS_LIBRARY_VERSION}" --depth 1 https://github.com/TechnitiumSoftware/TechnitiumLibrary.git TechnitiumLibrary \
