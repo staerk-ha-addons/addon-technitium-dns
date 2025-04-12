@@ -45,6 +45,7 @@ Technitium DNS Server is a cross-platform open source DNS server that can be use
 ### Default Credentials
 
 When accessing the web interface for the first time, use these credentials:
+
 - Username: `admin`
 - Password: `admin`
 
@@ -73,6 +74,7 @@ The original setup of this repository is by [Jeppe Stærk][staerk].
 ## Acknowledgments
 
 Special thanks to the [Home Assistant Community Add-ons][ha-addons] project for their invaluable work. This add-on heavily relies on their foundation:
+
 - Base container images
 - CI workflows and best practices
 

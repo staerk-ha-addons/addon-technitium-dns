@@ -33,6 +33,7 @@ Technitium DNS Server is a cross-platform open-source DNS server that can be use
 ### Default Credentials
 
 When accessing the web interface for the first time, use these credentials:
+
 - **Username:** `admin`
 - **Password:** `admin`
 
@@ -43,6 +44,7 @@ When accessing the web interface for the first time, use these credentials:
 ⚠️ **Advanced Configuration:** This section covers advanced setup for DNS-over-HTTPS (DoH). Only proceed if you're comfortable with SSL certificates and DNS configuration.
 
 ⚠️ **Important:** If you plan to use DNS-over-HTTPS (DoH), ensure that port 443 is not already in use by Home Assistant or other services. Home Assistant typically uses port 443 for its own HTTPS access, so you may need to:
+
 - Use a different domain for DoH
 - Configure a reverse proxy to handle the routing
 - Run DoH on a different port
@@ -82,6 +84,7 @@ Once the certificates are generated, you have two options to use them with Techn
 This add-on includes built-in automatic management of your TLS/SSL certificate used by Technitium DNS Server.
 
 When enabled, the add-on will:
+
 - Automatically generate a PKCS #12 certificate (`.pfx` file) from your configured `certfile` and `keyfile` (usually provided by the Home Assistant Let's Encrypt add-on).
 - Monitor the certificate files for changes.
 - Automatically regenerate the `.pfx` file when certificates are renewed or about to expire.
@@ -98,6 +101,7 @@ If you prefer to manage certificates manually, you can convert the Let's Encrypt
 After generating the PKCS #12 certificate, follow these steps to configure DNS-over-HTTPS:
 
 1. Enable the HTTPS port in the add-on:
+
    - Go to the add-on's configuration page.
    - Scroll down to the "Network" section.
    - Click "Show disabled ports."
@@ -106,6 +110,7 @@ After generating the PKCS #12 certificate, follow these steps to configure DNS-o
    - Restart the add-on.
 
 2. Configure the web service settings in Technitium DNS Server:
+
    - Go to Settings → Web Service.
    - Under "HTTPS Options":
      - Enable HTTPS.
@@ -120,6 +125,7 @@ After generating the PKCS #12 certificate, follow these steps to configure DNS-o
    - Click "Save."
 
 Your DNS-over-HTTPS service should now be ready to use. The default ports are:
+
 - **DNS-over-HTTPS:** 443 (TCP/UDP)
 
 Note: The DoH endpoint will be available at `https://your.domain.com/dns-query`.
@@ -139,11 +145,11 @@ The add-on can be configured via the Home Assistant frontend:
 The add-on provides the following ports:
 
 | Port | Protocol | Description                        |
-|------|----------|------------------------------------|
+| ---- | -------- | ---------------------------------- |
 | 53   | UDP      | Standard DNS service               |
 | 853  | UDP      | DNS-over-QUIC                      |
 | 853  | TCP      | DNS-over-TLS                       |
-| 443  | UDP      | DNS-over-HTTPS (HTTP/3)           |
+| 443  | UDP      | DNS-over-HTTPS (HTTP/3)            |
 | 443  | TCP      | DNS-over-HTTPS (HTTP/1.1 + HTTP/2) |
 
 By default, only port 53/UDP is enabled for standard DNS service. To enable additional ports or change port mappings:
@@ -182,6 +188,7 @@ The original setup of this repository is by [Jeppe Stærk][staerk].
 ## Acknowledgments
 
 Special thanks to the [Home Assistant Community Add-ons][ha-addons] project for their invaluable work. This add-on heavily relies on their foundation:
+
 - Base container images
 - CI workflows and best practices
 
