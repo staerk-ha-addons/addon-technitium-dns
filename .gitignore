@@ -1,0 +1,59 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Editor swap & backup files
+*.swp
+*.swo
+*~
+*.bak
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+Desktop.ini
+
+# VS Code workspace settings
+.vscode/
+
+# Home Assistant Add-on build artifacts
+build/
+tmp/
+
+# Logs
+*.log
+
+# SSH
+*.pem
+*.key
+
+# Compression artifacts
+*.tar
+*.gz
+*.zip
+
+# System junk
+.idea/
+*.iml
+*.out
+*.class
+
+# Node.js artifacts (if tooling is added later)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker build cache (if using build locally)
+*.tar
+docker-compose.override.yml
+
+# Python virtual environments
+.env/
+.venv/
+
+# Home Assistant secrets (just in case)
+secrets.yaml
+secrets.yaml.bak

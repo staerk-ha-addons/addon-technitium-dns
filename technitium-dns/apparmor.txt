@@ -1,0 +1,56 @@
+#include <tunables/global>
+
+profile technitium-dns flags=(attach_disconnected,mediate_deleted,complain) {
+  #include <abstractions/base>
+
+  # Allow file access within the add-on's data directory
+  /data/** rwk,
+  /config/** rwk,
+  /ssl/** r,
+
+  # Allow Technitium DNS Server binaries/scripts to run
+  /usr/bin/** ix,
+  /usr/sbin/** ix,
+  /bin/** ix,
+  /sbin/** ix,
+
+  # Allow necessary library access
+  /usr/lib/** mr,
+  /lib/** mr,
+
+  # Read-only access to system files needed
+  /etc/hosts r,
+  /etc/hostname r,
+  /etc/resolv.conf r,
+  /etc/localtime r,
+
+  # Required device access
+  /dev/urandom r,
+  /dev/random r,
+  /dev/null rw,
+  /dev/tty rw,
+
+  # Networking access (for DNS server operations)
+  network inet stream,
+  network inet6 stream,
+  network inet dgram,
+  network inet6 dgram,
+
+  # Temporary files
+  /tmp/** rwk,
+
+  # Allow logging
+  /var/log/** rwk,
+
+  # Allow S6 overlay scripts
+  /etc/cont-init.d/** rix,
+  /etc/cont-finish.d/** rix,
+  /etc/services.d/** rix,
+  /run/** rwk,
+
+  # Allow Technitium DNS specific locations if applicable
+  /opt/technitium/** rwk,
+
+  # Deny everything else explicitly (optional, but strict)
+  deny /** w,
+}
