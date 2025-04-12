@@ -14,6 +14,7 @@ arch:
   - aarch64
 map:
   - type: ssl
+    read_only: True
   - type: addon_config
     read_only: False
 ports:
