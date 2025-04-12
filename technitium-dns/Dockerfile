@@ -1,4 +1,5 @@
 ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:7.8.1
+# hadolint ignore=DL3006
 FROM ${BUILD_FROM}
 
 ARG DNS_LIBRARY_VERSION=master
@@ -15,6 +16,8 @@ ENV PATH="$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 WORKDIR /build/
+# hadolint ignore=DL3008
+# shellcheck source=/etc/os-release
 RUN source /etc/os-release \
     && curl -sSL -O "https://packages.microsoft.com/config/${ID}/${VERSION_ID}/packages-microsoft-prod.deb" \
     && dpkg -i packages-microsoft-prod.deb \
