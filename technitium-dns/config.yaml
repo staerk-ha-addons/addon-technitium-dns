@@ -30,4 +30,3 @@ ports_description:
   853/tcp: DNS-over-TLS (853/tcp)
   443/udp: DNS-over-HTTPS (443/udp => HTTP/3)
   443/tcp: DNS-over-HTTPS (443/tcp => HTTP/1.1 + HTTP/2)
-image: ghcr.io/staerk-ha-addons/addon-technitium-dns/{arch}
