@@ -16,8 +16,7 @@ ENV PATH="$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 WORKDIR /build/
-# hadolint ignore=DL3008
-# shellcheck source=/etc/os-release
+# hadolint ignore=SC1091, DL3008
 RUN source /etc/os-release \
     && curl -sSL -O "https://packages.microsoft.com/config/${ID}/${VERSION_ID}/packages-microsoft-prod.deb" \
     && dpkg -i packages-microsoft-prod.deb \

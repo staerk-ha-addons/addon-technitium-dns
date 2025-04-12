@@ -13,10 +13,11 @@ arch:
   - amd64
   - aarch64
 map:
+  # yamllint disable rule:truthy
   - type: ssl
-    read_only: True
   - type: addon_config
     read_only: False
+  # yamllint enable rule:truthy
 ports:
   53/udp: 53
   853/udp: null
