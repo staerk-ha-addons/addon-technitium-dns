@@ -13,7 +13,6 @@ ENV DOTNET_NOLOGO=1
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 ENV PATH="$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools"
 
-
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 WORKDIR /build/
 # hadolint ignore=SC1091, DL3008
