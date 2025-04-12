@@ -1,14 +1,14 @@
 #!/command/with-contenv bashio
 # shellcheck shell=bash
 # ==============================================================================
-# Home Assistant Community Add-on: Technitium DNS ServerKuma
-# Take down the S6 supervision tree when Technitium DNS ServerKuma fails
+# Home Assistant Community Add-on: Technitium DNS Server
+# Take down the S6 supervision tree when Technitium DNS Server fails
 # ==============================================================================
 declare exit_code
 readonly exit_code_container=$(</run/s6-linux-init-container-results/exitcode)
 readonly exit_code_service="${1}"
 readonly exit_code_signal="${2}"
-readonly service="Technitium DNS ServerKuma"
+readonly service="Technitium DNS Server"
 
 bashio::log.info \
   "Service ${service} exited with code ${exit_code_service}" \
