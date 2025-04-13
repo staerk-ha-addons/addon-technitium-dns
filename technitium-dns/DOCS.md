@@ -41,7 +41,9 @@ The add-on provides the following ports:
 | 443  | TCP      | DNS-over-HTTPS (HTTP/1.1 + HTTP/2) |
 
 > [!NOTE]
-> By default, only port 53/UDP is enabled for standard DNS service. To enable additional ports or change port mappings:
+> By default, only port 53/UDP is enabled for standard DNS service.
+
+To enable additional ports or change port mappings:
 
 1. Go to the add-on configuration page in Home Assistant.
 2. Scroll down to the "Network" section.
@@ -59,18 +61,15 @@ The web interface is available via Ingress in your Home Assistant frontend.
 
 ### SSL Certificate Setup
 
-> [!IMPORTANT]
-> If you're only using standard DNS or other protocols, you can skip this section.
-
 > [!WARNING]
-> This section covers advanced setup for DNS-over-HTTPS (DoH). Only proceed if you're comfortable with SSL certificates and DNS configuration.
-
-> [!NOTE]
-> If you plan to use DNS-over-HTTPS (DoH), ensure that port 443 is not already in use by Home Assistant or other services. Home Assistant typically uses port 443 for its own HTTPS access, so you may need to:
+> If you're only using standard DNS or other protocols, you can skip this section.
 >
-> - Use a different domain for DoH
+> This section covers advanced setup for DNS-over-HTTPS (DoH), DNS-over-TLS (DoT) and DNS-over-QUIC (DoQ). Only proceed if you're comfortable with SSL certificates and DNS configuration.
+>
+> If you plan to use DNS-over-HTTPS (DoH), DNS-over-TLS (DoT) and/or DNS-over-QUIC (DoQ), ensure that port 443 and/or 853 is not already in use by Home Assistant or other services. Home Assistant typically uses port 443 for its own HTTPS access, so you may need to:
+>
+> - Run on a different port see: [Port Configuration](#port-configuration)
 > - Configure a reverse proxy to handle the routing
-> - Run DoH on a different port
 
 To set up SSL certificates using the Home Assistant Let's Encrypt add-on:
 
@@ -171,7 +170,7 @@ The original setup of this repository is by [Jeppe Stærk][staerk].
 
 ## Acknowledgments
 
-Special thanks to the [Home Assistant Community Add-ons][ha-addons] project for their invaluable work. This add-on heavily relies on their foundation:
+Special thanks to [Franck Nijhof][frenck] and the [Home Assistant Community Add-ons][ha-addons] project for their invaluable work. This add-on heavily relies on their foundation:
 
 - Base container images
 - CI workflows and best practices
@@ -188,6 +187,7 @@ Copyright (c) 2024 Jeppe Stærk
 [amd64-shield]: https://img.shields.io/badge/amd64-yes-green.svg
 [discord]: https://discord.gg/c5DvZ4e
 [forum]: https://community.home-assistant.io
+[frenck]: https://github.com/frenck
 [issue]: https://github.com/staerk-ha-addons/addon-technitium-dns/issues
 [reddit]: https://reddit.com/r/homeassistant
 [releases-shield]: https://img.shields.io/github/release/staerk-ha-addons/addon-technitium-dns.svg

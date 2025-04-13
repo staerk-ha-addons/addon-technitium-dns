@@ -4,11 +4,12 @@
 # Watch Let's Encrypt certificates for changes and regenerate PKCS #12 if needed
 # ==============================================================================
 
-source "/etc/s6-overlay/scripts/cert_utils.sh"
 
 bashio::log.info "================================================="
 bashio::log.info "  Starting certificate watch using inotify..."
 bashio::log.info "================================================="
+
+source "/etc/s6-overlay/scripts/cert_utils.sh"
 
 while true; do
     inotifywait -e close_write,move,create "${CERT_SOURCE_CHAIN}" "${CERT_SOURCE_KEY}" >/dev/null 2>&1
