@@ -17,6 +17,7 @@ Desktop.ini
 
 # VS Code workspace settings
 .vscode/
+!.vscode/tasks.json
 
 # Home Assistant Add-on build artifacts
 build/
