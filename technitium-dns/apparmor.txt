@@ -3,66 +3,87 @@
 profile technitium-dns flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
 
-  # Allow file access within the add-on's data directory
-  /data/** rwk,
-  /config/** rwk,
-  /ssl/** r,
+  # Capabilities
+  file,
+  signal (send) set=(kill,term,int,hup,cont),
 
-  # Allow Technitium DNS Server binaries/scripts to run
-  /usr/bin/** ix,
-  /usr/sbin/** ix,
+  # S6-Overlay
+  /init ix,
   /bin/** ix,
-  /sbin/** ix,
-
-  # Allow necessary library access
-  /usr/lib/** mr,
-  /lib/** mr,
-
-  # Read-only access to system files needed
-  /etc/hosts r,
-  /etc/hostname r,
-  /etc/resolv.conf r,
-  /etc/localtime r,
-
-  # Required device access
-  /dev/urandom r,
-  /dev/random r,
-  /dev/null rw,
+  /usr/bin/** ix,
+  /run/{s6,s6-rc*,service}/** ix,
+  /package/** ix,
+  /command/** ix,
+  /etc/services.d/** rwix,
+  /etc/cont-init.d/** rwix,
+  /etc/cont-finish.d/** rwix,
+  /run/{,**} rwk,
   /dev/tty rw,
 
-  # Networking access (for DNS server operations)
-  network inet stream,
-  network inet6 stream,
-  network inet dgram,
-  network inet6 dgram,
-
-  # Temporary files
+  # Bashio
+  /usr/lib/bashio/** ix,
   /tmp/** rwk,
 
-  # Allow logging
-  /var/log/** rwk,
+  # Access to addon data and config
+  /data/** rwk,
+  /config/** rwk,
 
-  # Allow S6 overlay scripts and services
-  /etc/s6-overlay/scripts/** rix,
-  /etc/s6-overlay/s6-rc.d/** rix,
-  /command/** rix,
-  /run/s6/** rwk,
-  /run/s6-rc/** rwk,
-  /etc/services.d/** rix,
-  /etc/cont-init.d/** rix,
-  /etc/cont-finish.d/** rix,
-  
-  # Allow specific scripts
-  /etc/s6-overlay/s6-rc.d/cert-convert-startup/run rix,
-  /etc/s6-overlay/s6-rc.d/cert-convert-watch/run rix,
-  /etc/s6-overlay/scripts/cert_utils.sh rix,
+  # Access to SSL certificates
+  /ssl/** r,
 
-  # Allow bashio
-  /usr/lib/bashio/** rix,
-  /usr/bin/bashio rix,
-  /usr/bin/tempio rix,
-  /usr/bin/jq rix,
-  
-  # Allow Technitium DNS specific locations
-  /opt/technitium/** rwk,
+  # Start new profile for DNS service
+  /opt/technitium/DnsServer cx -> dns_server,
+
+  # Profile for certificate conversion
+  /etc/s6-overlay/scripts/cert_utils.sh cx -> cert_utils,
+
+  profile dns_server flags=(attach_disconnected,mediate_deleted) {
+    #include <abstractions/base>
+
+    # Receive signals from S6-Overlay
+    signal (receive) peer=technitium-dns,
+
+    # Access to data and configuration
+    /data/** rwk,
+    /config/** rwk,
+    /ssl/** r,
+
+    # Network access for DNS operations
+    network inet stream,
+    network inet6 stream,
+    network inet dgram,
+    network inet6 dgram,
+
+    # Required system access
+    /etc/hosts r,
+    /etc/hostname r,
+    /etc/resolv.conf r,
+    /etc/localtime r,
+    /dev/urandom r,
+    /dev/random r,
+    /dev/null rw,
+    /dev/tty rw,
+
+    # Technitium DNS specific
+    /opt/technitium/** rwk,
+  }
+
+  profile cert_utils flags=(attach_disconnected,mediate_deleted) {
+    #include <abstractions/base>
+
+    # Receive signals from main profile
+    signal (receive) peer=technitium-dns,
+
+    # Access to certificates and configuration
+    /ssl/** r,
+    /config/ssl/** rwk,
+    /data/** r,
+
+    # Required tools
+    /usr/bin/openssl ix,
+    /usr/lib/ssl/** r,
+    
+    # Temporary files
+    /tmp/** rwk,
+  }
 }
