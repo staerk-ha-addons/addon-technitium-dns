@@ -1,22 +1,5 @@
 # Home Assistant Add-on: Technitium DNS Server
 
-[![GitHub Release][releases-shield]][releases]
-![Project Stage][project-stage-shield]
-[![License][license-shield]](LICENSE.md)
-
-![Supports aarch64 Architecture][aarch64-shield]
-![Supports amd64 Architecture][amd64-shield]
-
-A fully featured DNS server for Home Assistant with advanced capabilities including DNS-over-HTTPS, DNS-over-TLS, and DNS-over-QUIC.
-
-## Disclaimer
-
-This is a third-party add-on for Home Assistant and not an official add-on. It is provided as-is, without warranty of any kind. While care has been taken in its development, use it at your own risk. Always ensure you have proper backups before making changes to your Home Assistant DNS settings. This add-on is not affiliated with Technitium Software.
-
-## About
-
-Technitium DNS Server is a cross-platform open-source DNS server that can be used for self-hosting a DNS server for privacy and security. This add-on integrates it seamlessly with Home Assistant, providing a feature-rich DNS solution for your home network.
-
 ## Installation
 
 1. Click the Home Assistant My button below to add the repository to your Home Assistant instance.
@@ -28,8 +11,6 @@ Technitium DNS Server is a cross-platform open-source DNS server that can be use
 4. Click Start to start the add-on.
 5. Check the logs of the add-on to see if everything went well.
 
-## Configuration
-
 ### Default Credentials
 
 When accessing the web interface for the first time, use these credentials:
@@ -38,6 +19,8 @@ When accessing the web interface for the first time, use these credentials:
 - **Password:** `admin`
 
 ⚠️ **Important:** You will be required to change the password on your first login for security purposes.
+
+## Configuration
 
 ### SSL Certificate Setup
 
