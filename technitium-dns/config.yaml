@@ -22,7 +22,7 @@ options:
   generate_ssl_pfx: false
   ssl_pfx_password: "TechnitiumDNS!SSL"
   certfile: "/ssl/fullchain.pem"
-  keyfile: "/ssl/privkey.pem"
+  keyfile: "/ssl/privkey.key"
   pkcs12file: "/config/ssl/technitium.pfx"
 schema:
   generate_ssl_pfx: bool

@@ -1,21 +1,69 @@
 #!/command/with-contenv bashio
 # shellcheck shell=bash
 # ==============================================================================
-# Watch Let's Encrypt certificates for changes and regenerate PKCS #12 if needed
+# Watch certificates for changes and regenerate PKCS #12 if needed
 # ==============================================================================
 
+# Check if SSL certificate generation is enabled
+if ! bashio::config.true 'generate_ssl_pfx'; then
+    bashio::log.info "SSL certificate generation disabled - skipping watch service"
+    exit 0
+fi
 
 bashio::log.info "================================================="
-bashio::log.info "  Starting certificate watch using inotify..."
+bashio::log.info "  Add On - Certificate Watch"
 bashio::log.info "================================================="
 
+# Source utilities and perform initial setup
 source "/etc/s6-overlay/scripts/cert_utils.sh"
 
-while true; do
-    inotifywait -e close_write,move,create "${CERT_SOURCE_CHAIN}" "${CERT_SOURCE_KEY}" >/dev/null 2>&1
-    bashio::log.info "Detected certificate change — checking and regenerating if needed..."
-    if check_and_generate; then
-        bashio::log.info "Restarting Technitium DNS Server to load new certificate..."
-        s6-svc -r /run/s6-rc/supervise/dns-server
+# Function to get unique directories to watch
+get_watch_dirs() {
+    echo "$(dirname "$CERT_FILE")" "$(dirname "$KEY_FILE")" "$(dirname "$PKCS12_FILE")" | tr ' ' '\n' | sort -u
+}
+
+# Function to handle certificate updates
+handle_cert_update() {
+    bashio::log.info "Checking certificate status..."
+    check_cert_paths
+
+    local regenerate_pkcs12=false
+
+    if [ ! -f "$CERT_FILE" ] || [ ! -f "$KEY_FILE" ]; then
+        bashio::log.warning "Certificate files missing - generating self-signed certificates..."
+        generate_self_signed
+        regenerate_pkcs12=true
     fi
+
+    if [ "$regenerate_pkcs12" = "true" ] || ! check_pkcs12; then
+        bashio::log.info "Generating new PKCS12 certificate..."
+        if generate_pkcs12; then
+            bashio::log.info "Restarting Technitium DNS Server to load new certificate..."
+            s6-svc -r /run/service/dns-server
+        else
+            bashio::log.error "Failed to generate PKCS12 certificate"
+        fi
+    fi
+}
+
+# Initial certificate setup
+handle_cert_update
+
+# Create all required directories
+for dir in $(get_watch_dirs); do
+    mkdir -p "$dir"
+done
+
+# Watch for changes
+bashio::log.info "Starting certificate watch..."
+while true; do
+    # Watch parent directories for any changes
+    if ! inotifywait -e close_write,move,create,delete $(get_watch_dirs) >/dev/null 2>&1; then
+        bashio::log.warning "inotifywait failed, retrying in 10 seconds..."
+        sleep 10
+        continue
+    fi
+
+    bashio::log.info "Detected certificate change..."
+    handle_cert_update
 done

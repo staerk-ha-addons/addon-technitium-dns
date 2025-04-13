@@ -1,122 +1,103 @@
-#!/command/with-contenv bashio
-# shellcheck shell=bash
-# ==============================================================================
-# Shared certificate utilities for Technitium DNS Server add-on
-# ==============================================================================
 
-# Set default paths
-DEFAULT_CERTFILE="/config/ssl/fullchain.pem"
-DEFAULT_KEYFILE="/config/ssl/privkey.pem"
-CERTFILE="${DEFAULT_CERTFILE}"
-KEYFILE="${DEFAULT_KEYFILE}"
-PKCS12FILE="$(bashio::config 'pkcs12file' '/config/ssl/technitium.pfx')"
-PASSWORD="$(bashio::config 'ssl_pfx_password')"
-
-# Check if OpenSSL is available
 if ! command -v openssl >/dev/null 2>&1; then
-    bashio::log.error "OpenSSL is not installed"
+    bashio::log.error "openssl binary not found!"
     exit 1
 fi
 
-if [ -z "$PASSWORD" ]; then
-    bashio::log.warning "No SSL PFX password set - using default password. This is not recommended for production use."
-    PASSWORD="TechnitiumDNS!SSL"
-fi
+# Default values
+DEFAULT_PASSWORD="TechnitiumDNS!SSL"
+DEFAULT_PKCS12="/config/ssl/technitium.pfx"
+DEFAULT_CERT="/config/ssl/fullchain.pem"
+DEFAULT_KEY="/config/ssl/privkey.key"
+DEFAULT_HOSTNAME="homeassistant.local"
+SSL_DIR="/config/ssl"
 
-# First check if certfile and keyfile are configured
-if bashio::config.has_value 'certfile' && bashio::config.has_value 'keyfile'; then
-    CERTFILE="$(bashio::config 'certfile' '/ssl/fullchain.pem')"
-    KEYFILE="$(bashio::config 'keyfile' '/ssl/privkey.pem')"
-    
-    # Check if the directories exist
-    if ! bashio::fs.directory_exists "$(dirname "${CERTFILE}")" || \
-       ! bashio::fs.directory_exists "$(dirname "${KEYFILE}")"; then
-        bashio::log.warning "Certificate directories do not exist - using defaults"
-        CERTFILE="/config/ssl/fullchain.pem"
-        KEYFILE="/config/ssl/privkey.pem"
-    # Check if the files exist
-    elif ! bashio::fs.file_exists "${CERTFILE}" || \
-         ! bashio::fs.file_exists "${KEYFILE}"; then
-        bashio::log.warning "Certificate files do not exist - using defaults"
-        CERTFILE="/config/ssl/fullchain.pem"
-        KEYFILE="/config/ssl/privkey.pem"
-    else
-        bashio::log.info "Using configured certificates"
-    fi
+# 0. Set hostname
+HOST_SYSTEM_HOSTNAME=$(bashio::info.hostname)
+if [ -z "$HOST_SYSTEM_HOSTNAME" ]; then
+    HOSTNAME="$DEFAULT_HOSTNAME"
 else
-    bashio::log.info "No certificate configuration found - using defaults"
-    CERTFILE="/config/ssl/fullchain.pem"
-    KEYFILE="/config/ssl/privkey.pem"
+    HOSTNAME="$HOST_SYSTEM_HOSTNAME"
 fi
 
-# Ensure /config/ssl exists if we're using it
-if [[ $CERTFILE == /config/ssl/* ]] || [[ $KEYFILE == /config/ssl/* ]] || [[ $PKCS12FILE == /config/ssl/* ]]; then
-    if ! bashio::fs.directory_exists "/config/ssl"; then
-        bashio::log.info "Creating /config/ssl directory"
-        mkdir -p /config/ssl || {
-            bashio::log.error "Failed to create /config/ssl directory"
-            exit 1
-        }
-    fi
+# 1. Get password with default
+PASSWORD=$(bashio::config 'password' "$DEFAULT_PASSWORD")
+if [ "$PASSWORD" = "$DEFAULT_PASSWORD" ]; then
+    bashio::log.warning "Using default password for SSL certificate - consider changing this for security"
 fi
 
-# Check if certificate expires within 30 days
-if ! openssl x509 -checkend 2592000 -noout -in <(openssl pkcs12 -in "$PKCS12FILE" -nokeys -passin "pass:${PASSWORD}" 2>/dev/null | openssl x509); then
-    bashio::log.warning "Certificate will expire within 30 days"
-    generate_cert
-fi
+# 2. Create SSL directory if it doesn't exist
+mkdir -p "$SSL_DIR"
 
-generate_self_signed_cert() {
-    bashio::log.warning "Generating self-signed certificate as fallback..."
-    local selfsigned_cert="/config/ssl/selfsigned.pem"
-    local selfsigned_key="/config/ssl/selfsigned.key"
-    local hostname
-    hostname="$(bashio::info.hostname)"
+# 3. Get certificate paths with defaults
+PKCS12_FILE=$(bashio::config 'pkcs12file' "$DEFAULT_PKCS12")
+CERT_FILE=$(bashio::config 'certfile' "$DEFAULT_CERT")
+KEY_FILE=$(bashio::config 'keyfile' "$DEFAULT_KEY")
 
-    if openssl req -x509 -newkey rsa:2048 -keyout "$selfsigned_key" -out "$selfsigned_cert" -days 365 -nodes \
-        -subj "/CN=${hostname}"; then
-        bashio::log.info "Successfully generated self-signed certificate"
-        CERTFILE="$selfsigned_cert"
-        KEYFILE="$selfsigned_key"
-    else
-        bashio::log.error "Failed to generate self-signed certificate"
-    fi
-}
+# Check PKCS12 validity if it exists
+check_pkcs12() {
+    if [ -f "$PKCS12_FILE" ]; then
+        # First check if the PKCS12 file is valid
+        if ! openssl pkcs12 -in "$PKCS12_FILE" -noout -passin pass:"$PASSWORD" 2>/dev/null; then
+            bashio::log.warning "Invalid PKCS12 file"
+            return 1
+        fi
 
-generate_cert() {
-    bashio::log.info "Generating new PKCS #12 certificate..."
-    if openssl pkcs12 -export \
-        -out "$PKCS12FILE" \
-        -inkey "$KEYFILE" \
-        -in "$CERTFILE" \
-        -passout "pass:${PASSWORD}"; then
-        bashio::log.info "Successfully generated PKCS #12 certificate at $PKCS12FILE"
-    else
-        bashio::log.error "Failed to generate PKCS #12 certificate"
-    fi
-}
+        # Get expiration date and format it
+        EXPIRY_DATE=$(openssl pkcs12 -in "$PKCS12_FILE" -nokeys -passin pass:"$PASSWORD" 2>/dev/null | \
+                      openssl x509 -noout -enddate | cut -d'=' -f2)
 
-check_and_generate() {
-    if ! bashio::fs.file_exists "$CERTFILE" || ! bashio::fs.file_exists "$KEYFILE"; then
-        bashio::log.warning "Certificate files missing — generating self-signed certificate as fallback"
-        generate_self_signed_cert
-    fi
-
-    if bashio::fs.file_exists "$PKCS12FILE"; then
-        local EXPIRY
-        EXPIRY="$(openssl pkcs12 -in "$PKCS12FILE" -nokeys -passin "pass:${PASSWORD}" 2>/dev/null \
-            | openssl x509 -noout -enddate \
-            | cut -d= -f2)"
-
-        if [ -n "$EXPIRY" ]; then
-            bashio::log.info "Existing PKCS #12 certificate expires on: $EXPIRY"
-
-            if openssl x509 -checkend 0 -noout -in <(openssl pkcs12 -in "$PKCS12FILE" -nokeys -passin "pass:${PASSWORD}" 2>/dev/null | openssl x509); then
-                bashio::log.info "Existing PKCS #12 certificate is still valid — skipping generation"
-                return
-            fi
+        # Extract certificate from PKCS12 and check expiration
+        if openssl pkcs12 -in "$PKCS12_FILE" -nokeys -passin pass:"$PASSWORD" 2>/dev/null | \
+           openssl x509 -noout -checkend 0 2>/dev/null; then
+            bashio::log.info "Valid non-expired PKCS12 file found (expires: ${EXPIRY_DATE}), skipping certificate generation"
+            return 0
+        else
+            bashio::log.warning "PKCS12 certificate is expired (expired: ${EXPIRY_DATE})"
+            return 1
         fi
     fi
+    bashio::log.warning "No PKCS12 file found"
+    return 1
+}
 
-    generate_cert
+# Check if cert and key paths are valid
+check_cert_paths() {
+    # Check if cert file exists and is readable
+    if [ ! -f "$CERT_FILE" ] || [ ! -r "$CERT_FILE" ]; then
+        bashio::log.warning "Certificate file not found or not readable, using default: $DEFAULT_CERT"
+        CERT_FILE="$DEFAULT_CERT"
+    else
+        bashio::log.info "Using certificate file: $CERT_FILE"
+    fi
+
+    # Check if key file exists and is readable
+    if [ ! -f "$KEY_FILE" ] || [ ! -r "$KEY_FILE" ]; then
+        bashio::log.warning "Key file not found or not readable, using default: $DEFAULT_KEY"
+        KEY_FILE="$DEFAULT_KEY"
+    else
+        bashio::log.info "Using key file: $KEY_FILE"
+    fi
+}
+
+# Generate self-signed certificate
+generate_self_signed() {
+    bashio::log.info "Generating self-signed certificate..."
+    openssl req -x509 \
+        -newkey rsa:4096 \
+        -keyout "$KEY_FILE" \
+        -out "$CERT_FILE" \
+        -days 365 \
+        -nodes \
+        -subj "/CN=$HOSTNAME"
+}
+
+# Generate PKCS12 from cert and key
+generate_pkcs12() {
+    bashio::log.info "Generating PKCS12 file..."
+    openssl pkcs12 -export \
+        -out "$PKCS12_FILE" \
+        -inkey "$KEY_FILE" \
+        -in "$CERT_FILE" \
+        -password pass:"$PASSWORD"
 }

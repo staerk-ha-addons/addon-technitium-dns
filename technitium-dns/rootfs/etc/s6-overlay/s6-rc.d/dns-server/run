@@ -1,9 +1,13 @@
 #!/command/with-contenv bashio
 # shellcheck shell=bash
 # ==============================================================================
-# Staerks Home Assistant Add-ons: Technitium DNS Server
 # Starts Technitium DNS Server
 # ==============================================================================
+
+# Add a delay before starting for cleaner logs
+if bashio::config.true 'generate_ssl_pfx'; then
+    sleep 1
+fi
 
 bashio::log.info "================================================="
 bashio::log.info "  Starting Technitium DNS Server"

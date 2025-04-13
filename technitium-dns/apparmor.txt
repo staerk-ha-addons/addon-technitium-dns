@@ -17,7 +17,7 @@ profile technitium-dns flags=(attach_disconnected,mediate_deleted) {
   /etc/services.d/** rwix,
   /etc/cont-init.d/** rwix,
   /etc/cont-finish.d/** rwix,
-  /run/{,**} rwk,
+  /run/** rwk,
   /dev/tty rw,
 
   # Bashio
@@ -32,7 +32,7 @@ profile technitium-dns flags=(attach_disconnected,mediate_deleted) {
   /ssl/** r,
 
   # Start new profile for DNS service
-  /opt/technitium/DnsServer cx -> dns_server,
+  /opt/technitium/dns/DnsServerApp.dll cx -> dns_server,
 
   # Profile for certificate conversion
   /etc/s6-overlay/scripts/cert_utils.sh cx -> cert_utils,
@@ -42,6 +42,20 @@ profile technitium-dns flags=(attach_disconnected,mediate_deleted) {
 
     # Receive signals from S6-Overlay
     signal (receive) peer=technitium-dns,
+
+    # Signal handling
+    signal (send) peer=cert_utils,
+    signal (receive) peer=cert_utils,
+
+    # System capabilities
+    capability sys_time,
+    capability net_bind_service,
+    capability net_broadcast,
+    capability net_raw,
+
+    # .NET Runtime
+    /usr/share/dotnet/** mr,
+    /usr/share/dotnet/dotnet ix,
 
     # Access to data and configuration
     /data/** rwk,
@@ -65,6 +79,7 @@ profile technitium-dns flags=(attach_disconnected,mediate_deleted) {
     /dev/tty rw,
 
     # Technitium DNS specific
+    /opt/technitium/dns/DnsServerApp.dll rm,
     /opt/technitium/** rwk,
   }
 
@@ -73,6 +88,13 @@ profile technitium-dns flags=(attach_disconnected,mediate_deleted) {
 
     # Receive signals from main profile
     signal (receive) peer=technitium-dns,
+
+    # Signal handling
+    signal (send) peer=dns_server,
+    signal (receive) peer=dns_server,
+
+    # System capabilities
+    capability sys_time,
 
     # Access to certificates and configuration
     /ssl/** r,
