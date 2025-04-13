@@ -15,4 +15,4 @@ on:
 
 jobs:
   workflows:
-    uses: staerk-ha-addons/workflows/.github/workflows/addon-ci.yaml@main
+    uses: hassio-addons/workflows/.github/workflows/addon-ci.yaml@main

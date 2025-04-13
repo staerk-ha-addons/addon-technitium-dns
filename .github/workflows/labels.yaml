@@ -9,4 +9,4 @@ on:
 
 jobs:
   workflows:
-    uses: staerk-ha-addons/workflows/.github/workflows/labels.yaml@main
+    uses: hassio-addons/workflows/.github/workflows/labels.yaml@main
