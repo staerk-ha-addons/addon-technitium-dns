@@ -12,12 +12,10 @@ init: false
 arch:
   - amd64
   - aarch64
-# yamllint disable rule:truthy
 map:
   - type: ssl
   - type: addon_config
     read_only: false
-# yamllint enable rule:truthy
 options:
   generate_ssl_pfx: false
   ssl_pfx_password: "TechnitiumDNS!SSL"

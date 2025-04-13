@@ -1,22 +1,5 @@
 # Home Assistant Add-on: Technitium DNS Server
 
-## Installation
-
-1. Click the Home Assistant My button below to add the repository to your Home Assistant instance.
-
-   [![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fstaerk-ha-addons%2Faddon-technitium-dns)
-
-2. Find the "Technitium DNS Server" add-on in the add-on store.
-3. Click "Install" to download the add-on.
-4. Click "Start" to start the add-on.
-5. Check the logs of the add-on to see if everything went well.
-6. Click "Open Web Ui" and login.
-
-> [!NOTE]
-> When accessing the web interface for the first time, use these credentials:
-> **Username:** `admin` **Password:** `admin`
-> You will be required to change the password on your first login for security purposes.
-
 ## Configuration
 
 ### Add-on Configuration
@@ -174,7 +157,8 @@ The original setup of this repository is by [Jeppe Stærk][staerk].
 Special thanks to [Franck Nijhof][frenck] and the [Home Assistant Community Add-ons][ha-addons] project for their invaluable work. This add-on heavily relies on their foundation:
 
 - Base container images
-- CI workflows and best practices
+- CI, workflows and best practices
+- Readme and docs templates
 
 Their open-source contributions make add-ons like this possible.
 
@@ -182,7 +166,7 @@ Their open-source contributions make add-ons like this possible.
 
 MIT License
 
-Copyright (c) 2024 Jeppe Stærk
+Copyright (c) 2025 Jeppe Stærk
 
 [aarch64-shield]: https://img.shields.io/badge/aarch64-yes-green.svg
 [amd64-shield]: https://img.shields.io/badge/amd64-yes-green.svg

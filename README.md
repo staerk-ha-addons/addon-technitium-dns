@@ -38,45 +38,41 @@ Technitium DNS Server is a cross-platform open source DNS server that can be use
    [![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fstaerk-ha-addons%2Faddon-technitium-dns)
 
 2. Find the "Technitium DNS Server" add-on in the add-on store.
-3. Click install to download the add-on.
-4. Click Start to start the add-on.
+3. Click "Install" to download the add-on.
+4. Click "Start" to start the add-on.
 5. Check the logs of the add-on to see if everything went well.
+6. Click "Open Web Ui" and login.
 
-### Default Credentials
-
-When accessing the web interface for the first time, use these credentials:
-
-- Username: `admin`
-- Password: `admin`
-
-⚠️ **Important**: You will be required to change the password on your first login for security purposes.
+> [!NOTE]
+> When accessing the web interface for the first time, use these credentials:
+> **Username:** `admin` **Password:** `admin`
+> You will be required to change the password on your first login for security purposes.
 
 ## Support
 
-Got questions?
-
-You have several options to get them answered:
+Got questions? You have several options to get them answered:
 
 - The [Home Assistant Discord Chat Server][discord].
 - The Home Assistant [Community Forum][forum].
-- Join the [Reddit subreddit][reddit] in [/r/homeassistant][reddit]
+- Join the [Reddit subreddit][reddit] in [/r/homeassistant][reddit].
 
 In case you've found a bug, please [open an issue on our GitHub][issue].
 
 ## Contributing
 
-This is an active open-source project. We are always open to people who want to use the code or contribute to it.
+This is an active open-source project. We welcome contributions from anyone interested in using or improving the code.
 
-## Authors & contributors
+## Authors & Contributors
 
 The original setup of this repository is by [Jeppe Stærk][staerk].
 
 ## Acknowledgments
 
-Special thanks to the [Home Assistant Community Add-ons][ha-addons] project for their invaluable work. This add-on heavily relies on their foundation:
+Special thanks to [Franck Nijhof][frenck] and the [Home Assistant Community Add-ons][ha-addons] project for their invaluable work. This add-on heavily relies on their foundation:
 
 - Base container images
-- CI workflows and best practices
+- CI, workflows and best practices
+- Readme and docs templates
 
 Their open-source contributions make add-ons like this possible.
 
@@ -84,12 +80,13 @@ Their open-source contributions make add-ons like this possible.
 
 MIT License
 
-Copyright (c) 2024 Jeppe Stærk
+Copyright (c) 2025 Jeppe Stærk
 
 [aarch64-shield]: https://img.shields.io/badge/aarch64-yes-green.svg
 [amd64-shield]: https://img.shields.io/badge/amd64-yes-green.svg
 [discord]: https://discord.gg/c5DvZ4e
 [forum]: https://community.home-assistant.io
+[frenck]: https://github.com/frenck
 [issue]: https://github.com/staerk-ha-addons/addon-technitium-dns/issues
 [reddit]: https://reddit.com/r/homeassistant
 [releases-shield]: https://img.shields.io/github/release/staerk-ha-addons/addon-technitium-dns.svg
