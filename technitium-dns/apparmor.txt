@@ -42,10 +42,12 @@ profile technitium-dns flags=(attach_disconnected,mediate_deleted,complain) {
   # Allow logging
   /var/log/** rwk,
 
-  # Allow S6 overlay scripts
+  # Allow S6 overlay scripts and services
   /etc/cont-init.d/** rix,
   /etc/cont-finish.d/** rix,
   /etc/services.d/** rix,
+  /etc/s6-overlay/** rix,
+  /etc/s6-overlay/s6-rc.d/** rix,
   /run/** rwk,
 
   # Allow Technitium DNS specific locations if applicable

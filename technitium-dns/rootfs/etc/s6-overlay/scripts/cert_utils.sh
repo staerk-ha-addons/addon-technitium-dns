@@ -98,7 +98,7 @@ generate_cert() {
 
 check_and_generate() {
     if ! bashio::fs.file_exists "$CERTFILE" || ! bashio::fs.file_exists "$KEYFILE"; then
-        bashio::log.warning "Certificate files missing — generating self-signed certificate"
+        bashio::log.warning "Certificate files missing — generating self-signed certificate as fallback"
         generate_self_signed_cert
     fi
 
