@@ -11,28 +11,65 @@
 4. Click Start to start the add-on.
 5. Check the logs of the add-on to see if everything went well.
 
-### Default Credentials
-
-When accessing the web interface for the first time, use these credentials:
-
-- **Username:** `admin`
-- **Password:** `admin`
-
-⚠️ **Important:** You will be required to change the password on your first login for security purposes.
+> [!NOTE]
+> When accessing the web interface for the first time, use these credentials:
+> **Username:** `admin` **Password:** `admin`
+> You will be required to change the password on your first login for security purposes.
 
 ## Configuration
 
+### Add-on Configuration
+
+The add-on can be configured via the Home Assistant frontend:
+
+1. Navigate to Settings → Add-ons → Technitium DNS Server.
+2. Click the "Configuration" tab.
+3. Update the configuration as needed.
+4. Click "Save" to apply changes.
+5. Restart the add-on for the changes to take effect.
+
+### Port Configuration
+
+The add-on provides the following ports:
+
+| Port | Protocol | Description                        |
+| ---- | -------- | ---------------------------------- |
+| 53   | UDP      | Standard DNS service               |
+| 853  | UDP      | DNS-over-QUIC                      |
+| 853  | TCP      | DNS-over-TLS                       |
+| 443  | UDP      | DNS-over-HTTPS (HTTP/3)            |
+| 443  | TCP      | DNS-over-HTTPS (HTTP/1.1 + HTTP/2) |
+
+> [!NOTE]
+> By default, only port 53/UDP is enabled for standard DNS service. To enable additional ports or change port mappings:
+
+1. Go to the add-on configuration page in Home Assistant.
+2. Scroll down to the "Network" section.
+3. Click "Show disabled ports."
+4. Enable the desired ports by clicking the toggle switch.
+5. To use a different port number:
+   - Click on the port number.
+   - Enter your desired port number (e.g., change `853` to `8853` to run DNS-over-TLS on port 8853).
+6. Click "Save" to apply changes.
+
+> [!IMPORTANT]
+> After enabling or changing ports, you'll also need to configure the corresponding services (DoH, DoT, DoQ) in the Technitium DNS web interface.
+
+The web interface is available via Ingress in your Home Assistant frontend.
+
 ### SSL Certificate Setup
 
-⚠️ **Advanced Configuration:** This section covers advanced setup for DNS-over-HTTPS (DoH). Only proceed if you're comfortable with SSL certificates and DNS configuration.
+> [!IMPORTANT]
+> If you're only using standard DNS or other protocols, you can skip this section.
 
-⚠️ **Important:** If you plan to use DNS-over-HTTPS (DoH), ensure that port 443 is not already in use by Home Assistant or other services. Home Assistant typically uses port 443 for its own HTTPS access, so you may need to:
+> [!WARNING]
+> This section covers advanced setup for DNS-over-HTTPS (DoH). Only proceed if you're comfortable with SSL certificates and DNS configuration.
 
-- Use a different domain for DoH
-- Configure a reverse proxy to handle the routing
-- Run DoH on a different port
-
-If you're only using standard DNS or other protocols, you can skip this section.
+> [!NOTE]
+> If you plan to use DNS-over-HTTPS (DoH), ensure that port 443 is not already in use by Home Assistant or other services. Home Assistant typically uses port 443 for its own HTTPS access, so you may need to:
+> - Use a different domain for DoH
+> - Configure a reverse proxy to handle the routing
+> - Run DoH on a different port
 
 To set up SSL certificates using the Home Assistant Let's Encrypt add-on:
 
@@ -79,7 +116,7 @@ This ensures Technitium DNS Server always uses the latest valid certificate with
 
 If you prefer to manage certificates manually, you can convert the Let's Encrypt certificates yourself and place them in the appropriate location.
 
-## Configuring DNS-over-HTTPS
+### Configuring DNS-over-HTTPS
 
 After generating the PKCS #12 certificate, follow these steps to configure DNS-over-HTTPS:
 
@@ -112,43 +149,6 @@ Your DNS-over-HTTPS service should now be ready to use. The default ports are:
 - **DNS-over-HTTPS:** 443 (TCP/UDP)
 
 Note: The DoH endpoint will be available at `https://your.domain.com/dns-query`.
-
-## Add-on Configuration
-
-The add-on can be configured via the Home Assistant frontend:
-
-1. Navigate to Settings → Add-ons → Technitium DNS Server.
-2. Click the "Configuration" tab.
-3. Update the configuration as needed.
-4. Click "Save" to apply changes.
-5. Restart the add-on for the changes to take effect.
-
-### Port Configuration
-
-The add-on provides the following ports:
-
-| Port | Protocol | Description                        |
-| ---- | -------- | ---------------------------------- |
-| 53   | UDP      | Standard DNS service               |
-| 853  | UDP      | DNS-over-QUIC                      |
-| 853  | TCP      | DNS-over-TLS                       |
-| 443  | UDP      | DNS-over-HTTPS (HTTP/3)            |
-| 443  | TCP      | DNS-over-HTTPS (HTTP/1.1 + HTTP/2) |
-
-By default, only port 53/UDP is enabled for standard DNS service. To enable additional ports or change port mappings:
-
-1. Go to the add-on configuration page in Home Assistant.
-2. Scroll down to the "Network" section.
-3. Click "Show disabled ports."
-4. Enable the desired ports by clicking the toggle switch.
-5. To use a different port number:
-   - Click on the port number.
-   - Enter your desired port number (e.g., change `853` to `8853` to run DNS-over-TLS on port 8853).
-6. Click "Save" to apply changes.
-
-Note: After enabling or changing ports, you'll also need to configure the corresponding services (DoH, DoT, DoQ) in the Technitium DNS web interface.
-
-The web interface is available via Ingress in your Home Assistant frontend.
 
 ## Support
 

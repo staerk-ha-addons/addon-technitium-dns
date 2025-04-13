@@ -6,7 +6,9 @@
 
 source "/etc/s6-overlay/scripts/cert_utils.sh"
 
-bashio::log.info "SSL PFX generation check starting..."
+bashio::log.info "================================================="
+bashio::log.info "  SSL PFX generation check starting..."
+bashio::log.info "================================================="
 
 if ! bashio::config.true 'generate_ssl_pfx'; then
     bashio::log.info "SSL PFX generation disabled"
