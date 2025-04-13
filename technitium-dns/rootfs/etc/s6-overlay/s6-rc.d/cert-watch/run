@@ -38,8 +38,33 @@ handle_cert_update() {
     if [ "$regenerate_pkcs12" = "true" ] || ! check_pkcs12; then
         bashio::log.info "Generating new PKCS12 certificate..."
         if generate_pkcs12; then
-            bashio::log.info "Restarting Technitium DNS Server to load new certificate..."
-            s6-svc -r /run/service/dns-server
+            bashio::log.info "================================================="
+            bashio::log.info "  PKCS12 Certificate Information"
+            bashio::log.info "================================================="
+            bashio::log.info "Certificate path: $PKCS12_FILE"
+            if [ "$PASSWORD" = "$DEFAULT_PASSWORD" ]; then
+                bashio::log.info "Certificate password: $PASSWORD (default)"
+                bashio::log.warning "Using default password - consider changing this"
+            else
+                bashio::log.info "Using configured password from add-on configuration"
+            fi
+            bashio::log.info ""
+            bashio::log.info "To use this certificate in Technitium DNS:"
+            bashio::log.info "1. Go to Settings → Web Service."
+            bashio::log.info "2. Under HTTPS Options"
+            bashio::log.info "   - Enable HTTPS"
+            bashio::log.info "   - Enable HTTP/3 (optional)"
+            bashio::log.info "   - Do NOT enable HTTP to HTTPS Redirect as it will break the Home Assistant ingress functionality"
+            bashio::log.info "3. Set "TLS Certificate File Path" to $PKCS12_FILE"
+            bashio::log.info "4. Enter your certificate password in TLS Certificate Password."
+            bashio::log.info "5. Click "Save" to apply changes"
+            bashio::log.info "6. Enable DNS-over-HTTPS ect. in Settings → Optional Protocols"
+            bashio::log.info "================================================="
+            if [ -d "/run/service/dns-server" ]; then
+                bashio::log.info "Restarting Technitium DNS Server..."
+                s6-svc -r /run/service/dns-server
+                bashio::log.info "DNS Server restarted"
+            fi
         else
             bashio::log.error "Failed to generate PKCS12 certificate"
         fi
