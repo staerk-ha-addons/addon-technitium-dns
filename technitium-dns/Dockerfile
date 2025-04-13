@@ -38,6 +38,7 @@ RUN source /etc/os-release \
     /var/lib/apt/lists/*
 
 COPY rootfs /
+RUN chmod +x /etc/s6-overlay/scripts/cert_utils.sh
 
 ARG BUILD_ARCH
 ARG BUILD_DATE
