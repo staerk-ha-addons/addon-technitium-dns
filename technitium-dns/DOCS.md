@@ -7,9 +7,10 @@
    [![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fstaerk-ha-addons%2Faddon-technitium-dns)
 
 2. Find the "Technitium DNS Server" add-on in the add-on store.
-3. Click install to download the add-on.
-4. Click Start to start the add-on.
+3. Click "Install" to download the add-on.
+4. Click "Start" to start the add-on.
 5. Check the logs of the add-on to see if everything went well.
+6. Click "Open Web Ui" and login.
 
 > [!NOTE]
 > When accessing the web interface for the first time, use these credentials:
@@ -30,6 +31,9 @@ The add-on can be configured via the Home Assistant frontend:
 
 ### Port Configuration
 
+> [!NOTE]
+> By default, only port 53/UDP is enabled.
+
 The add-on provides the following ports:
 
 | Port | Protocol | Description                        |
@@ -39,9 +43,6 @@ The add-on provides the following ports:
 | 853  | TCP      | DNS-over-TLS                       |
 | 443  | UDP      | DNS-over-HTTPS (HTTP/3)            |
 | 443  | TCP      | DNS-over-HTTPS (HTTP/1.1 + HTTP/2) |
-
-> [!NOTE]
-> By default, only port 53/UDP is enabled for standard DNS service.
 
 To enable additional ports or change port mappings:
 
