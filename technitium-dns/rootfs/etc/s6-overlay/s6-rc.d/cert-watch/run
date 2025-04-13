@@ -4,12 +4,6 @@
 # Watch certificates for changes and regenerate PKCS #12 if needed
 # ==============================================================================
 
-# Check if SSL certificate generation is enabled
-if ! bashio::config.true 'generate_ssl_pfx'; then
-    bashio::log.info "SSL certificate generation disabled - skipping watch service"
-    exit 0
-fi
-
 bashio::log.info "================================================="
 bashio::log.info "  Starting Certificate Watch"
 bashio::log.info "================================================="
@@ -60,11 +54,6 @@ handle_cert_update() {
             bashio::log.info "5. Click "Save" to apply changes"
             bashio::log.info "6. Enable DNS-over-HTTPS ect. in Settings → Optional Protocols"
             bashio::log.info "================================================="
-            if [ -d "/run/service/dns-server" ]; then
-                bashio::log.info "Restarting Technitium DNS Server..."
-                s6-svc -r /run/service/dns-server
-                bashio::log.info "DNS Server restarted"
-            fi
         else
             bashio::log.error "Failed to generate PKCS12 certificate"
         fi

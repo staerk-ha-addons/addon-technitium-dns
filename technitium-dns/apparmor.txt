@@ -43,10 +43,6 @@ profile technitium-dns flags=(attach_disconnected,mediate_deleted) {
     # Receive signals from S6-Overlay
     signal (receive) peer=technitium-dns,
 
-    # Signal handling
-    signal (send) peer=cert_utils,
-    signal (receive) peer=cert_utils,
-
     # System capabilities
     capability sys_time,
     capability net_bind_service,
@@ -88,10 +84,6 @@ profile technitium-dns flags=(attach_disconnected,mediate_deleted) {
 
     # Receive signals from main profile
     signal (receive) peer=technitium-dns,
-
-    # Signal handling
-    signal (send) peer=dns_server,
-    signal (receive) peer=dns_server,
 
     # System capabilities
     capability sys_time,
