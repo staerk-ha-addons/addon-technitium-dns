@@ -67,6 +67,7 @@ The web interface is available via Ingress in your Home Assistant frontend.
 
 > [!NOTE]
 > If you plan to use DNS-over-HTTPS (DoH), ensure that port 443 is not already in use by Home Assistant or other services. Home Assistant typically uses port 443 for its own HTTPS access, so you may need to:
+>
 > - Use a different domain for DoH
 > - Configure a reverse proxy to handle the routing
 > - Run DoH on a different port
