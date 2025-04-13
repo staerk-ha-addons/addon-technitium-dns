@@ -11,7 +11,7 @@ if ! bashio::config.true 'generate_ssl_pfx'; then
 fi
 
 bashio::log.info "================================================="
-bashio::log.info "  Add On - Certificate Watch"
+bashio::log.info "  Certificate Watch"
 bashio::log.info "================================================="
 
 # Source utilities and perform initial setup
