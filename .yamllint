@@ -50,7 +50,7 @@ rules:
     level: error
   line-length:
     ignore: |
-      .github/support.yml
+      technitium-dns/config.yaml
     level: warning
     max: 120
     allow-non-breakable-words: true
