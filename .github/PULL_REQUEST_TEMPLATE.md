@@ -1,9 +1,11 @@
 # Pull Request
 
 ## Description
+
 <!-- Describe the changes you've made -->
 
 ## Type of Change
+
 <!-- Put an `x` in all the boxes that apply -->
 
 - [ ] 📦 New feature (non-breaking change which adds functionality)
@@ -14,6 +16,7 @@
 - [ ] ⚡ Performance improvement
 
 ## Testing
+
 <!-- Describe the testing you've done -->
 
 - [ ] I have tested these changes locally
@@ -30,10 +33,13 @@
 - [ ] Any dependent changes have been merged and published
 
 ## Screenshots (if applicable)
+
 <!-- Add screenshots or delete this section -->
 
 ## Additional Context
+
 <!-- Add any other context about the pull request here or delete this section -->
 
 ## Related Issues
+
 <!-- Link related issues below. Insert the issue link or reference -->

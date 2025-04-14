@@ -5,7 +5,7 @@
 We maintain security updates for the following versions:
 
 | Version | Supported          |
-| ------- | ----------------- |
+| ------- | ------------------ |
 | 1.x.x   | :white_check_mark: |
 | < 1.0   | :x:                |
 
@@ -54,11 +54,13 @@ We take security issues seriously. Thank you for helping us maintain the securit
 ### Best Practices
 
 1. **Installation**
+
    - Change default password immediately
    - Use HTTPS for web interface
    - Enable encrypted DNS protocols
 
 2. **Configuration**
+
    - Use Let's Encrypt certificates in production
    - Enable query logging for auditing
    - Regular backups of configuration
