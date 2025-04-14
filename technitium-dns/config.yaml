@@ -21,9 +21,11 @@ options:
   logQueries: true
   enableDnsOverTls: true
   enableDnsOverHttps: true
-  enableDnsOverQuic: true
+  enableDnsOverQuic: false
   certfile: /ssl/fullchain.pem
   keyfile: /ssl/privkey.key
+  manualConfig: false
+  manualCertHandling: false
 schema:
   forwarders: >-
     list(
@@ -44,6 +46,8 @@ schema:
   enableDnsOverQuic: bool
   keyfile: 'str?'
   certfile: 'str?'
+  manualConfig: bool
+  manualCertHandling: bool
 ports:
   53/udp: 53
   443/tcp: 443

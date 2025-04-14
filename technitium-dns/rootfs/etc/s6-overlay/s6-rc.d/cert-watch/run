@@ -4,12 +4,18 @@
 # Watch certificates for changes and regenerate PKCS #12 if needed
 # ==============================================================================
 
+# Add strict mode
+set -euo pipefail
+
 bashio::log.info "================================================="
 bashio::log.info "  Starting Certificate Tool"
 bashio::log.info "================================================="
 
-# Add strict mode
-set -euo pipefail
+# Check if manual certificate handling is enabled
+if bashio::config.true 'manualCertHandling'; then
+    bashio::log.info "Manual certificate handling enabled - disabling certificate watch"
+    exec sleep infinity
+fi
 
 # Source utilities and perform initial setup
 if ! source "/etc/s6-overlay/scripts/cert_utils.sh"; then
@@ -38,12 +44,12 @@ readonly DEBOUNCE_SECONDS=10
 handle_cert_changes() {
     local last_run=0
     local now
-    
+
     now=$(date +%s)
-    if (( now - last_run < DEBOUNCE_SECONDS )); then
+    if ((now - last_run < DEBOUNCE_SECONDS)); then
         return 0
     fi
-    
+
     handle_cert_update
     last_run=$now
 }

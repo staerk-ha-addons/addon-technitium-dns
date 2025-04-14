@@ -35,6 +35,18 @@ configuration:
     description: >-
       Specify a keyfile (.pem or .key) file path.
       If not present, the server will use a self-signed certificate.
+  manualConfig:
+    name: Manual Configuration Mode
+    description: >-
+      Enable this option to disable automatic API configuration.
+      When enabled, you must configure all settings manually through the web interface.
+      Warning: Your manual settings will persist between restarts.
+  manualCertHandling:
+    name: Manual Certificate Handling
+    description: >-
+      Enable this option to disable automatic certificate management.
+      When enabled, you must handle certificates manually through the web interface.
+      This includes certificate generation, conversion, and renewal.
 network:
   53/udp: DNS-over-UDP (53/udp)
   853/tcp: DNS-over-TLS (853/tcp)
