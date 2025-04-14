@@ -1,4 +1,5 @@
 #!/command/with-contenv bashio
+# shellcheck shell=bash
 # ==============================================================================
 # API utilities for Technitium DNS Server
 # ==============================================================================
@@ -51,7 +52,9 @@ decrypt_token() {
 
 redact_url() {
     local url=$1
-    echo "$url" | sed 's/token=[^&]*\(&\|$\)/token=REDACTED\1/g'
+    # Use parameter expansion instead of sed
+    local redacted=${url//token=[^&]*\(&\|$\)/token=REDACTED\1}
+    echo "$redacted"
 }
 
 # -----------------------------------------------------------------------------
@@ -115,15 +118,16 @@ load_saved_token() {
     fi
 
     # Verify token is valid by making a test API call
-    response=$(make_direct_call "settings/get?token=$saved_token")
-    # Replace token in error messages if needed
-    if [ $? -eq 0 ] && [[ ! "$response" == *"\"status\":\"Error\""* ]]; then
-        if acquire_lock; then
-            TOKEN="$saved_token"
-            release_lock
-            bashio::log.info "Loaded and verified saved API token"
-            return 0
-        fi
+    if ! response=$(make_direct_call "settings/get?token=$saved_token") || 
+       [[ "$response" == *"\"status\":\"Error\""* ]]; then
+        return 1
+    fi
+
+    if acquire_lock; then
+        TOKEN="$saved_token"
+        release_lock
+        bashio::log.info "Loaded and verified saved API token"
+        return 0
     fi
 
     if acquire_lock; then
@@ -144,6 +148,7 @@ check_token_validity() {
     return 0
 }
 
+# shellcheck disable=SC2120
 get_auth_token() {
     local username=${1:-"admin"}
     local password=${2:-"$PASSWORD"}
@@ -156,8 +161,7 @@ get_auth_token() {
     bashio::log.info "Creating new API token..."
 
     # Create permanent token
-    response=$(make_direct_call "user/createToken?user=$username&pass=$password&tokenName=$TOKEN_NAME")
-    if [ $? -eq 0 ]; then
+    if response=$(make_direct_call "user/createToken?user=$username&pass=$password&tokenName=$TOKEN_NAME"); then
         token=$(echo "$response" | jq -r '.token // empty')
         if [ -n "$token" ]; then
             save_token "$token"
@@ -168,8 +172,7 @@ get_auth_token() {
 
     # Fallback to standard login if token creation fails
     bashio::log.warning "API token creation failed, falling back to standard login..."
-    response=$(make_direct_call "user/login?user=$username&pass=$password&includeInfo=true")
-    if [ $? -eq 0 ]; then
+    if response=$(make_direct_call "user/login?user=$username&pass=$password&includeInfo=true"); then
         token=$(echo "$response" | jq -r '.token // empty')
         if [ -n "$token" ]; then
             bashio::log.info "Authentication successful using standard login"
@@ -196,7 +199,8 @@ make_direct_call() {
     fi
 
     local url="$API_SERVER/api/$endpoint"
-    local safe_url=$(redact_url "$url")
+    local safe_url
+    safe_url=$(redact_url "$url")
 
     local curl_cmd="curl -s --connect-timeout 10"
 
@@ -256,7 +260,7 @@ make_api_call() {
     [ -n "$data" ] && bashio::log.trace "Data: $data"
 
     # Check if we need token and don't have one (except for login and ping)
-    if [ -z "$TOKEN" ] && [ "$endpoint" != "ping" ] && [ "$endpoint" != "user/login"* ]; then
+    if [[ -z "$TOKEN" ]] && [[ "$endpoint" != "ping" ]] && [[ ! "$endpoint" =~ ^user/login ]]; then
         bashio::log.debug "No token available, authenticating..."
         if ! get_auth_token; then
             return 1
@@ -275,7 +279,8 @@ make_api_call() {
             bashio::log.debug "Added token to endpoint"
         fi
 
-        local safe_endpoint=$(redact_url "$api_endpoint")
+        local safe_endpoint
+        safe_endpoint=$(redact_url "$api_endpoint")
         bashio::log.debug "Attempt $attempt/$max_attempts"
         bashio::log.debug "Making API $method call to: $safe_endpoint"
         [ -n "$data" ] && bashio::log.debug "Data: $data \n" && echo "$data" | jq .
@@ -340,8 +345,8 @@ manage_dns_app() {
     bashio::log.info "Managing DNS app: $app_name"
     
     # Get store app info and validate response
-    store_info=$(make_api_call "apps/listStoreApps" "GET")
-    if [ $? -ne 0 ] || ! validate_response "$store_info"; then
+    if ! store_info=$(make_api_call "apps/listStoreApps" "GET") || 
+       ! validate_response "$store_info"; then
         bashio::log.error "Failed to get valid store apps list"
         return 1
     fi
@@ -371,8 +376,7 @@ manage_dns_app() {
     bashio::log.info "Found $app_name version $store_version in store"
     
     # Check if app is installed
-    local_info=$(make_api_call "apps/list" "GET")
-    if [ $? -ne 0 ]; then
+    if ! local_info=$(make_api_call "apps/list" "GET"); then
         bashio::log.error "Failed to get local apps list"
         return 1
     fi
@@ -385,8 +389,7 @@ manage_dns_app() {
     # Install or update as needed
     if [ -z "$local_version" ]; then
         bashio::log.info "Installing $app_name v$store_version..."
-        make_api_call "apps/downloadAndInstall?name=$encoded_name&url=$encoded_url" "GET"
-        if [ $? -eq 0 ]; then
+        if make_api_call "apps/downloadAndInstall?name=$encoded_name&url=$encoded_url" "GET"; then
             bashio::log.info "$app_name installed successfully"
             return 0
         else
@@ -395,8 +398,7 @@ manage_dns_app() {
         fi
     elif [ "$local_version" != "$store_version" ]; then
         bashio::log.info "Updating $app_name from v$local_version to v$store_version..."
-        make_api_call "apps/downloadAndUpdate?url=$encoded_url" "GET"
-        if [ $? -eq 0 ]; then
+        if make_api_call "apps/downloadAndUpdate?url=$encoded_url" "GET"; then
             bashio::log.info "$app_name updated successfully"
             return 0
         else

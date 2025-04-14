@@ -58,7 +58,7 @@ sleep 10
 bashio::log.info "Starting certificate watch..."
 while true; do
     # Watch parent directories for any changes
-    if ! inotifywait -e close_write,move,create,delete $(get_watch_dirs) >/dev/null 2>&1; then
+    if ! inotifywait -e close_write,move,create,delete "$(get_watch_dirs)" >/dev/null 2>&1; then
         bashio::log.warning "inotifywait failed, retrying in 10 seconds..."
         sleep 10
         continue

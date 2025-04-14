@@ -15,16 +15,16 @@ else
   fi
 
   # Wait until the homeassistant container is running
-  while [ -z "$(docker ps --filter name=homeassistant --format {{.ID}})" ]; do
+  while [ -z "$(docker ps --filter name=homeassistant --format '{{.ID}}')" ]; do
     echo "Home Assistant container not running yet. Waiting..."
     sleep 2
   done
 
-  HA_CONTAINER=$(docker ps --filter name=homeassistant --format {{.ID}})
+  HA_CONTAINER=$(docker ps --filter name=homeassistant --format '{{.ID}}')
   echo "Home Assistant container is running with ID $HA_CONTAINER"
 
-    echo "Copying .storage files..."
-    docker cp "$WORKSPACE_DIRECTORY/.devcontainer/.storage-backup/." "$HA_CONTAINER":/config/.storage/
+  echo "Copying .storage files..."
+  docker cp "$WORKSPACE_DIRECTORY/.devcontainer/.storage-backup/." "$HA_CONTAINER":/config/.storage/
 
   echo "Restarting Home Assistant container..."
   docker restart "$HA_CONTAINER"
