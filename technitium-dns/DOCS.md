@@ -83,7 +83,7 @@ The add-on automatically configures Technitium DNS Server on startup using its A
 ### 🔌 Port Configuration
 
 | Port | Protocol | Description                        |
-|------|----------|------------------------------------|
+| ---- | -------- | ---------------------------------- |
 | 53   | UDP      | Standard DNS service               |
 | 853  | TCP      | DNS-over-TLS                       |
 | 853  | UDP      | DNS-over-QUIC                      |
@@ -150,6 +150,7 @@ You can use your own certificates by:
 #### DNS-over-HTTPS (DoH)
 
 1. Default ports:
+
    - 443/TCP for HTTP/1.1 + HTTP/2
    - 443/UDP for HTTP/3
 
@@ -272,7 +273,7 @@ _service.home.lab.   TXT    "location=basement rack=1"
    ```plaintext
    # Create reverse zone for 192.168.1.0/24
    Zone name: 1.168.192.in-addr.arpa
-   
+
    # PTR Records
    10    PTR    server1.home.lab.
    20    PTR    nas.home.lab.
@@ -280,6 +281,7 @@ _service.home.lab.   TXT    "location=basement rack=1"
    ```
 
 2. **Split DNS**
+
    - Create different views for internal/external access
    - Navigate to DNS Server → Settings → Advanced
    - Add networks under "Allow Recursion Networks"
@@ -312,11 +314,13 @@ _service.home.lab.   TXT    "location=basement rack=1"
 ### Common Issues
 
 1. **Certificate Issues**
+
    - Check certificate paths are correct
    - Verify certificate permissions
    - Check logs for certificate conversion errors
 
 2. **Port Conflicts**
+
    - Ensure no other services use ports 53, 443, or 853
    - Try alternative ports if needed
    - Check firewall settings
