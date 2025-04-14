@@ -44,7 +44,7 @@ A fully featured DNS server for Home Assistant that acts as a secure forwarding 
   - IPv4 and IPv6 support
   - Encrypted connections
 
-## 📥 Installation
+## 🏃 Quick Start
 
 1. Click the Home Assistant My button below to add the repository to your Home Assistant instance.
 
@@ -64,20 +64,6 @@ A fully featured DNS server for Home Assistant that acts as a secure forwarding 
 >
 > You will be required to change the password on your first login for security purposes.
 
-## 🏃 Quick Start
-
-1. Add our repository to Home Assistant
-2. Install the add-on
-3. Start it
-4. Configure your router/devices to use it
-5. Enjoy secure DNS!
-
-> [!NOTE]
-> First login credentials:
->
-> - Username: `admin`
-> - Password: `admin`
-
 ## 📖 Documentation
 
 Want to get the most out of this add-on? Our comprehensive documentation covers:
@@ -89,7 +75,7 @@ Want to get the most out of this add-on? Our comprehensive documentation covers:
 - Troubleshooting
 - Client setup examples
 
-Check the [DOCS.md](DOCS.md) for full details.
+Check the [DOCS.md](https://github.com/staerk-ha-addons/addon-technitium-dns/blob/main/technitium-dns/DOCS.md) for full details.
 
 ## 🛠️ Development
 
