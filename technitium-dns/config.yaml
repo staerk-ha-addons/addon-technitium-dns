@@ -17,21 +17,33 @@ map:
   - type: addon_config
     read_only: false
 options:
-  forwarders: "Cloudflare (DNS-over-HTTPS)"
+  forwarders: Cloudflare (DNS-over-HTTPS)
   logQueries: true
   enableDnsOverTls: true
   enableDnsOverHttps: true
   enableDnsOverQuic: true
-  certfile: "/ssl/fullchain.pem"
-  keyfile: "/ssl/privkey.key"
+  certfile: /ssl/fullchain.pem
+  keyfile: /ssl/privkey.key
 schema:
-  forwarders: list(Cloudflare (DNS-over-UDP)|Cloudflare (DNS-over-UDP IPv6)|Cloudflare (DNS-over-TCP)|Cloudflare (DNS-over-TCP IPv6)|Cloudflare (DNS-over-TLS)|Cloudflare (DNS-over-TLS IPv6)|Cloudflare (DNS-over-HTTPS)|Cloudflare (DNS-over-HTTPS IPv6)|Cloudflare (Oblivious DNS-over-HTTPS)|Cloudflare (Oblivious DNS-over-HTTPS IPv6)|Cloudflare (DNS-over-QUIC)|Cloudflare (DNS-over-QUIC IPv6)|Cloudflare (DNS-over-TOR!))
+  forwarders: >-
+    list(
+      Cloudflare (DNS-over-UDP)|
+      Cloudflare (DNS-over-UDP IPv6)|
+      Cloudflare (DNS-over-TCP)|
+      Cloudflare (DNS-over-TCP IPv6)|
+      Cloudflare (DNS-over-TLS)|
+      Cloudflare (DNS-over-TLS IPv6)|
+      Cloudflare (DNS-over-HTTPS)|
+      Cloudflare (DNS-over-HTTPS IPv6)|
+      Cloudflare (Oblivious DNS-over-HTTPS)|
+      Cloudflare (Oblivious DNS-over-HTTPS IPv6)
+    )
   logQueries: bool
   enableDnsOverTls: bool
   enableDnsOverHttps: bool
   enableDnsOverQuic: bool
-  keyfile: "str?"
-  certfile: "str?"
+  keyfile: 'str?'
+  certfile: 'str?'
 ports:
   53/udp: 53
   443/tcp: 443

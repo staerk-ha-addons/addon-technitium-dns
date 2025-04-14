@@ -7,7 +7,7 @@ on:
     types:
       - published
   workflow_run:
-    workflows: ["CI"]
+    workflows: ['CI']
     branches: [main]
     types:
       - completed

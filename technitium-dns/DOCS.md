@@ -168,16 +168,10 @@ MIT License
 
 Copyright (c) 2025 Jeppe Stærk
 
-[aarch64-shield]: https://img.shields.io/badge/aarch64-yes-green.svg
-[amd64-shield]: https://img.shields.io/badge/amd64-yes-green.svg
 [discord]: https://discord.gg/c5DvZ4e
 [forum]: https://community.home-assistant.io
 [frenck]: https://github.com/frenck
 [issue]: https://github.com/staerk-ha-addons/addon-technitium-dns/issues
 [reddit]: https://reddit.com/r/homeassistant
-[releases-shield]: https://img.shields.io/github/release/staerk-ha-addons/addon-technitium-dns.svg
-[releases]: https://github.com/staerk-ha-addons/addon-technitium-dns/releases
 [staerk]: https://github.com/staerk-ha-addons
-[project-stage-shield]: https://img.shields.io/badge/project%20stage-experimental-yellow.svg
-[license-shield]: https://img.shields.io/github/license/staerk-ha-addons/addon-technitium-dns.svg
 [ha-addons]: https://addons.community/

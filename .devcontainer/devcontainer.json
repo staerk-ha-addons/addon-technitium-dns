@@ -34,11 +34,7 @@
   },
   "customizations": {
     "vscode": {
-      "extensions": [
-        "timonwong.shellcheck",
-        "esbenp.prettier-vscode",
-        "ms-azuretools.vscode-docker"
-      ],
+      "extensions": ["timonwong.shellcheck", "esbenp.prettier-vscode", "ms-azuretools.vscode-docker"],
       "settings": {
         "terminal.integrated.profiles.linux": {
           "zsh": {
@@ -53,8 +49,5 @@
       }
     }
   },
-  "mounts": [
-    "type=volume,target=/var/lib/docker",
-    "type=volume,target=/mnt/supervisor"
-  ]
+  "mounts": ["type=volume,target=/var/lib/docker", "type=volume,target=/mnt/supervisor"]
 }
