@@ -40,7 +40,7 @@
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
-        "clear": true,
+        "clear": true
       }
     },
     {
@@ -57,9 +57,7 @@
         "clear": true,
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Kill addon docker logs follow"
-      ]
+      "dependsOn": ["Kill addon docker logs follow"]
     },
     {
       "label": "Kill addon docker logs follow",
@@ -71,16 +69,14 @@
         "clear": true,
         "close": true
       }
-    },
+    }
   ],
   "inputs": [
     {
       "id": "addonName",
       "type": "pickString",
       "description": "Name of addon (to add your addon to this list, please edit .vscode/tasks.json)",
-      "options": [
-        "technitium-dns"
-      ]
+      "options": ["technitium-dns"]
     }
   ]
 }
