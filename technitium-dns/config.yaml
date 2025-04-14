@@ -1,4 +1,3 @@
----
 name: Technitium DNS Server
 version: dev
 slug: technitium-dns
@@ -27,19 +26,7 @@ options:
   manualConfig: false
   manualCertHandling: false
 schema:
-  forwarders: >-
-    list(
-      Cloudflare (DNS-over-UDP)|
-      Cloudflare (DNS-over-UDP IPv6)|
-      Cloudflare (DNS-over-TCP)|
-      Cloudflare (DNS-over-TCP IPv6)|
-      Cloudflare (DNS-over-TLS)|
-      Cloudflare (DNS-over-TLS IPv6)|
-      Cloudflare (DNS-over-HTTPS)|
-      Cloudflare (DNS-over-HTTPS IPv6)|
-      Cloudflare (Oblivious DNS-over-HTTPS)|
-      Cloudflare (Oblivious DNS-over-HTTPS IPv6)
-    )
+  forwarders: list(Cloudflare (DNS-over-UDP)|Cloudflare (DNS-over-UDP IPv6)|Cloudflare (DNS-over-TCP)|Cloudflare (DNS-over-TCP IPv6)|Cloudflare (DNS-over-TLS)|Cloudflare (DNS-over-TLS IPv6)|Cloudflare (DNS-over-HTTPS)|Cloudflare (DNS-over-HTTPS IPv6)|Cloudflare (Oblivious DNS-over-HTTPS)|Cloudflare (Oblivious DNS-over-HTTPS IPv6))
   logQueries: bool
   enableDnsOverTls: bool
   enableDnsOverHttps: bool
