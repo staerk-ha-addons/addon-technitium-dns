@@ -30,6 +30,9 @@ HOSTNAME=""
 # Add strict mode
 set -euo pipefail
 
+# Set logging level
+#bashio::log.level "debug"
+
 # -----------------------------------------------------------------------------
 # Initialization
 # -----------------------------------------------------------------------------
@@ -53,7 +56,7 @@ init_configuration() {
 # -----------------------------------------------------------------------------
 check_pkcs12() {
     local expiry_date
-    
+
     if [ ! -f "$PKCS12_FILE" ]; then
         bashio::log.warning "No PKCS12 file found"
         return 1
@@ -66,11 +69,11 @@ check_pkcs12() {
     fi
 
     # Check expiration
-    expiry_date=$(openssl pkcs12 -in "$PKCS12_FILE" -nokeys -passin pass:"$PKCS12_PASSWORD" 2>/dev/null | \
-                  openssl x509 -noout -enddate | cut -d'=' -f2)
+    expiry_date=$(openssl pkcs12 -in "$PKCS12_FILE" -nokeys -passin pass:"$PKCS12_PASSWORD" 2>/dev/null |
+        openssl x509 -noout -enddate | cut -d'=' -f2)
 
-    if openssl pkcs12 -in "$PKCS12_FILE" -nokeys -passin pass:"$PKCS12_PASSWORD" 2>/dev/null | \
-       openssl x509 -noout -checkend 0 2>/dev/null; then
+    if openssl pkcs12 -in "$PKCS12_FILE" -nokeys -passin pass:"$PKCS12_PASSWORD" 2>/dev/null |
+        openssl x509 -noout -checkend 0 2>/dev/null; then
         bashio::log.info "Valid non-expired PKCS12 file found (expires: ${expiry_date})"
         return 0
     else
@@ -133,10 +136,10 @@ trap cleanup_certs EXIT
 # -----------------------------------------------------------------------------
 handle_cert_update() {
     bashio::log.info "Checking certificate status..."
-    
+
     # Initialize configuration
     init_configuration
-    
+
     # Validate paths
     check_cert_paths
 

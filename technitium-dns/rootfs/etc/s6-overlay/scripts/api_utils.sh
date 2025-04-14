@@ -15,7 +15,7 @@ readonly TOKEN_FILE="/config/.$TOKEN_NAME.enc"
 readonly LOCK_FILE="/tmp/.api_token.lock"
 
 # Set logging level
-bashio::log.level "debug"
+#bashio::log.level "debug"
 
 # -----------------------------------------------------------------------------
 # Input Validation Functions
@@ -32,8 +32,14 @@ validate_response() {
 check_required_params() {
     local endpoint=$1
     local method=$2
-    [[ -z "$endpoint" ]] && { bashio::log.error "Missing endpoint"; return 1; }
-    [[ ! "$method" =~ ^(GET|POST)$ ]] && { bashio::log.error "Invalid method: $method"; return 1; }
+    [[ -z "$endpoint" ]] && {
+        bashio::log.error "Missing endpoint"
+        return 1
+    }
+    [[ ! "$method" =~ ^(GET|POST)$ ]] && {
+        bashio::log.error "Invalid method: $method"
+        return 1
+    }
     return 0
 }
 
@@ -88,7 +94,7 @@ release_lock() {
 save_token() {
     local token=$1
     if acquire_lock; then
-        encrypt_token "$token" > "$TOKEN_FILE"
+        encrypt_token "$token" >"$TOKEN_FILE"
         chmod 600 "$TOKEN_FILE"
         release_lock
         bashio::log.info "Saved encrypted API token"
@@ -118,8 +124,8 @@ load_saved_token() {
     fi
 
     # Verify token is valid by making a test API call
-    if ! response=$(make_direct_call "settings/get?token=$saved_token") || 
-       [[ "$response" == *"\"status\":\"Error\""* ]]; then
+    if ! response=$(make_direct_call "settings/get?token=$saved_token") ||
+        [[ "$response" == *"\"status\":\"Error\""* ]]; then
         return 1
     fi
 
@@ -302,9 +308,9 @@ make_api_call() {
                 fi
                 continue
             fi
-            
+
             bashio::log.debug "API call successful"
-            
+
             # Buffer the response output
             local formatted_response
             if echo "$response" | jq . >/dev/null 2>&1; then
@@ -313,7 +319,7 @@ make_api_call() {
             else
                 printf "%s\n" "$response"
             fi
-            
+
             # Ensure output is flushed before logging end
             sleep 0.1
             bashio::log.debug "=== API Call End ==="
@@ -343,14 +349,14 @@ manage_dns_app() {
     fi
 
     bashio::log.info "Managing DNS app: $app_name"
-    
+
     # Get store app info and validate response
-    if ! store_info=$(make_api_call "apps/listStoreApps" "GET") || 
-       ! validate_response "$store_info"; then
+    if ! store_info=$(make_api_call "apps/listStoreApps" "GET") ||
+        ! validate_response "$store_info"; then
         bashio::log.error "Failed to get valid store apps list"
         return 1
     fi
-    
+
     # Find app in store
     local app_details
     app_details=$(echo "$store_info" | jq -r --arg name "$app_name" '.response.storeApps[] | 
@@ -359,12 +365,12 @@ manage_dns_app() {
             url: .url,
             name: .name
         }')
-    
+
     if [ -z "$app_details" ]; then
         bashio::log.error "App '$app_name' not found in store"
         return 1
     fi
-    
+
     # Extract version and encoded name and URLs
     local store_version
     local encoded_url
@@ -372,20 +378,20 @@ manage_dns_app() {
     store_version=$(echo "$app_details" | jq -r '.version')
     encoded_url=$(echo "$app_details" | jq -r '.url | @uri')
     encoded_name=$(echo "$app_details" | jq -r '.name | @uri')
-    
+
     bashio::log.info "Found $app_name version $store_version in store"
-    
+
     # Check if app is installed
     if ! local_info=$(make_api_call "apps/list" "GET"); then
         bashio::log.error "Failed to get local apps list"
         return 1
     fi
-    
+
     # Check if app is installed and get version
     local local_version
     local_version=$(echo "$local_info" | jq -r --arg name "$app_name" '.response.apps[] | 
         select(.name == $name) | .version // empty')
-    
+
     # Install or update as needed
     if [ -z "$local_version" ]; then
         bashio::log.info "Installing $app_name v$store_version..."
