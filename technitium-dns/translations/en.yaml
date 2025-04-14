@@ -1,0 +1,30 @@
+configuration:
+  forwarders:
+    name: "Forwarders"
+    description: "Forwarders are upstream DNS servers which this DNS Server must use to resolve domain names. You can set you own in the dns server UI under settings -> Proxy and Forwarders."
+  logQueries:
+    name: "Enable Query Logging"
+    description: "Enable this option to log every query received by this DNS Server and the corresponding response answers into the log."
+  enableDnsOverTls:
+    name: "Enable DNS-over-TLS"
+    description: "Enable this option to accept DNS-over-TLS requests. See port and protocol under Network Configuration."
+  enableDnsOverHttps:
+    name: "Enable DNS-over-HTTPS"
+    description: "Enable this option to accept DNS-over-HTTPS requests. See port and protocol under Network Configuration."
+  enableDnsOverQuic:
+    name: "Enable DNS-over-QUIC"
+    description: "Enable this option to accept DNS-over-QUIC requests. See port and protocol under Network Configuration."
+  certfile:
+    name: "Certificate File"
+    description: "Specify a certificate (.pem or .crt) file path. If not present, the server will use a self-signed certificate."
+  keyfile:
+    name: "Key File"
+    description: "Specify a keyfile (.pem or .key) file path. If not present, the server will use a self-signed certificate."
+network:
+  53/udp: DNS-over-UDP (53/udp)
+  853/tcp: DNS-over-TLS (853/tcp)
+  443/tcp: DNS-over-HTTPS (443/tcp => HTTP/1.1 + HTTP/2)
+  443/udp: DNS-over-HTTPS (443/udp => HTTP/3)
+  853/udp: DNS-over-QUIC (853/udp)
+  5380/tcp: Web UI and API (5380/tcp => HTTP)
+  53443/tcp: Web UI and API (53443/tcp => HTTPS)

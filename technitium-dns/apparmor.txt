@@ -34,8 +34,17 @@ profile technitium-dns flags=(attach_disconnected,mediate_deleted) {
   # Start new profile for DNS service
   /opt/technitium/dns/DnsServerApp.dll cx -> dns_server,
 
-  # Profile for certificate conversion
+  # Profile for API utilities
+  /etc/s6-overlay/scripts/api_utils.sh cx -> api_utils,
+
+  # Profile for certificate utilities
   /etc/s6-overlay/scripts/cert_utils.sh cx -> cert_utils,
+
+  # Profile for initialization
+  /etc/s6-overlay/s6-rc.d/init-dns-server/run cx -> init_dns,
+
+  # Profile for certificate watching
+  /etc/s6-overlay/s6-rc.d/cert-watch/run cx -> cert_watch,
 
   profile dns_server flags=(attach_disconnected,mediate_deleted) {
     #include <abstractions/base>
@@ -79,6 +88,32 @@ profile technitium-dns flags=(attach_disconnected,mediate_deleted) {
     /opt/technitium/** rwk,
   }
 
+  profile api_utils flags=(attach_disconnected,mediate_deleted) {
+    #include <abstractions/base>
+
+    # Receive signals from main profile
+    signal (receive) peer=technitium-dns,
+
+    # System capabilities
+    capability sys_time,
+    capability net_bind_service,
+
+    # Network access for API calls
+    network inet stream,
+    network inet6 stream,
+
+    # Required tools
+    /usr/bin/curl ix,
+    /usr/bin/jq ix,
+    /usr/bin/openssl ix,
+
+    # Access to configuration and tokens
+    /config/** rwk,
+    /tmp/** rwk,
+    /dev/null rw,
+    /dev/tty rw,
+  }
+
   profile cert_utils flags=(attach_disconnected,mediate_deleted) {
     #include <abstractions/base>
 
@@ -99,5 +134,57 @@ profile technitium-dns flags=(attach_disconnected,mediate_deleted) {
     
     # Temporary files
     /tmp/** rwk,
+  }
+
+  profile init_dns flags=(attach_disconnected,mediate_deleted) {
+    #include <abstractions/base>
+
+    # Receive signals from main profile
+    signal (receive) peer=technitium-dns,
+
+    # System capabilities
+    capability sys_time,
+    capability net_bind_service,
+
+    # Access to configuration
+    /config/** r,
+    /data/** r,
+    /ssl/** r,
+
+    # Allow executing utilities
+    /etc/s6-overlay/scripts/api_utils.sh ix,
+    /etc/s6-overlay/scripts/cert_utils.sh ix,
+
+    # Required tools
+    /usr/bin/curl ix,
+    /usr/bin/jq ix,
+
+    # Temporary files
+    /tmp/** rwk,
+    /dev/null rw,
+    /dev/tty rw,
+  }
+
+  profile cert_watch flags=(attach_disconnected,mediate_deleted) {
+    #include <abstractions/base>
+
+    # Receive signals from main profile
+    signal (receive) peer=technitium-dns,
+
+    # System capabilities
+    capability sys_time,
+
+    # Access to certificates
+    /ssl/** r,
+    /config/ssl/** rwk,
+
+    # Required tools
+    /usr/bin/inotifywait ix,
+    /etc/s6-overlay/scripts/cert_utils.sh ix,
+
+    # Temporary files
+    /tmp/** rwk,
+    /dev/null rw,
+    /dev/tty rw,
   }
 }

@@ -59,3 +59,6 @@ docker-compose.override.yml
 # Home Assistant secrets (just in case)
 secrets.yaml
 secrets.yaml.bak
+
+# Devcontainer HA storage backups
+.devcontainer/.storage-backup

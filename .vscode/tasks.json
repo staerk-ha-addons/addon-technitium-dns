@@ -11,25 +11,36 @@
       },
       "presentation": {
         "reveal": "always",
-        "panel": "new"
-      },
-      "problemMatcher": []
+        "panel": "dedicated",
+        "clear": true
+      }
     },
     {
-      "label": "Start Addon",
+      "label": "Addon Bootstrap",
       "type": "shell",
-      "command": "ha addons stop \"local_${input:addonName}\"; ha addons start \"local_${input:addonName}\"; docker logs --follow \"addon_local_${input:addonName}\"",
+      "command": "$WORKSPACE_DIRECTORY/.devcontainer/addon_bootstrap.sh",
       "group": {
         "kind": "test",
         "isDefault": false
       },
       "presentation": {
         "reveal": "always",
-        "panel": "new"
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Install and Start Addon",
+      "type": "shell",
+      "command": "ha addons install \"local_${input:addonName}\"; ha addons start \"local_${input:addonName}\"; docker logs --follow \"addon_local_${input:addonName}\"",
+      "group": {
+        "kind": "test",
+        "isDefault": false
       },
-      "problemMatcher": [],
-      "runOptions": {
-        "reevaluateOnRerun": false
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true,
       }
     },
     {
@@ -42,17 +53,34 @@
       },
       "presentation": {
         "reveal": "always",
-        "panel": "new"
+        "panel": "dedicated",
+        "clear": true,
+        "showReuseMessage": false
       },
-      "problemMatcher": []
-    }
+      "dependsOn": [
+        "Kill addon docker logs follow"
+      ]
+    },
+    {
+      "label": "Kill addon docker logs follow",
+      "type": "shell",
+      "command": "pkill -f 'docker logs --follow addon_local_${input:addonName}' && pkill -f 'docker logs --follow \"addon_local_${input:addonName}\"' || true",
+      "presentation": {
+        "reveal": "never",
+        "panel": "dedicated",
+        "clear": true,
+        "close": true
+      }
+    },
   ],
   "inputs": [
     {
       "id": "addonName",
       "type": "pickString",
       "description": "Name of addon (to add your addon to this list, please edit .vscode/tasks.json)",
-      "options": ["technitium-dns"]
+      "options": [
+        "technitium-dns"
+      ]
     }
   ]
 }

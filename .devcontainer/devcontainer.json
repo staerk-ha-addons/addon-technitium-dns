@@ -1,9 +1,44 @@
 {
   "name": "Devcontainer for add-on repositories",
   "image": "ghcr.io/home-assistant/devcontainer:2-addons",
-  "appPort": ["7123:8123", "7357:4357", "5353:53"],
+  "appPort": [
+    "7123:8123",
+    "7357:4357",
+    "5380:5380",
+    "53853:853",
+    "53443:443"
+  ],
+  "forwardPorts": [],
+  "portsAttributes": {
+    "8123": {
+      "label": "Home Assistant",
+      "protocol": "http",
+      "onAutoForward": "notify"
+    },
+    "4357": {
+      "label": "HA Supervisor",
+      "protocol": "http",
+      "onAutoForward": "notify"
+    },
+    "5380": {
+      "label": "Technitium DNS UI",
+      "onAutoForward": "notify"
+    },
+    "853": {
+      "label": "DNS DoQ (NOT DoT UDP ports are not supported in devcontainers)",
+      "onAutoForward": "notify"
+    },
+    "443": {
+      "label": "DNS DoH",
+      "onAutoForward": "notify"
+    }
+  },
   "postStartCommand": "bash devcontainer_bootstrap",
-  "runArgs": ["-e", "GIT_EDITOR=code --wait", "--privileged"],
+  "runArgs": [
+    "-e",
+    "GIT_EDITOR=code --wait",
+    "--privileged"
+  ],
   "containerEnv": {
     "WORKSPACE_DIRECTORY": "${containerWorkspaceFolder}"
   },

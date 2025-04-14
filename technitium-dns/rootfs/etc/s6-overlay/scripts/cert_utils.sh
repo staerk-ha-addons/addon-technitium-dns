@@ -1,69 +1,85 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# Certificate Management Utilities for Technitium DNS Server
+# ==============================================================================
 
+# -----------------------------------------------------------------------------
+# Dependency Check
+# -----------------------------------------------------------------------------
 if ! command -v openssl >/dev/null 2>&1; then
     bashio::log.error "openssl binary not found!"
     exit 1
 fi
 
-# Default values
-DEFAULT_PASSWORD="TechnitiumDNS!SSL"
-DEFAULT_PKCS12="/config/ssl/technitium.pfx"
-DEFAULT_CERT="/config/ssl/fullchain.pem"
-DEFAULT_KEY="/config/ssl/privkey.key"
-DEFAULT_HOSTNAME="homeassistant.local"
-SSL_DIR="/config/ssl"
+# -----------------------------------------------------------------------------
+# Constants and Configuration
+# -----------------------------------------------------------------------------
+readonly DEFAULT_CERT="/config/ssl/fullchain.pem"
+readonly DEFAULT_KEY="/config/ssl/privkey.key"
+readonly DEFAULT_HOSTNAME="homeassistant.local"
+readonly PKCS12_PASSWORD="TechnitiumDNS!SSL"
+readonly PKCS12_FILE="/config/ssl/technitium.pfx"
+readonly SSL_DIR="/config/ssl"
 
-# 0. Set hostname
-HOST_SYSTEM_HOSTNAME=$(bashio::info.hostname)
-if [ -z "$HOST_SYSTEM_HOSTNAME" ]; then
-    HOSTNAME="$DEFAULT_HOSTNAME"
-else
-    HOSTNAME="$HOST_SYSTEM_HOSTNAME"
-fi
+# Dynamic configuration
+CERT_FILE=""
+KEY_FILE=""
+HOSTNAME=""
 
-# 1. Get password with default
-PASSWORD=$(bashio::config 'password' "$DEFAULT_PASSWORD")
-if [ "$PASSWORD" = "$DEFAULT_PASSWORD" ]; then
-    bashio::log.warning "Using default password for SSL certificate - consider changing this for security"
-fi
+# Add strict mode
+set -euo pipefail
 
-# 2. Create SSL directory if it doesn't exist
-mkdir -p "$SSL_DIR"
+# -----------------------------------------------------------------------------
+# Initialization
+# -----------------------------------------------------------------------------
+init_configuration() {
+    # Set hostname
+    HOST_SYSTEM_HOSTNAME=$(bashio::info.hostname)
+    HOSTNAME=${HOST_SYSTEM_HOSTNAME:-$DEFAULT_HOSTNAME}
 
-# 3. Get certificate paths with defaults
-PKCS12_FILE=$(bashio::config 'pkcs12file' "$DEFAULT_PKCS12")
-CERT_FILE=$(bashio::config 'certfile' "$DEFAULT_CERT")
-KEY_FILE=$(bashio::config 'keyfile' "$DEFAULT_KEY")
-
-# Check PKCS12 validity if it exists
-check_pkcs12() {
-    if [ -f "$PKCS12_FILE" ]; then
-        # First check if the PKCS12 file is valid
-        if ! openssl pkcs12 -in "$PKCS12_FILE" -noout -passin pass:"$PASSWORD" 2>/dev/null; then
-            bashio::log.warning "Invalid PKCS12 file"
-            return 1
-        fi
-
-        # Get expiration date and format it
-        EXPIRY_DATE=$(openssl pkcs12 -in "$PKCS12_FILE" -nokeys -passin pass:"$PASSWORD" 2>/dev/null | \
-                      openssl x509 -noout -enddate | cut -d'=' -f2)
-
-        # Extract certificate from PKCS12 and check expiration
-        if openssl pkcs12 -in "$PKCS12_FILE" -nokeys -passin pass:"$PASSWORD" 2>/dev/null | \
-           openssl x509 -noout -checkend 0 2>/dev/null; then
-            bashio::log.info "Valid non-expired PKCS12 file found (expires: ${EXPIRY_DATE}), skipping certificate generation"
-            return 0
-        else
-            bashio::log.warning "PKCS12 certificate is expired (expired: ${EXPIRY_DATE})"
-            return 1
-        fi
+    # Create SSL directory if needed
+    if [ ! -d "$SSL_DIR" ]; then
+        mkdir -p "$SSL_DIR"
     fi
-    bashio::log.warning "No PKCS12 file found"
-    return 1
+
+    # Get certificate paths with defaults
+    CERT_FILE=$(bashio::config 'certfile' "$DEFAULT_CERT")
+    KEY_FILE=$(bashio::config 'keyfile' "$DEFAULT_KEY")
 }
 
-# Check if cert and key paths are valid
+# -----------------------------------------------------------------------------
+# Certificate Validation Functions
+# -----------------------------------------------------------------------------
+check_pkcs12() {
+    local expiry_date
+    
+    if [ ! -f "$PKCS12_FILE" ]; then
+        bashio::log.warning "No PKCS12 file found"
+        return 1
+    fi
+
+    # Validate PKCS12 format
+    if ! openssl pkcs12 -in "$PKCS12_FILE" -noout -passin pass:"$PKCS12_PASSWORD" 2>/dev/null; then
+        bashio::log.warning "Invalid PKCS12 file"
+        return 1
+    fi
+
+    # Check expiration
+    expiry_date=$(openssl pkcs12 -in "$PKCS12_FILE" -nokeys -passin pass:"$PKCS12_PASSWORD" 2>/dev/null | \
+                  openssl x509 -noout -enddate | cut -d'=' -f2)
+
+    if openssl pkcs12 -in "$PKCS12_FILE" -nokeys -passin pass:"$PKCS12_PASSWORD" 2>/dev/null | \
+       openssl x509 -noout -checkend 0 2>/dev/null; then
+        bashio::log.info "Valid non-expired PKCS12 file found (expires: ${expiry_date})"
+        return 0
+    else
+        bashio::log.warning "PKCS12 certificate is expired (expired: ${expiry_date})"
+        return 1
+    fi
+}
+
 check_cert_paths() {
-    # Check if cert file exists and is readable
+    # Validate certificate file
     if [ ! -f "$CERT_FILE" ] || [ ! -r "$CERT_FILE" ]; then
         bashio::log.warning "Certificate file not found or not readable, using default: $DEFAULT_CERT"
         CERT_FILE="$DEFAULT_CERT"
@@ -71,7 +87,7 @@ check_cert_paths() {
         bashio::log.info "Using certificate file: $CERT_FILE"
     fi
 
-    # Check if key file exists and is readable
+    # Validate key file
     if [ ! -f "$KEY_FILE" ] || [ ! -r "$KEY_FILE" ]; then
         bashio::log.warning "Key file not found or not readable, using default: $DEFAULT_KEY"
         KEY_FILE="$DEFAULT_KEY"
@@ -80,7 +96,9 @@ check_cert_paths() {
     fi
 }
 
-# Generate self-signed certificate
+# -----------------------------------------------------------------------------
+# Certificate Generation Functions
+# -----------------------------------------------------------------------------
 generate_self_signed() {
     bashio::log.info "Generating self-signed certificate..."
     openssl req -x509 \
@@ -92,12 +110,65 @@ generate_self_signed() {
         -subj "/CN=$HOSTNAME"
 }
 
-# Generate PKCS12 from cert and key
 generate_pkcs12() {
     bashio::log.info "Generating PKCS12 file..."
     openssl pkcs12 -export \
         -out "$PKCS12_FILE" \
         -inkey "$KEY_FILE" \
         -in "$CERT_FILE" \
-        -password pass:"$PASSWORD"
+        -password pass:"$PKCS12_PASSWORD"
 }
+
+# Add certificate cleanup
+cleanup_certs() {
+    # Remove sensitive files
+    rm -f "${PKCS12_FILE}.tmp" 2>/dev/null || true
+}
+
+trap cleanup_certs EXIT
+
+# -----------------------------------------------------------------------------
+# Main Certificate Management Function
+# -----------------------------------------------------------------------------
+handle_cert_update() {
+    bashio::log.info "Checking certificate status..."
+    
+    # Initialize configuration
+    init_configuration
+    
+    # Validate paths
+    check_cert_paths
+
+    local regenerate_pkcs12=false
+
+    # Check if we need to generate certificates
+    if [ ! -f "$CERT_FILE" ] || [ ! -f "$KEY_FILE" ]; then
+        bashio::log.warning "Certificate files are not present - generating self-signed certificates..."
+        generate_self_signed
+        regenerate_pkcs12=true
+    fi
+
+    # Update PKCS12 if needed
+    if [ "$regenerate_pkcs12" = "true" ] || ! check_pkcs12; then
+        if generate_pkcs12; then
+            bashio::log.info "PKCS12 certificate generated successfully"
+        else
+            bashio::log.error "Failed to generate PKCS12 certificate"
+            return 1
+        fi
+    fi
+
+    return 0
+}
+
+# -----------------------------------------------------------------------------
+# Initialize Configuration
+# -----------------------------------------------------------------------------
+init_configuration
+
+# -----------------------------------------------------------------------------
+# Documentation References
+# -----------------------------------------------------------------------------
+# https://www.home-assistant.io/docs/configuration/securing/
+# https://developers.home-assistant.io/docs/add-ons/configuration#add-on-configuration
+# https://blog.technitium.com/2020/07/how-to-host-your-own-dns-over-https-and.html
