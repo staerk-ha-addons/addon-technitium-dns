@@ -57,10 +57,11 @@ configuration:
     description: >-
       Controls the level of log details the add-on provides.
 network:
+  53/tcp: DNS-over-TCP (53/tcp)
   53/udp: DNS-over-UDP (53/udp)
-  853/tcp: DNS-over-TLS (853/tcp)
   443/tcp: DNS-over-HTTPS (443/tcp => HTTP/1.1 + HTTP/2)
   443/udp: DNS-over-HTTPS3 (443/udp => HTTP/3)
+  853/tcp: DNS-over-TLS (853/tcp)
   853/udp: DNS-over-QUIC (853/udp)
   5380/tcp: Web UI and API (5380/tcp => HTTP)
   53443/tcp: Web UI and API (53443/tcp => HTTPS)
