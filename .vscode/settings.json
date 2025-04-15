@@ -5,7 +5,8 @@
     "source.fixAll": "always",
     "source.fixAll.shellcheck": "always",
     "source.fixAll.json": "always",
-    "source.fixAll.markdownlint": "always"
+    "source.fixAll.markdownlint": "always",
+    "source.fixAll.dockerfile": "always"
   },
   "[shellscript]": {
     "editor.defaultFormatter": "foxundermoon.shell-format",

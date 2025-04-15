@@ -5,13 +5,6 @@
 # ==============================================================================
 
 # -----------------------------------------------------------------------------
-# Debugging and Logging
-# -----------------------------------------------------------------------------
-
-LOG_LEVEL=$(bashio::config 'log_level' 'info')
-bashio::log.level "$LOG_LEVEL"
-
-# -----------------------------------------------------------------------------
 # Constants and Configuration
 # -----------------------------------------------------------------------------
 TOKEN=""
@@ -20,9 +13,6 @@ API_SERVER="http://localhost:5380"
 readonly TOKEN_NAME="ha-addon-token"
 readonly TOKEN_FILE="/config/.$TOKEN_NAME.enc"
 readonly LOCK_FILE="/tmp/.api_token.lock"
-
-# Set logging level
-#bashio::log.level "debug"
 
 # -----------------------------------------------------------------------------
 # Input Validation Functions
