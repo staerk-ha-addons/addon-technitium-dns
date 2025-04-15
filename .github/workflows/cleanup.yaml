@@ -23,3 +23,5 @@ jobs:
           package-type: "container"
           min-versions-to-keep: 1
           delete-only-untagged-versions: true
+          owner: "staerk-ha-addons"
+          token: ${{ secrets.DISPATCH_TOKEN }}
