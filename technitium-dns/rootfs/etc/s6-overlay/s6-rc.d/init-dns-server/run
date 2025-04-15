@@ -54,6 +54,9 @@ FORWARDER=$(bashio::config 'forwarders' 'Cloudflare (DNS-over-HTTPS)')
 # -----------------------------------------------------------------------------
 # Configure DNS Server
 # -----------------------------------------------------------------------------
+# Perform initial certificate setup
+handle_cert_update
+
 # Get hostname from helper utility
 ADDON_HOSTNAME=$(get_hostname)
 

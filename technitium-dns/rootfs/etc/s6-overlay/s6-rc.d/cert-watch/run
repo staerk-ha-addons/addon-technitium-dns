@@ -6,6 +6,9 @@
 # Watch certificates for changes and regenerate PKCS #12 if needed
 # ==============================================================================
 
+# Wait for DNS server to fully initialize
+sleep 60
+
 bashio::log.debug "================================================="
 bashio::log.debug "  Starting Certificate Tool"
 bashio::log.debug "================================================="
@@ -86,10 +89,6 @@ handle_cert_changes() {
 # -----------------------------------------------------------------------------
 # Initial Setup
 # -----------------------------------------------------------------------------
-# Perform initial certificate setup
-bashio::log.debug "Performing initial certificate setup..."
-handle_cert_update
-
 # Create all required directories to ensure they exist for monitoring
 dirs_to_watch=()
 while read -r dir; do
@@ -99,9 +98,6 @@ while read -r dir; do
     mkdir -p "${dir}"
     dirs_to_watch+=("${dir}")
 done < <(get_watch_dirs || true)
-
-# Wait for DNS server to fully initialize
-sleep 3
 
 # -----------------------------------------------------------------------------
 # Certificate Monitoring Loop
@@ -125,9 +121,10 @@ while true; do
 
     # Watch parent directories for any changes to certificate files
     # Using array directly to avoid potential issues with reading into array
+    bashio::log.debug "Watching directories: ${dirs_to_watch[*]}"
     if ! inotifywait -e close_write,move,create,delete "${dirs_to_watch[@]}" >/dev/null 2>&1; then
         bashio::log.debug "inotifywait failed, retrying in 30 seconds..."
-        sleep 30
+        sleep 300
         continue
     fi
 
