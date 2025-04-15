@@ -17,14 +17,9 @@ jobs:
 
     steps:
       - name: Delete old package versions
-        uses: actions/delete-package-versions@v4
+        uses: actions/delete-package-versions@v5
         with:
-          # Target your addon package
           package-name: "addon-technitium-dns"
           package-type: "container"
-
-          # Only delete versions with no tags (untagged)
+          min-versions-to-keep: 1
           delete-only-untagged-versions: true
-
-          # Optional: token with package:read and package:delete scopes
-          token: ${{ secrets.GITHUB_TOKEN }}
