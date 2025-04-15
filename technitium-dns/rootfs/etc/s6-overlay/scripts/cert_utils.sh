@@ -1,5 +1,6 @@
 #!/command/with-contenv bashio
 # shellcheck shell=bash
+# shellcheck disable=SC1091
 # ==============================================================================
 # Certificate Management Utilities for Technitium DNS Server
 # ==============================================================================
@@ -11,6 +12,9 @@ if ! command -v openssl >/dev/null 2>&1; then
     bashio::log.debug "openssl binary not found!"
     exit 1
 fi
+
+# Source helper utilities
+# shellcheck source=/etc/s6-overlay/scripts/helper_utils.sh
 if ! source "/etc/s6-overlay/scripts/helper_utils.sh"; then
     bashio::exit.nok "Failed to source helper utilities"
 fi

@@ -1,5 +1,6 @@
 #!/command/with-contenv bashio
 # shellcheck shell=bash
+# shellcheck disable=SC1091
 # ==============================================================================
 # Initializing Technitium DNS Server
 # ==============================================================================
@@ -23,6 +24,10 @@ fi
 
 if ! source "/etc/s6-overlay/scripts/cert_utils.sh"; then
     bashio::exit.nok "Failed to source certificate utilities"
+fi
+
+if ! source "/etc/s6-overlay/scripts/helper_utils.sh"; then
+    bashio::exit.nok "Failed to source helper utilities"
 fi
 
 # Validate config values
