@@ -36,7 +36,6 @@ Quick setup and best practices:
 > This diagram illustrates how DNS queries flow through your network, showing both unencrypted (🔓) and encrypted (🔐) paths. Local devices can use either standard DNS or secure protocols (DoH/DoT/DoQ) to query the Technitium DNS Server, which then forwards requests to Cloudflare using selected forwarders.
 
 ```mermaid
-%%{init: {"flowchart": {"htmlLabels": false, 'curve': 'monotoneX'}} }%%
 flowchart LR
     subgraph Local ["🏡 Home Network"]
       subgraph LAN ["🤖 Devices"]
@@ -54,6 +53,10 @@ flowchart LR
             DNSDoH["`
               DNS-over-HTTPS
               _https:&sol;&sol;homeassistant.local/dns-query_
+            `"]
+            DNSDoH3["`
+              DNS-over-HTTPS3
+              h3:&sol;&sol;homeassistant.local/dns-query_
             `"]
             DNSDoT["`DNS-over-TLS
               _homeassistant.local_
@@ -80,21 +83,18 @@ flowchart LR
             CFSDoT["`DNS-over-TLS
             _cloudflare-dns.com_
           `"]
-            CFSDoQ["`DNS-over-QUIC
-            _cloudflare-dns.com_
-          `"]
       end
     end
 
   LAN --> |"🔓 DNS 53/UDP"| DNS53
   LAN --> |"🔐 DoH 443/TCP"| DNSDoH
-  LAN --> |"🔐 DoT 853/UDP"| DNSDoT
+  LAN --> |"🔐 DoH 443/UDP"| DNSDoH3
   LAN --> |"🔐 DoQ 853/TCP"| DNSDoQ
+  LAN --> |"🔐 DoT 853/UDP"| DNSDoT
   DNS --> F
   F --> |"🔓 DNS 53/UDP"| CFS53
   F --> |"🔐 DoH 443/TCP"| CFSDoH
   F --> |"🔐 DoT 853/UDP"| CFSDoT
-  F --> |"🔐 DoQ 853/TCP"| CFSDoQ
 ```
 
 ### Key Points
@@ -120,7 +120,7 @@ flowchart LR
 
 ### 🎯 Best Practices
 
-This add-on is designed to be your primary DNS server, acting as a secure forwarding DNS server that queries external DNS providers using encrypted protocols (DoH, DoT, or DoQ).
+This add-on is designed to be your primary DNS server, acting as a secure forwarding DNS server that queries external DNS providers using encrypted protocols (DoH or DoT).
 
 Recommended setup:
 
