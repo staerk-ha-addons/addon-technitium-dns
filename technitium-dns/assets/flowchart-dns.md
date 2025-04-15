@@ -5,53 +5,47 @@ config:
     darkMode: true
     useMaxWidth: true
     curve: monotoneX
-    htmlLabels: false
+    htmlLabels: true
+  theme: neo-dark
+  look: handDrawn
 ---
 flowchart LR
-  subgraph Local ["`🏡 Home Network`"]
-    subgraph LAN ["`🤖 Devices`"]
+  subgraph Local ["`🏡&nbsp;Home&nbsp;Network`"]
+    subgraph LAN ["`🤖&nbsp;Devices`"]
       direction LR
-      R["`🌐 Router`"]
-      D["`💻 Device`"]
-      P["`📱 Device`"]
+      R["`🌐&nbsp;Router`"]
+      D["`💻&nbsp;Device`"]
+      P["`📱&nbsp;Device`"]
     end
-    subgraph HA ["`🏠 Home Assistant`"]
-      subgraph AO["`🌐 Technitium DNS Server`"]
+    subgraph HA ["`🏠&nbsp;Home&nbsp;Assistant`"]
+      subgraph AO["`🌐&nbsp;Technitium&nbsp;DNS&nbsp;Server`"]
         subgraph DNS["`DNS`"]
-          DNS53["`DNS-over-UDP
-            _Home Assistant IP_`"]
-          DNSDoH["`DNS-over-HTTPS
-            _https:&sol;&sol;homeassistant.local/dns-query_`"]
-          DNSDoH3["`DNS-over-HTTPS3
-            h3:&sol;&sol;homeassistant.local/dns-query_`"]
-          DNSDoT["`DNS-over-TLS
-            _homeassistant.local_`"]
-          DNSDoQ["`DNS-over-QUIC
-            _homeassistant.local_`"]
+          DNS53["`DNS-over-UDP&NewLine;_Home&nbsp;Assistant&nbsp;IP_`"]
+          DNSDoH["`DNS-over-HTTPS&NewLine;_https&colon;&sol;&sol;homeassistant&period;local&sol;dns-query_`"]
+          DNSDoH3["`DNS-over-HTTPS3&NewLine;_h3&colon;&sol;&sol;homeassistant&period;local&sol;dns-query_`"]
+          DNSDoT["`DNS-over-TLS&NewLine;_homeassistant&period;local_`"]
+          DNSDoQ["`DNS-over-QUIC&NewLine;_homeassistant&period;local_`"]
         end
         F{"`Forwarders`"}
       end
     end
   end
 
-  subgraph WAN ["`🌍 Internet`"]
-    subgraph CF ["`☁️ Cloudflare`"]
-      CFS53["`DNS-over-UDP
-        _1.1.1.1_`"]
-      CFSDoH["`DNS-over-HTTPS
-        _https:&sol;&sol;cloudflare-dns.com/dns-query_`"]
-      CFSDoT["`DNS-over-TLS
-        _cloudflare-dns.com_`"]
+  subgraph WAN ["`🌍&nbsp;Internet`"]
+    subgraph CF ["`☁️&nbsp;Cloudflare`"]
+      CFS53["`DNS-over-UDP&NewLine;_1.1.1.1_`"]
+      CFSDoH["`DNS-over-HTTPS&NewLine;_https&colon;&sol;&sol;cloudflare-dns&period;com&sol;dns-query_`"]
+      CFSDoT["`DNS-over-TLS&NewLine;_cloudflare-dns&period;com_`"]
     end
   end
 
-  LAN --> |"`🔓 DNS 53/UDP`"| DNS53
-  LAN --> |"`🔐 DoH 443/TCP`"| DNSDoH
-  LAN --> |"`🔐 DoH 443/UDP`"| DNSDoH3
-  LAN --> |"`🔐 DoQ 853/TCP`"| DNSDoQ
-  LAN --> |"`🔐 DoT 853/UDP`"| DNSDoT
+  LAN --> |"`🔓&nbsp;DNS&nbsp;53&sol;UDP`"| DNS53
+  LAN --> |"`🔐&nbsp;DoH&nbsp;443&sol;TCP`"| DNSDoH
+  LAN --> |"`🔐&nbsp;DoH&nbsp;443&sol;UDP`"| DNSDoH3
+  LAN --> |"`🔐&nbsp;DoQ&nbsp;853&sol;TCP`"| DNSDoQ
+  LAN --> |"`🔐&nbsp;DoT&nbsp;853&sol;UDP`"| DNSDoT
   DNS --> F
-  F --> |"`🔓 DNS 53/UDP`"| CFS53
-  F --> |"`🔐 DoH 443/TCP`"| CFSDoH
-  F --> |"`🔐 DoT 853/UDP`"| CFSDoT
+  F --> |"`🔓&nbsp;DNS&nbsp;53&sol;UDP`"| CFS53
+  F --> |"`🔐&nbsp;DoH&nbsp;443&sol;TCP`"| CFSDoH
+  F --> |"`🔐&nbsp;DoT&nbsp;853&sol;UDP`"| CFSDoT
 ```
