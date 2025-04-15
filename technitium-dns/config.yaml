@@ -35,8 +35,8 @@ schema:
   enableDnsOverHttps: bool
   enableDnsOverHttps3: bool
   enableDnsOverQuic: bool
-  keyfile: 'str?'
-  certfile: 'str?'
+  keyfile: "str?"
+  certfile: "str?"
   manualConfig: bool
   manualCertHandling: bool
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
