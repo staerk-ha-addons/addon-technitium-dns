@@ -1,3 +1,4 @@
+# yamllint disable rule:line-length
 ---
 name: "Clean up untagged packages"
 
@@ -33,18 +34,15 @@ jobs:
       - name: Find and delete untagged packages
         run: |
           echo "Looking for untagged packages older than $DATE_CUTOFF in $REPOSITORY"
-
           # Get list of all package versions
           PACKAGES=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/orgs/${{ github.repository_owner }}/packages/container/addon-technitium-dns/versions" \
             | jq -r '.[] | {id: .id, metadata: .metadata, tags: .metadata.container.tags}')
-
           # Find and delete untagged versions
           echo "$PACKAGES" | jq -c '.' | while read -r package; do
             ID=$(echo "$package" | jq -r '.id')
             TAGS=$(echo "$package" | jq -r '.tags | length')
             CREATED=$(echo "$package" | jq -r '.metadata.container.created')
-            
             # Check if package has no tags and is older than the cutoff date
             if [[ "$TAGS" == "0" && "$CREATED" < "$DATE_CUTOFF" ]]; then
               echo "Deleting untagged package with ID: $ID (created on $CREATED)"
