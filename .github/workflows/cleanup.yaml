@@ -1,0 +1,60 @@
+---
+name: "Clean up untagged packages"
+
+# yamllint disable-line rule:truthy
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 0"
+
+jobs:
+  cleanup:
+    name: "Clean up untagged packages"
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up environment
+        run: |
+          echo "REPOSITORY=${{ github.repository_owner }}/addon-technitium-dns" >> $GITHUB_ENV
+          echo "DATE_CUTOFF=$(date -d '1 days ago' '+%Y-%m-%d')" >> $GITHUB_ENV
+
+      - name: Find and delete untagged packages
+        run: |
+          echo "Looking for untagged packages older than $DATE_CUTOFF in $REPOSITORY"
+
+          # Get list of all package versions
+          PACKAGES=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/orgs/${{ github.repository_owner }}/packages/container/addon-technitium-dns/versions" \
+            | jq -r '.[] | {id: .id, metadata: .metadata, tags: .metadata.container.tags}')
+
+          # Find and delete untagged versions
+          echo "$PACKAGES" | jq -c '.' | while read -r package; do
+            ID=$(echo "$package" | jq -r '.id')
+            TAGS=$(echo "$package" | jq -r '.tags | length')
+            CREATED=$(echo "$package" | jq -r '.metadata.container.created')
+            
+            # Check if package has no tags and is older than the cutoff date
+            if [[ "$TAGS" == "0" && "$CREATED" < "$DATE_CUTOFF" ]]; then
+              echo "Deleting untagged package with ID: $ID (created on $CREATED)"
+              curl -X DELETE -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                "https://api.github.com/orgs/${{ github.repository_owner }}/packages/container/addon-technitium-dns/versions/$ID"
+            else
+              echo "Keeping package with ID: $ID (has $TAGS tags, created on $CREATED)"
+            fi
+          done
+
+      - name: Summary
+        run: |
+          echo "Clean up completed. Untagged packages older than $DATE_CUTOFF have been removed."

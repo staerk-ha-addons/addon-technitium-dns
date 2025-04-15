@@ -62,17 +62,17 @@ check_inotify() {
 # -----------------------------------------------------------------------------
 # Debounce Handling
 # -----------------------------------------------------------------------------
-# Prevent too frequent updates when multiple files change at once
+# Track last update time across function calls
+LAST_UPDATE_TIME=$(date +%s)
 readonly DEBOUNCE_SECONDS=10
-handle_cert_changes() {
-    local last_run=0
-    local now
 
+handle_cert_changes() {
     # Get current timestamp
+    local now
     now=$(date +%s)
 
     # Skip if we've updated recently
-    if ((now - last_run < DEBOUNCE_SECONDS)); then
+    if ((now - LAST_UPDATE_TIME < DEBOUNCE_SECONDS)); then
         bashio::log.debug "Skipping update (within debounce period)"
         return 0
     fi
@@ -80,7 +80,7 @@ handle_cert_changes() {
     # Process certificate updates
     bashio::log.debug "Updating certificates..."
     handle_cert_update
-    last_run=${now}
+    LAST_UPDATE_TIME=$(date +%s)
 }
 
 # -----------------------------------------------------------------------------
@@ -91,18 +91,29 @@ bashio::log.debug "Performing initial certificate setup..."
 handle_cert_update
 
 # Create all required directories to ensure they exist for monitoring
-for dir in $(get_watch_dirs); do
+dirs_to_watch=()
+while read -r dir; do
+    # Skip empty lines
+    [[ -n "$dir" ]] || continue
+
     mkdir -p "${dir}"
-done
+    dirs_to_watch+=("${dir}")
+done < <(get_watch_dirs || true)
 
 # Wait for DNS server to fully initialize
-sleep 10
+sleep 3
 
 # -----------------------------------------------------------------------------
 # Certificate Monitoring Loop
 # -----------------------------------------------------------------------------
 # Start continuous monitoring for certificate changes
 bashio::log.debug "Starting certificate watch service..."
+
+# Simple health check file to detect restarts
+touch "/tmp/.cert_watch_healthy"
+trap 'rm -f /tmp/.cert_watch_healthy' EXIT
+
+# Main monitoring loop
 while true; do
     # Check for proper inotify functionality
     if ! check_inotify; then
@@ -113,14 +124,17 @@ while true; do
     fi
 
     # Watch parent directories for any changes to certificate files
-    IFS=$'\n' read -r -d '' -a watch_dirs < <(get_watch_dirs || true)
-    if ! inotifywait -e close_write,move,create,delete "${watch_dirs[@]}" >/dev/null 2>&1; then
-        bashio::log.debug "inotifywait failed, retrying in 10 seconds..."
-        sleep 10
+    # Using array directly to avoid potential issues with reading into array
+    if ! inotifywait -e close_write,move,create,delete "${dirs_to_watch[@]}" >/dev/null 2>&1; then
+        bashio::log.debug "inotifywait failed, retrying in 30 seconds..."
+        sleep 30
         continue
     fi
 
     # Handle detected changes
     bashio::log.debug "Detected certificate change, processing..."
     handle_cert_changes
+
+    # Prevent too rapid looping
+    sleep 1
 done
