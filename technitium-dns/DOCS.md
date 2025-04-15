@@ -7,7 +7,7 @@ Quick setup and best practices:
 ### DNS Server Setup
 
 - Use this add-on as your primary DNS server
-- Configure your router DNS to use `homeassistant.local` (or HA IP)
+- Configure your router DNS to use `homeassistant.local` (or Home Assistant IP)
 - All ports (53, 443, 853) enabled by default
 - Self-signed certificates generated automatically
 
@@ -31,7 +31,92 @@ Quick setup and best practices:
    printer.home.lab  A     192.168.1.20
 ```
 
+## DNS Flow and Protocol Options
+
+> This diagram illustrates how DNS queries flow through your network, showing both unencrypted (🔓) and encrypted (🔐) paths. Local devices can use either standard DNS or secure protocols (DoH/DoT/DoQ) to query the Technitium DNS Server, which then forwards requests to Cloudflare using selected forwarders.
+
+```mermaid
+%%{init: {"flowchart": {"htmlLabels": false, 'curve': 'monotoneX'}} }%%
+flowchart LR
+    subgraph Local ["🏡 Home Network"]
+      subgraph LAN ["🤖 Devices"]
+        direction LR
+        R@{ shape: rect, label: "🌐 Router" }
+        D@{ shape: processes, label: "💻 Devices" }
+      end
+      subgraph HA ["🏠 Home Assistant"]
+        subgraph AO["🌐 Technitium DNS Server"]
+            subgraph DNS["DNS"]
+            DNS53["`
+              DNS-over-UDP
+              _Home Assistant IP_
+            `"]
+            DNSDoH["`
+              DNS-over-HTTPS
+              _https:&sol;&sol;homeassistant.local/dns-query_
+            `"]
+            DNSDoT["`DNS-over-TLS
+              _homeassistant.local_
+            `"]
+            DNSDoQ["`DNS-over-QUIC
+              _homeassistant.local_
+            `"]
+        end
+            F{"Forwarders"}
+        end
+      end
+    end
+
+    subgraph WAN ["🌍 Internet"]
+      subgraph CF ["☁️ Cloudflare"]
+          CFS53["`
+            DNS-over-UDP
+            _1.1.1.1_
+          `"]
+          CFSDoH["`
+            DNS-over-HTTPS
+            _https:&sol;&sol;cloudflare-dns.com/dns-query_
+          `"]
+            CFSDoT["`DNS-over-TLS
+            _cloudflare-dns.com_
+          `"]
+            CFSDoQ["`DNS-over-QUIC
+            _cloudflare-dns.com_
+          `"]
+      end
+    end
+
+  LAN --> |"🔓 DNS 53/UDP"| DNS53
+  LAN --> |"🔐 DoH 443/TCP"| DNSDoH
+  LAN --> |"🔐 DoT 853/UDP"| DNSDoT
+  LAN --> |"🔐 DoQ 853/TCP"| DNSDoQ
+  DNS --> F
+  F --> |"🔓 DNS 53/UDP"| CFS53
+  F --> |"🔐 DoH 443/TCP"| CFSDoH
+  F --> |"🔐 DoT 853/UDP"| CFSDoT
+  F --> |"🔐 DoQ 853/TCP"| CFSDoQ
+```
+
+### Key Points
+
+- 🏡 **Local Network**: Devices and router can use any supported protocol
+- 🔒 **Security Options**: Choose between standard DNS or encrypted protocols
+- 🌐 **Flexible Forwarding**: All protocols supported for external queries
+- ⚡ **Modern Standards**: Full support for DoH, DoT, and DoQ
+- 🛡️ **End-to-End**: Possible to encrypt entire DNS path
+
+> [!NOTE]
+> Port 53 (DNS) is always available for compatibility with standard clients, while ports 443 (DoH) and 853 (DoT/DoQ) provide encrypted options for supported devices.
+
 ## 🔧 Configuration
+
+> [!NOTE]
+> When accessing the web interface for the first time:
+>
+> - **Username:** `admin`
+> - **Password:** `admin`
+>
+> You will be required to change the password on your first login for security purposes.
 
 ### 🎯 Best Practices
 
@@ -56,7 +141,7 @@ Recommended setup:
 > - Custom domain names for local devices
 > - Service discovery through DNS records
 
-### Add-on Configuration
+### ⚙️ Add-on Configuration
 
 The add-on can be configured via the Home Assistant frontend:
 
@@ -266,7 +351,7 @@ home.lab.            TXT    "v=spf1 ip4:192.168.1.0/24 -all"
 _service.home.lab.   TXT    "location=basement rack=1"
 ```
 
-#### Advanced Configuration
+### 🏗️ Advanced Configuration
 
 1. **Reverse DNS Zone**
 
@@ -311,7 +396,7 @@ _service.home.lab.   TXT    "location=basement rack=1"
 
 ## 🔍 Troubleshooting
 
-### Common Issues
+### ❌ Common Issues
 
 1. **Certificate Issues**
 
@@ -330,24 +415,27 @@ _service.home.lab.   TXT    "location=basement rack=1"
    - Check DNS server logs
    - Test with `dig` or `nslookup`
 
-## 🆘 Support
+## 💡 Support
 
-Need help? Try these channels:
+Got questions?
 
-- [Home Assistant Discord][discord]
-- [Community Forum][forum]
-- [Reddit r/homeassistant][reddit]
-- [GitHub Issues][issue]
+- Create an [issue on GitHub][issue] for bug reports, feature requests, or questions
+- Add a ⭐️ [star on GitHub][repository] to support the project
 
-## Contributing
+## 🤝 Contributing
 
-This is an active open-source project. We welcome contributions from anyone interested in using or improving the code.
+This is an active open-source project. We welcome contributions from anyone interested in using or improving the code:
 
-## Authors & Contributors
+- Fork the repository
+- Make your changes
+- Submit a pull request
+- Follow the coding standards
+
+## 👥 Authors & Contributors
 
 The original setup of this repository is by [Jeppe Stærk][staerk].
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
 Special thanks to [Franck Nijhof][frenck] and the [Home Assistant Community Add-ons][ha-addons] project for their invaluable work. This add-on heavily relies on their foundation:
 
@@ -357,17 +445,17 @@ Special thanks to [Franck Nijhof][frenck] and the [Home Assistant Community Add-
 
 Their open-source contributions make add-ons like this possible.
 
-## License
+## ⚠️ Disclaimer
 
-MIT License
+This is a third-party add-on for Home Assistant and not an official add-on. It is provided as-is, without warranty of any kind. While care has been taken in its development, use it at your own risk. Always ensure you have proper backups before making changes to your Home Assistant DNS settings. This add-on is not affiliated with Technitium Software.
 
-Copyright (c) 2025 Jeppe Stærk
+## 📄 License
 
-[discord]: https://discord.gg/c5DvZ4e
-[forum]: https://community.home-assistant.io
+MIT License - Copyright (c) 2025 Jeppe Stærk
+
 [frenck]: https://github.com/frenck
 [issue]: https://github.com/staerk-ha-addons/addon-technitium-dns/issues
-[reddit]: https://reddit.com/r/homeassistant
+[repository]: https://github.com/staerk-ha-addons/repository
 [staerk]: https://github.com/staerk-ha-addons
 [ha-addons]: https://addons.community/
 [duckdns-link]: https://github.com/home-assistant/addons/tree/master/duckdns
