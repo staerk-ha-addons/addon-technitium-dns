@@ -11,6 +11,18 @@
 
 A fully featured DNS server for Home Assistant that acts as a secure forwarding DNS server, querying external providers using modern encrypted protocols. Perfect for improving your home network's privacy and security.
 
+## ✨ Features
+
+A fully featured DNS server for Home Assistant that:
+
+- 🔒 Securely forwards DNS queries using DoH/DoT/DoQ
+- 🌐 Supports local DNS zones and custom domains
+- 🔄 Auto-configures with Home Assistant
+- 📋 Manages SSL certificates automatically
+- 🚀 Uses Cloudflare DNS with modern protocols
+- ⚡ Provides fast DNS caching
+- 🛡️ Includes DNS filtering and blocking
+
 ## 🏃 Quick Start
 
 1. Click the Home Assistant My button below to add the repository to your Home Assistant instance.
@@ -30,18 +42,6 @@ A fully featured DNS server for Home Assistant that acts as a secure forwarding 
 > - **Password:** `admin`
 >
 > You will be required to change the password on your first login for security purposes.
-
-## ✨ Features
-
-A fully featured DNS server for Home Assistant that:
-
-- 🔒 Securely forwards DNS queries using DoH/DoT/DoQ
-- 🌐 Supports local DNS zones and custom domains
-- 🔄 Auto-configures with Home Assistant
-- 📋 Manages SSL certificates automatically
-- 🚀 Uses Cloudflare DNS with modern protocols
-- ⚡ Provides fast DNS caching
-- 🛡️ Includes DNS filtering and blocking
 
 ## 📖 Documentation
 
@@ -102,7 +102,7 @@ Copyright (c) 2025 Jeppe Stærk
 [releases-shield]: https://img.shields.io/github/release/staerk-ha-addons/addon-technitium-dns.svg
 [releases]: https://github.com/staerk-ha-addons/addon-technitium-dns/releases
 [repository]: https://github.com/staerk-ha-addons/repository
-[staerk]: https://github.com/staerk-ha-addons
+[staerk]: https://github.com/jepestaerk
 [project-stage-shield]: https://img.shields.io/badge/project%20stage-experimental-yellow.svg
 [license-shield]: https://img.shields.io/github/license/staerk-ha-addons/addon-technitium-dns.svg
 [ha-addons]: https://addons.community/
