@@ -44,9 +44,7 @@
         "panel": "shared",
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Kill logs"
-      ]
+      "dependsOn": ["Kill logs"]
     },
     {
       "label": "Start Addon",
@@ -61,9 +59,7 @@
         "panel": "shared",
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Kill logs"
-      ]
+      "dependsOn": ["Kill logs"]
     },
     {
       "label": "Stop Addon",
@@ -78,9 +74,7 @@
         "panel": "shared",
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Kill logs"
-      ]
+      "dependsOn": ["Kill logs"]
     },
     {
       "label": "Uninstall Addon",
@@ -95,9 +89,7 @@
         "panel": "shared",
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Kill logs"
-      ]
+      "dependsOn": ["Kill logs"]
     },
     {
       "label": "Rebuild Addon",
@@ -112,9 +104,7 @@
         "panel": "shared",
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Kill logs"
-      ]
+      "dependsOn": ["Kill logs"]
     },
     {
       "label": "Reinstall Addon",
@@ -173,9 +163,7 @@
         "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Kill logs"
-      ]
+      "dependsOn": ["Kill logs"]
     },
     {
       "label": "Kill logs",
@@ -200,9 +188,7 @@
       "type": "pickString",
       "default": "technitium-dns",
       "description": "Name of addon (to add your addon to this list, please edit .vscode/tasks.json)",
-      "options": [
-        "technitium-dns"
-      ]
+      "options": ["technitium-dns"]
     }
   ]
 }
