@@ -12,7 +12,8 @@
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
-        "clear": true
+        "clear": true,
+        "showReuseMessage": false
       }
     },
     {
@@ -25,49 +26,171 @@
       },
       "presentation": {
         "reveal": "always",
-        "panel": "dedicated",
-        "clear": true
-      }
-    },
-    {
-      "label": "Install and Start Addon",
-      "type": "shell",
-      "command": "ha addons install \"local_${input:addonName}\"; ha addons start \"local_${input:addonName}\"; docker logs --follow \"addon_local_${input:addonName}\"",
-      "group": {
-        "kind": "test",
-        "isDefault": false
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated",
-        "clear": true
-      }
-    },
-    {
-      "label": "Rebuild and Start Addon",
-      "type": "shell",
-      "command": "ha addons rebuild \"local_${input:addonName}\"; ha addons start \"local_${input:addonName}\"; docker logs --follow \"addon_local_${input:addonName}\"",
-      "group": {
-        "kind": "test",
-        "isDefault": false
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated",
+        "panel": "new",
         "clear": true,
         "showReuseMessage": false
-      },
-      "dependsOn": ["Kill addon docker logs follow"]
+      }
     },
     {
-      "label": "Kill addon docker logs follow",
+      "label": "Install Addon",
+      "type": "shell",
+      "command": "ha addons install \"local_${input:addonName}\" --log-level debug;",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "showReuseMessage": false
+      },
+      "dependsOn": [
+        "Kill logs"
+      ]
+    },
+    {
+      "label": "Start Addon",
+      "type": "shell",
+      "command": "ha addons start \"local_${input:addonName}\" --log-level debug;",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "showReuseMessage": false
+      },
+      "dependsOn": [
+        "Kill logs"
+      ]
+    },
+    {
+      "label": "Stop Addon",
+      "type": "shell",
+      "command": "ha stop start \"local_${input:addonName}\" --log-level debug;",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "showReuseMessage": false
+      },
+      "dependsOn": [
+        "Kill logs"
+      ]
+    },
+    {
+      "label": "Uninstall Addon",
+      "type": "shell",
+      "command": "ha addons uninstall --remove-config \"local_${input:addonName}\" --log-level debug;",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "showReuseMessage": false
+      },
+      "dependsOn": [
+        "Kill logs"
+      ]
+    },
+    {
+      "label": "Rebuild Addon",
+      "type": "shell",
+      "command": "ha addons rebuild \"local_${input:addonName}\" --log-level debug;",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "showReuseMessage": false
+      },
+      "dependsOn": [
+        "Kill logs"
+      ]
+    },
+    {
+      "label": "Reinstall Addon",
+      "type": "shell",
+      "command": "",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "showReuseMessage": false
+      },
+      "dependsOn": [
+        "Kill logs",
+        "Uninstall Addon",
+        "Install Addon",
+        "Start Addon",
+        "Follow Addon Logs"
+      ],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "Rebuild Addon",
+      "type": "shell",
+      "command": "",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "showReuseMessage": false
+      },
+      "dependsOn": [
+        "Kill logs",
+        "Rebuild Addon",
+        "Start Addon",
+        "Follow Addon Logs"
+      ]
+    },
+    {
+      "label": "Follow Addon Logs",
+      "type": "shell",
+      "command": "docker logs --follow addon_local_${input:addonName};",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": true,
+        "close": true,
+        "showReuseMessage": false
+      },
+      "dependsOn": [
+        "Kill logs"
+      ]
+    },
+    {
+      "label": "Kill logs",
       "type": "shell",
       "command": "pkill -f 'docker logs --follow addon_local_${input:addonName}' && pkill -f 'docker logs --follow \"addon_local_${input:addonName}\"' && sleep 1 || true",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
       "presentation": {
-        "reveal": "never",
-        "panel": "dedicated",
+        "reveal": "always",
+        "panel": "new",
         "clear": true,
-        "close": true
+        "close": true,
+        "showReuseMessage": false
       }
     }
   ],
@@ -75,8 +198,11 @@
     {
       "id": "addonName",
       "type": "pickString",
+      "default": "technitium-dns",
       "description": "Name of addon (to add your addon to this list, please edit .vscode/tasks.json)",
-      "options": ["technitium-dns"]
+      "options": [
+        "technitium-dns"
+      ]
     }
   ]
 }
