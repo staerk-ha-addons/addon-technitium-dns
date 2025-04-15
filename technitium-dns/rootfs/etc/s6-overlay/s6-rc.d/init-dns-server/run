@@ -106,6 +106,8 @@ get_forwarder_config() {
     echo "$dns_servers|$protocol"
 }
 
+ADDON_HOSTNAME=$(get_hostname)
+
 # Get forwarder settings from config
 FORWARDER=$(bashio::config 'forwarders' 'Cloudflare (DNS-over-HTTPS)')
 IFS='|' read -r DNS_SERVERS PROTOCOL <<<"$(get_forwarder_config "$FORWARDER")"
@@ -113,6 +115,7 @@ IFS='|' read -r DNS_SERVERS PROTOCOL <<<"$(get_forwarder_config "$FORWARDER")"
 # See options here: https://github.com/TechnitiumSoftware/DnsServer/blob/master/APIDOCS.md#set-dns-settings
 make_api_call "settings/get" "GET"
 make_api_call "settings/set" "POST" "{
+    \"dnsServerDomain\": \"${ADDON_HOSTNAME}\",
     \"loggingType\": \"FileAndConsole\",
     \"logQueries\": ${LOG_QUERIES},
     \"useLocalTime\": true,

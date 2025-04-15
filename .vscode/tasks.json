@@ -17,7 +17,7 @@
       }
     },
     {
-      "label": "Dev Bootstrap",
+      "label": "Init: Dev Bootstrap",
       "type": "shell",
       "command": "$WORKSPACE_DIRECTORY/.devcontainer/dev_bootstrap.sh",
       "group": {
@@ -26,89 +26,127 @@
       },
       "presentation": {
         "reveal": "always",
-        "panel": "new",
+        "panel": "dedicated",
         "clear": true,
+        "close": true,
         "showReuseMessage": false
       }
     },
     {
+      "label": "Command: Install Addon",
+      "type": "shell",
+      "command": "ha addons install \"local_technitium-dns\" --log-level debug || true",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "Command: Start Addon",
+      "type": "shell",
+      "command": "ha addons start \"local_technitium-dns\" --log-level debug || true",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "Command: Stop Addon",
+      "type": "shell",
+      "command": "ha stop start \"local_technitium-dns\" --log-level debug || true",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "Command: Uninstall Addon",
+      "type": "shell",
+      "command": "ha addons uninstall --remove-config \"local_technitium-dns\" --log-level debug || true",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "Command: Rebuild Addon",
+      "type": "shell",
+      "command": "ha addons rebuild \"local_technitium-dns\" --log-level debug  || true",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
+      "dependsOrder": "sequence"
+    },
+    {
       "label": "Install Addon",
       "type": "shell",
-      "command": "ha addons install \"local_${input:addonName}\" --log-level debug;",
+      "command": "",
       "group": {
         "kind": "test",
         "isDefault": false
       },
       "presentation": {
         "reveal": "always",
-        "panel": "shared",
+        "panel": "new",
+        "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": ["Kill logs"],
-      "dependsOrder": "sequence"
-    },
-    {
-      "label": "Start Addon",
-      "type": "shell",
-      "command": "ha addons start \"local_${input:addonName}\" --log-level debug;",
-      "group": {
-        "kind": "test",
-        "isDefault": false
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared",
-        "showReuseMessage": false
-      },
-      "dependsOn": ["Kill logs"],
-      "dependsOrder": "sequence"
-    },
-    {
-      "label": "Stop Addon",
-      "type": "shell",
-      "command": "ha stop start \"local_${input:addonName}\" --log-level debug;",
-      "group": {
-        "kind": "test",
-        "isDefault": false
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared",
-        "showReuseMessage": false
-      },
-      "dependsOn": ["Kill logs"],
-      "dependsOrder": "sequence"
-    },
-    {
-      "label": "Uninstall Addon",
-      "type": "shell",
-      "command": "ha addons uninstall --remove-config \"local_${input:addonName}\" --log-level debug;",
-      "group": {
-        "kind": "test",
-        "isDefault": false
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared",
-        "showReuseMessage": false
-      },
-      "dependsOn": ["Kill logs"],
-      "dependsOrder": "sequence"
-    },
-    {
-      "label": "Rebuild Addon",
-      "type": "shell",
-      "command": "ha addons rebuild \"local_${input:addonName}\" --log-level debug;",
-      "group": {
-        "kind": "test",
-        "isDefault": false
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared",
-        "showReuseMessage": false
-      },
-      "dependsOn": ["Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs",
+        "Command: Install Addon",
+        "Command: Start Addon",
+        "Logs: Follow Addon"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -121,20 +159,21 @@
       },
       "presentation": {
         "reveal": "always",
-        "panel": "shared",
+        "panel": "new",
+        "close": true,
         "showReuseMessage": false
       },
       "dependsOn": [
-        "Kill logs",
-        "Uninstall Addon",
-        "Install Addon",
-        "Start Addon",
-        "Follow Addon Logs"
+        "Command: Kill logs",
+        "Command: Uninstall Addon",
+        "Command: Install Addon",
+        "Command: Start Addon",
+        "Logs: Follow Addon"
       ],
       "dependsOrder": "sequence"
     },
     {
-      "label": "Rest Addon",
+      "label": "Rebuild Addon",
       "type": "shell",
       "command": "",
       "group": {
@@ -144,38 +183,42 @@
       "presentation": {
         "reveal": "always",
         "panel": "new",
+        "close": true,
         "showReuseMessage": false
       },
       "dependsOn": [
-        "Kill logs",
-        "Rebuild Addon",
-        "Start Addon",
-        "Follow Addon Logs"
+        "Command: Kill logs",
+        "Command: Rebuild Addon",
+        "Command: Start Addon",
+        "Logs: Follow Addon"
       ],
       "dependsOrder": "sequence"
     },
     {
-      "label": "Follow Addon Logs",
+      "label": "Logs: Follow Addon",
       "type": "shell",
-      "command": "docker logs --follow \"addon_local_${input:addonName}\"",
+      "command": "docker logs --follow \"addon_local_technitium-dns\"",
       "group": {
         "kind": "test",
         "isDefault": false
       },
       "presentation": {
         "reveal": "always",
-        "panel": "shared",
+        "revealProblems": "never",
+        "panel": "new",
         "clear": true,
         "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": ["Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
-      "label": "Kill logs",
+      "label": "Command: Kill logs",
       "type": "shell",
-      "command": "pkill -f 'docker logs --follow addon_local_${input:addonName}' && pkill -f 'docker logs --follow \"addon_local_${input:addonName}\"' && sleep 1 || true",
+      "command": "pkill -f 'docker logs --follow' || true",
       "group": {
         "kind": "test",
         "isDefault": false
@@ -196,7 +239,9 @@
       "type": "pickString",
       "default": "technitium-dns",
       "description": "Name of addon (to add your addon to this list, please edit .vscode/tasks.json)",
-      "options": ["technitium-dns"]
+      "options": [
+        "technitium-dns"
+      ]
     }
   ]
 }

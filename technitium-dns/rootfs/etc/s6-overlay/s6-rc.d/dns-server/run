@@ -10,12 +10,6 @@ bashio::log.debug "================================================="
 bashio::log.debug "  Starting Technitium DNS Server"
 bashio::log.debug "================================================="
 
-# Log formatted system information for debugging
-bashio::log.debug "System Information:"
-info_raw="$(bashio::info 2>/dev/null || echo '{}')"
-info_formatted="$(echo "$info_raw" | jq . 2>/dev/null || echo "raw: $info_raw")"
-bashio::log.debug "$info_formatted"
-
 cd "/opt/technitium/dns" || bashio::exit.nok "Could not change directory to Technitium DNS Server"
 
 command -v /usr/share/dotnet/dotnet >/dev/null 2>&1 || bashio::exit.nok "dotnet not found!"

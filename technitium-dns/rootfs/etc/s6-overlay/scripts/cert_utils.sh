@@ -11,13 +11,15 @@ if ! command -v openssl >/dev/null 2>&1; then
     bashio::log.debug "openssl binary not found!"
     exit 1
 fi
+if ! source "/etc/s6-overlay/scripts/helper_utils.sh"; then
+    bashio::exit.nok "Failed to source helper utilities"
+fi
 
 # -----------------------------------------------------------------------------
 # Constants and Configuration
 # -----------------------------------------------------------------------------
 readonly DEFAULT_CERT="/config/ssl/fullchain.pem"
 readonly DEFAULT_KEY="/config/ssl/privkey.key"
-readonly DEFAULT_HOSTNAME="homeassistant.local"
 readonly PKCS12_PASSWORD="TechnitiumDNS!SSL"
 readonly PKCS12_FILE="/config/ssl/technitium.pfx"
 readonly SSL_DIR="/config/ssl"
@@ -25,15 +27,13 @@ readonly SSL_DIR="/config/ssl"
 # Dynamic configuration
 CERT_FILE=""
 KEY_FILE=""
-HOSTNAME=""
+ADDON_HOSTNAME=""
 
 # -----------------------------------------------------------------------------
 # Initialization
 # -----------------------------------------------------------------------------
 init_configuration() {
-    # Set hostname
-    HOST_SYSTEM_HOSTNAME=$(bashio::info.hostname)
-    HOSTNAME=${HOST_SYSTEM_HOSTNAME:-$DEFAULT_HOSTNAME}
+    ADDON_HOSTNAME=$(get_hostname)
 
     # Create SSL directory if needed
     if [ ! -d "$SSL_DIR" ]; then
@@ -105,7 +105,7 @@ generate_self_signed() {
         -out "$CERT_FILE" \
         -days 365 \
         -nodes \
-        -subj "/CN=$HOSTNAME"
+        -subj "/CN=$ADDON_HOSTNAME"
 }
 
 generate_pkcs12() {
