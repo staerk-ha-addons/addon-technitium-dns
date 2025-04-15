@@ -27,12 +27,6 @@ CERT_FILE=""
 KEY_FILE=""
 HOSTNAME=""
 
-# Add strict mode
-set -euo pipefail
-
-# Set logging level
-#bashio::log.level "debug"
-
 # -----------------------------------------------------------------------------
 # Initialization
 # -----------------------------------------------------------------------------
@@ -43,7 +37,7 @@ init_configuration() {
 
     # Create SSL directory if needed
     if [ ! -d "$SSL_DIR" ]; then
-        mkdir -p "$SSL_DIR" >/dev/null 2>&1
+        mkdir -p "$SSL_DIR"
     fi
 
     # Get certificate paths with defaults
@@ -70,7 +64,7 @@ check_pkcs12() {
 
     # Check expiration
     expiry_date=$(openssl pkcs12 -in "$PKCS12_FILE" -nokeys -passin pass:"$PKCS12_PASSWORD" 2>/dev/null |
-        openssl x509 -noout -enddate | cut -d'=' -f2 >/dev/null 2>&1)
+        openssl x509 -noout -enddate | cut -d'=' -f2)
 
     if openssl pkcs12 -in "$PKCS12_FILE" -nokeys -passin pass:"$PKCS12_PASSWORD" 2>/dev/null |
         openssl x509 -noout -checkend 0 2>/dev/null; then
@@ -111,8 +105,7 @@ generate_self_signed() {
         -out "$CERT_FILE" \
         -days 365 \
         -nodes \
-        -subj "/CN=$HOSTNAME" \
-        >/dev/null 2>&1
+        -subj "/CN=$HOSTNAME"
 }
 
 generate_pkcs12() {
@@ -121,14 +114,13 @@ generate_pkcs12() {
         -out "$PKCS12_FILE" \
         -inkey "$KEY_FILE" \
         -in "$CERT_FILE" \
-        -password pass:"$PKCS12_PASSWORD" \
-        >/dev/null 2>&1
+        -password pass:"$PKCS12_PASSWORD"
 }
 
 # Add certificate cleanup
 cleanup_certs() {
     # Remove sensitive files
-    rm -f "${PKCS12_FILE}.tmp" >/dev/null 2>&1 || true
+    rm -f "${PKCS12_FILE}.tmp" 2>/dev/null || true
 }
 
 trap cleanup_certs EXIT

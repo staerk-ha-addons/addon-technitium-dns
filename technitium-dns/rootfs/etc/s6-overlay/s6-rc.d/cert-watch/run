@@ -4,30 +4,6 @@
 # Watch certificates for changes and regenerate PKCS #12 if needed
 # ==============================================================================
 
-# Add strict error handling
-set -euo pipefail
-
-# Configure error handling
-trap 'handle_error $? $LINENO $BASH_LINENO "$BASH_COMMAND" $(printf "::%s" ${FUNCNAME[@]:-})' ERR
-
-handle_error() {
-    local exit_code=$1
-    local line_no=$2
-    local bash_lineno=$3
-    local last_command=$4
-    local func_trace=$5
-
-    bashio::log.error "Error in bash at line ${bash_lineno}"
-    bashio::log.error "Error in init-dns-server at line ${line_no}"
-    bashio::log.error "Command '${last_command}' exited with status ${exit_code}"
-    bashio::log.error "Function trace: ${func_trace}"
-
-    exit "${exit_code}"
-}
-
-LOG_LEVEL=$(bashio::config 'log_level' 'info')
-bashio::log.level "$LOG_LEVEL"
-
 bashio::log.debug "================================================="
 bashio::log.debug "  Starting Certificate Tool"
 bashio::log.debug "================================================="
