@@ -22,31 +22,24 @@ fi
 # -----------------------------------------------------------------------------
 # Constants and Configuration
 # -----------------------------------------------------------------------------
-readonly DEFAULT_CERT="/config/ssl/fullchain.pem"
-readonly DEFAULT_KEY="/config/ssl/privkey.key"
+readonly CONFIG_SSL_DIR="/config/ssl"
+readonly PKCS12_FILE="${CONFIG_SSL_DIR}/technitium.pfx"
 readonly PKCS12_PASSWORD="TechnitiumDNS!SSL"
-readonly PKCS12_FILE="/config/ssl/technitium.pfx"
-readonly SSL_DIR="/config/ssl"
 
 # Dynamic configuration
 CERT_FILE=""
 KEY_FILE=""
-ADDON_HOSTNAME=""
 
 # -----------------------------------------------------------------------------
 # Initialization
 # -----------------------------------------------------------------------------
 init_configuration() {
-    ADDON_HOSTNAME=$(get_hostname)
-
     # Create SSL directory if needed
-    if [ ! -d "$SSL_DIR" ]; then
-        mkdir -p "$SSL_DIR"
+    if [[ ! -d "${CONFIG_SSL_DIR}" ]]; then
+        mkdir -p "${CONFIG_SSL_DIR}"
     fi
 
-    # Get certificate paths with defaults
-    CERT_FILE=$(bashio::config 'certfile' "$DEFAULT_CERT")
-    KEY_FILE=$(bashio::config 'keyfile' "$DEFAULT_KEY")
+    check_cert_paths
 }
 
 # -----------------------------------------------------------------------------
@@ -55,46 +48,161 @@ init_configuration() {
 check_pkcs12() {
     local expiry_date
 
-    if [ ! -f "$PKCS12_FILE" ]; then
+    if [[ ! -f "${PKCS12_FILE}" ]]; then
         bashio::log.debug "No PKCS12 file found"
         return 1
     fi
 
     # Validate PKCS12 format
-    if ! openssl pkcs12 -in "$PKCS12_FILE" -noout -passin pass:"$PKCS12_PASSWORD" 2>/dev/null; then
+    if ! openssl pkcs12 -in "${PKCS12_FILE}" -noout -passin pass:"${PKCS12_PASSWORD}" 2>/dev/null; then
         bashio::log.debug "Invalid PKCS12 file"
         return 1
     fi
 
-    # Check expiration
-    expiry_date=$(openssl pkcs12 -in "$PKCS12_FILE" -nokeys -passin pass:"$PKCS12_PASSWORD" 2>/dev/null |
-        openssl x509 -noout -enddate | cut -d'=' -f2)
+    # Extract expiration date
+    local cert_data
+    cert_data=$(openssl pkcs12 -in "${PKCS12_FILE}" -nokeys -passin pass:"${PKCS12_PASSWORD}" 2>/dev/null || true)
 
-    if openssl pkcs12 -in "$PKCS12_FILE" -nokeys -passin pass:"$PKCS12_PASSWORD" 2>/dev/null |
-        openssl x509 -noout -checkend 0 2>/dev/null; then
-        bashio::log.debug "Valid non-expired PKCS12 file found (expires: ${expiry_date})"
-        return 0
+    # Now extract expiry date from cert data
+    if [[ -n "${cert_data}" ]]; then
+        local expiry_output
+        expiry_output=$(echo "${cert_data}" | openssl x509 -noout -enddate || true)
+        expiry_date=$(echo "${expiry_output}" | cut -d'=' -f2)
+
+        # Check certificate validity separately to avoid masking return value
+        echo "${cert_data}" | openssl x509 -noout -checkend 0 >/dev/null 2>&1
+        local valid=$?
+
+        if [[ ${valid} -eq 0 ]]; then
+            bashio::log.debug "Valid non-expired PKCS12 file found (expires: ${expiry_date})"
+            return 0
+        else
+            bashio::log.debug "PKCS12 certificate is expired (expired: ${expiry_date})"
+            return 1
+        fi
     else
-        bashio::log.debug "PKCS12 certificate is expired (expired: ${expiry_date})"
+        bashio::log.debug "Failed to extract certificate data"
         return 1
     fi
 }
 
 check_cert_paths() {
     # Validate certificate file
-    if [ ! -f "$CERT_FILE" ] || [ ! -r "$CERT_FILE" ]; then
-        bashio::log.debug "Certificate file not found or not readable, using default: $DEFAULT_CERT"
-        CERT_FILE="$DEFAULT_CERT"
+    if bashio::config.exists 'certfile' && bashio::config.has_value 'certfile'; then
+        CERT_FILE="$(bashio::config 'certfile')"
+        if [[ ! -f "${CERT_FILE}" || ! -r "${CERT_FILE}" ]]; then
+            bashio::log.debug "Configured certificate file not found or not readable: ${CERT_FILE}"
+            CERT_FILE=""
+        else
+            bashio::log.debug "Using configured certificate file: ${CERT_FILE}"
+        fi
     else
-        bashio::log.debug "Using certificate file: $CERT_FILE"
+        bashio::log.debug "No certificate file configured"
+        CERT_FILE=""
+    fi
+
+    # Try the Home Assistant SSL directory if primary cert file not available
+    if [[ -z "${CERT_FILE}" && -f "/ssl/fullchain.pem" && -r "/ssl/fullchain.pem" ]]; then
+        CERT_FILE="/ssl/fullchain.pem"
+        bashio::log.debug "Using Home Assistant SSL certificate: ${CERT_FILE}"
+    fi
+
+    # Fall back to default SSL directory if needed
+    if [[ -z "${CERT_FILE}" ]]; then
+        CERT_FILE="${CONFIG_SSL_DIR}/fullchain.pem"
+        bashio::log.debug "Using default certificate location: ${CERT_FILE}"
     fi
 
     # Validate key file
-    if [ ! -f "$KEY_FILE" ] || [ ! -r "$KEY_FILE" ]; then
-        bashio::log.debug "Key file not found or not readable, using default: $DEFAULT_KEY"
-        KEY_FILE="$DEFAULT_KEY"
+    if bashio::config.exists 'keyfile' && bashio::config.has_value 'keyfile'; then
+        KEY_FILE="$(bashio::config 'keyfile')"
+        if [[ ! -f "${KEY_FILE}" || ! -r "${KEY_FILE}" ]]; then
+            bashio::log.debug "Configured key file not found or not readable: ${KEY_FILE}"
+            KEY_FILE=""
+        else
+            bashio::log.debug "Using configured key file: ${KEY_FILE}"
+        fi
     else
-        bashio::log.debug "Using key file: $KEY_FILE"
+        bashio::log.debug "No key file configured"
+        KEY_FILE=""
+    fi
+
+    # Try the Home Assistant SSL directory if primary key file not available
+    if [[ -z "${KEY_FILE}" && -f "/ssl/privkey.pem" && -r "/ssl/privkey.pem" ]]; then
+        KEY_FILE="/ssl/privkey.pem"
+        bashio::log.debug "Using Home Assistant SSL key: ${KEY_FILE}"
+    fi
+
+    # Fall back to default SSL directory if needed
+    if [[ -z "${KEY_FILE}" ]]; then
+        KEY_FILE="${CONFIG_SSL_DIR}/privkey.pem"
+        bashio::log.debug "Using default key location: ${KEY_FILE}"
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# Certificate Hostname Validation
+# -----------------------------------------------------------------------------
+check_hostname_match() {
+    local cert_cn
+    local cert_sans
+    local hostname_match=false
+    local current_hostname
+    current_hostname=$(get_hostname)
+
+    # Skip if PKCS12 file doesn't exist or is invalid
+    if [[ ! -f "${PKCS12_FILE}" ]]; then
+        bashio::log.debug "No PKCS12 file exists yet for hostname validation"
+        return 1
+    fi
+
+    # Extract certificate data
+    local cert_data
+    cert_data=$(openssl pkcs12 -in "${PKCS12_FILE}" -nokeys -passin pass:"${PKCS12_PASSWORD}" 2>/dev/null || true)
+
+    if [[ -z "${cert_data}" ]]; then
+        bashio::log.debug "Cannot extract certificate data for hostname validation"
+        return 1
+    fi
+
+    # Get the certificate's Common Name (CN)
+    local subject_output
+    subject_output=$(echo "${cert_data}" | openssl x509 -noout -subject -nameopt RFC2253 2>/dev/null || true)
+    cert_cn=$(echo "${subject_output}" | sed -n 's/.*CN=\([^,]*\).*/\1/p' || true)
+
+    # Get all Subject Alternative Names (SANs)
+    local sans_output
+    sans_output=$(echo "${cert_data}" | openssl x509 -noout -ext subjectAltName 2>/dev/null || true)
+    cert_sans=$(echo "${sans_output}" | grep -o "DNS:[^,]*" | sed 's/DNS://g' || true)
+
+    bashio::log.debug "Certificate CN: ${cert_cn}"
+    bashio::log.debug "Certificate SANs: ${cert_sans}"
+    bashio::log.debug "Current hostname: ${current_hostname}"
+
+    # Check if current hostname matches CN
+    if [[ "${cert_cn}" == "${current_hostname}" ]]; then
+        bashio::log.debug "Hostname matches certificate CN"
+        hostname_match=true
+    fi
+
+    # Check if current hostname matches any SAN
+    if [[ "${hostname_match}" == "false" ]] && [[ -n "${cert_sans}" ]]; then
+        # Process each SAN using a process substitution instead of a pipeline
+        while read -r san; do
+            if [[ "${san}" == "${current_hostname}" ]]; then
+                bashio::log.debug "Hostname matches certificate SAN: ${san}"
+                hostname_match=true
+                break
+            fi
+        done < <(echo "${cert_sans}")
+    fi
+
+    if [[ "${hostname_match}" == "true" ]]; then
+        bashio::log.debug "Certificate valid for current hostname"
+        return 0
+    else
+        bashio::log.debug "Certificate NOT valid for current hostname - regeneration required"
+        return 1
     fi
 }
 
@@ -102,32 +210,27 @@ check_cert_paths() {
 # Certificate Generation Functions
 # -----------------------------------------------------------------------------
 generate_self_signed() {
-    bashio::log.debug "Generating self-signed certificate..."
+    local hostname
+    hostname=$(get_hostname)
+
+    bashio::log.debug "Generating self-signed certificate for hostname: ${hostname}"
     openssl req -x509 \
         -newkey rsa:4096 \
-        -keyout "$KEY_FILE" \
-        -out "$CERT_FILE" \
+        -keyout "${KEY_FILE}" \
+        -out "${CERT_FILE}" \
         -days 365 \
         -nodes \
-        -subj "/CN=$ADDON_HOSTNAME"
+        -subj "/CN=${hostname}"
 }
 
 generate_pkcs12() {
     bashio::log.debug "Generating PKCS12 file..."
     openssl pkcs12 -export \
-        -out "$PKCS12_FILE" \
-        -inkey "$KEY_FILE" \
-        -in "$CERT_FILE" \
-        -password pass:"$PKCS12_PASSWORD"
+        -out "${PKCS12_FILE}" \
+        -inkey "${KEY_FILE}" \
+        -in "${CERT_FILE}" \
+        -password pass:"${PKCS12_PASSWORD}"
 }
-
-# Add certificate cleanup
-cleanup_certs() {
-    # Remove sensitive files
-    rm -f "${PKCS12_FILE}.tmp" 2>/dev/null || true
-}
-
-trap cleanup_certs EXIT
 
 # -----------------------------------------------------------------------------
 # Main Certificate Management Function
@@ -138,20 +241,38 @@ handle_cert_update() {
     # Initialize configuration
     init_configuration
 
-    # Validate paths
-    check_cert_paths
-
     local regenerate_pkcs12=false
+    local need_pkcs12=false
 
     # Check if we need to generate certificates
-    if [ ! -f "$CERT_FILE" ] || [ ! -f "$KEY_FILE" ]; then
+    if [[ ! -f "${CERT_FILE}" || ! -f "${KEY_FILE}" ]]; then
         bashio::log.debug "Certificate files are not present - generating self-signed certificates..."
         generate_self_signed
         regenerate_pkcs12=true
     fi
 
+    # Check if hostname matches certificate
+    if ! check_hostname_match; then
+        bashio::log.debug "Current hostname doesn't match certificate - regenerating"
+        generate_self_signed
+        regenerate_pkcs12=true
+    fi
+
     # Update PKCS12 if needed
-    if [ "$regenerate_pkcs12" = "true" ] || ! check_pkcs12; then
+    if [[ "${regenerate_pkcs12}" = "true" ]]; then
+        bashio::log.debug "Regenerating PKCS12 due to regenerate flag or hostname mismatch"
+        need_pkcs12=true
+    else
+        # Run check_pkcs12 and check its return status directly
+        if ! check_pkcs12; then
+            bashio::log.debug "Regenerating PKCS12 due to validation failure"
+            need_pkcs12=true
+        else
+            need_pkcs12=false
+        fi
+    fi
+
+    if [[ "${need_pkcs12}" = "true" ]]; then
         if generate_pkcs12; then
             bashio::log.debug "PKCS12 certificate generated successfully"
         else

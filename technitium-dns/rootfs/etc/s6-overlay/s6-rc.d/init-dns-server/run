@@ -1,124 +1,76 @@
 #!/command/with-contenv bashio
 # shellcheck shell=bash
 # shellcheck disable=SC1091
+# shellcheck disable=SC2154
 # ==============================================================================
 # Initializing Technitium DNS Server
 # ==============================================================================
 
+# Allow DNS server to fully start before configuration
 sleep 5
 
 bashio::log.debug "================================================="
 bashio::log.debug "  Initializing Technitium DNS Server"
 bashio::log.debug "================================================="
 
+# -----------------------------------------------------------------------------
+# Manual Configuration Check
+# -----------------------------------------------------------------------------
 if bashio::config.true 'manualConfig'; then
     bashio::log.debug "Manual configuration mode enabled - skipping automatic configuration"
     exit 0
 fi
 
+# -----------------------------------------------------------------------------
+# Source Dependencies
+# -----------------------------------------------------------------------------
 # Source utilities and perform initial setup
-# Add initial validation
+# shellcheck source=/etc/s6-overlay/scripts/api_utils.sh
 if ! source "/etc/s6-overlay/scripts/api_utils.sh"; then
     bashio::exit.nok "Failed to source API utilities"
 fi
 
+# shellcheck source=/etc/s6-overlay/scripts/cert_utils.sh
 if ! source "/etc/s6-overlay/scripts/cert_utils.sh"; then
     bashio::exit.nok "Failed to source certificate utilities"
 fi
 
+# shellcheck source=/etc/s6-overlay/scripts/helper_utils.sh
 if ! source "/etc/s6-overlay/scripts/helper_utils.sh"; then
     bashio::exit.nok "Failed to source helper utilities"
 fi
 
-# Validate config values
-for config in logQueries enableDnsOverTls enableDnsOverHttps enableDnsOverQuic forwarders; do
-    if ! bashio::config.exists "$config"; then
-        bashio::exit.nok "Configuration option $config is required"
-    fi
-done
-
+# -----------------------------------------------------------------------------
+# Configuration Variables
+# -----------------------------------------------------------------------------
+# Read configuration options from user config
 LOG_QUERIES=$(bashio::config 'logQueries' 'true')
 DNS_OVER_TLS=$(bashio::config 'enableDnsOverTls' 'true')
 DNS_OVER_HTTPS=$(bashio::config 'enableDnsOverHttps' 'true')
 DNS_OVER_HTTPS3=$(bashio::config 'enableDnsOverHttps3' 'true')
 DNS_OVER_QUIC=$(bashio::config 'enableDnsOverQuic' 'true')
+FORWARDER=$(bashio::config 'forwarders' 'Cloudflare (DNS-over-HTTPS)')
 
-# Function to map forwarder name to DNS server and protocol
-get_forwarder_config() {
-    local forwarder="$1"
-    local dns_servers=""
-    local protocol=""
-
-    case "$forwarder" in
-    "Cloudflare (DNS-over-UDP)")
-        dns_servers="[\"1.1.1.1\",\"1.0.0.1\"]"
-        protocol="Udp"
-        ;;
-    "Cloudflare (DNS-over-UDP IPv6)")
-        dns_servers="[\"[2606:4700:4700::1111] ([2606:4700:4700::1111])\",\"[2606:4700:4700::1001] ([2606:4700:4700::1001])\"]"
-        protocol="Udp"
-        ;;
-    "Cloudflare (DNS-over-TCP)")
-        dns_servers="[\"1.1.1.1\",\"1.0.0.1\"]"
-        protocol="Tcp"
-        ;;
-    "Cloudflare (DNS-over-TCP IPv6)")
-        dns_servers="[\"[2606:4700:4700::1111]\",\"[2606:4700:4700::1001]\"]"
-        protocol="Tcp"
-        ;;
-    "Cloudflare (DNS-over-TLS)")
-        dns_servers="[\"cloudflare-dns.com (1.1.1.1:853)\",\"cloudflare-dns.com (1.0.0.1:853)\"]"
-        protocol="Tls"
-        ;;
-    "Cloudflare (DNS-over-TLS IPv6)")
-        dns_servers="[\"cloudflare-dns.com ([2606:4700:4700::1111]:853)\",\"cloudflare-dns.com ([2606:4700:4700::1001]:853)\"]"
-        protocol="Tls"
-        ;;
-    "Cloudflare (DNS-over-HTTPS)")
-        dns_servers="[\"https://cloudflare-dns.com/dns-query (1.1.1.1)\",\"https://cloudflare-dns.com/dns-query (1.0.0.1)\"]"
-        protocol="Https"
-        ;;
-    "Cloudflare (DNS-over-HTTPS IPv6)")
-        dns_servers="[\"https://cloudflare-dns.com/dns-query ([2606:4700:4700::1111])\",\"https://cloudflare-dns.com/dns-query ([2606:4700:4700::1001])\"]"
-        protocol="Https"
-        ;;
-    "Cloudflare (Oblivious DNS-over-HTTPS)")
-        dns_servers="[\"https://odoh.cloudflare-dns.com/dns-query (1.1.1.1)\",\"https://odoh.cloudflare-dns.com/dns-query (1.0.0.1)\"]"
-        protocol="Https"
-        ;;
-    "Cloudflare (Oblivious DNS-over-HTTPS IPv6)")
-        dns_servers="[\"https://odoh.cloudflare-dns.com/dns-query ([2606:4700:4700::1111])\",\"https://odoh.cloudflare-dns.com/dns-query ([2606:4700:4700::1001])\"]"
-        protocol="Https"
-        ;;
-    "Cloudflare (DNS-over-QUIC)")
-        dns_servers="[\"h3://cloudflare-dns.com (1.1.1.1)\",\"h3://cloudflare-dns.com (1.0.0.1)\"]"
-        protocol="Quic"
-        ;;
-    "Cloudflare (DNS-over-QUIC IPv6)")
-        dns_servers="[\"h3://cloudflare-dns.com ([2606:4700:4700::1111])\",\"h3://cloudflare-dns.com ([2606:4700:4700::1001])\"]"
-        protocol="Quic"
-        ;;
-    "Cloudflare (DNS-over-TOR!)")
-        dns_servers="[\"dns4torpnlfs2ifuz2s2yf3fc7rdmsbhm6rw75euj35pac6ap25zgqad.onion\"]"
-        protocol="Tcp"
-        ;;
-    *)
-        dns_servers="[\"1.1.1.1\",\"1.0.0.1\"]"
-        protocol="Udp"
-        ;;
-    esac
-
-    echo "$dns_servers|$protocol"
-}
-
+# -----------------------------------------------------------------------------
+# Configure DNS Server
+# -----------------------------------------------------------------------------
+# Get hostname from helper utility
 ADDON_HOSTNAME=$(get_hostname)
 
 # Get forwarder settings from config
-FORWARDER=$(bashio::config 'forwarders' 'Cloudflare (DNS-over-HTTPS)')
-IFS='|' read -r DNS_SERVERS PROTOCOL <<<"$(get_forwarder_config "$FORWARDER")"
+forwarder_config=$(get_forwarder_config "${FORWARDER}" || true)
+IFS='|' read -r DNS_SERVERS PROTOCOL <<<"${forwarder_config}"
 
+# Validate we got required settings
+if [[ -z "${DNS_SERVERS}" || -z "${PROTOCOL}" ]]; then
+    bashio::log.debug "Failed to get valid forwarder configuration, using defaults"
+    DNS_SERVERS="[\"1.1.1.1\",\"1.0.0.1\"]"
+    PROTOCOL="Udp"
+fi
+
+# Apply configuration via API
 # See options here: https://github.com/TechnitiumSoftware/DnsServer/blob/master/APIDOCS.md#set-dns-settings
-make_api_call "settings/get" "GET"
+bashio::log.debug "Applying DNS server configuration..."
 make_api_call "settings/set" "POST" "{
     \"dnsServerDomain\": \"${ADDON_HOSTNAME}\",
     \"loggingType\": \"FileAndConsole\",
@@ -140,4 +92,9 @@ make_api_call "settings/set" "POST" "{
     \"forwarderProtocol\": \"${PROTOCOL}\"
 }"
 
+# -----------------------------------------------------------------------------
+# Install Apps
+# -----------------------------------------------------------------------------
+# Install query logging app
+bashio::log.debug "Installing/updating query logs app..."
 manage_dns_app "Query Logs (Sqlite)"

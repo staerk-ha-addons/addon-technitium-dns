@@ -17,30 +17,19 @@ map:
   - type: addon_config
     read_only: false
 options:
-  hostname: ""
-  logQueries: true
   forwarders: Cloudflare (DNS-over-HTTPS)
-  enableDnsOverTls: true
-  enableDnsOverHttps: true
-  enableDnsOverHttps3: true
-  enableDnsOverQuic: true
-  certfile: /ssl/fullchain.pem
-  keyfile: /ssl/privkey.key
-  manualConfig: false
-  manualCertHandling: false
-  log_level: info
 schema:
-  hostname: str?
-  logQueries: bool
   forwarders: list(Cloudflare (DNS-over-UDP)|Cloudflare (DNS-over-TLS)|Cloudflare (DNS-over-HTTPS)|Cloudflare (Oblivious DNS-over-HTTPS))
-  enableDnsOverTls: bool
-  enableDnsOverHttps: bool
-  enableDnsOverHttps3: bool
-  enableDnsOverQuic: bool
-  keyfile: str?
+  logQueries: bool?
+  enableDnsOverTls: bool?
+  enableDnsOverHttps: bool?
+  enableDnsOverHttps3: bool?
+  enableDnsOverQuic: bool?
+  hostname: str?
   certfile: str?
-  manualConfig: bool
-  manualCertHandling: bool
+  keyfile: str?
+  manualConfig: bool?
+  manualCertHandling: bool?
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
 ports:
   53/tcp: 53
@@ -49,5 +38,5 @@ ports:
   443/udp: 443
   853/tcp: 853
   853/udp: 853
-  5380/tcp: 5380
-  53443/tcp: 53443
+  5380/tcp: null
+  53443/tcp: null

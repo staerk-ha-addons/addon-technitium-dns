@@ -1,18 +1,32 @@
 #!/command/with-contenv bashio
 # shellcheck shell=bash
+# shellcheck disable=SC1091
 # ==============================================================================
 # Starts Technitium DNS Server
 # ==============================================================================
 
+# Short delay to allow other services to initialize
 sleep 3
 
 bashio::log.debug "================================================="
 bashio::log.debug "  Starting Technitium DNS Server"
 bashio::log.debug "================================================="
 
+# -----------------------------------------------------------------------------
+# Environment Validation
+# -----------------------------------------------------------------------------
+# Ensure we're in the correct working directory
 cd "/opt/technitium/dns" || bashio::exit.nok "Could not change directory to Technitium DNS Server"
 
-command -v /usr/share/dotnet/dotnet >/dev/null 2>&1 || bashio::exit.nok "dotnet not found!"
-bashio::log.debug "Dotnet version: $(/usr/share/dotnet/dotnet --version || bashio::exit.nok 'dotnet version failed' || true)"
+# Verify dotnet runtime is available
+if ! command -v /usr/share/dotnet/dotnet >/dev/null 2>&1; then
+    bashio::exit.nok "Required dependency 'dotnet' not found!"
+fi
 
+# -----------------------------------------------------------------------------
+# Launch DNS Server
+# -----------------------------------------------------------------------------
+# Start the DNS server with the Home Assistant config directory
+# This allows persistent storage of all settings and DNS records
+bashio::log.debug "Launching Technitium DNS Server..."
 exec /usr/share/dotnet/dotnet /opt/technitium/dns/DnsServerApp.dll /config
