@@ -44,9 +44,7 @@
         "panel": "shared",
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Kill logs"
-      ],
+      "dependsOn": ["Kill logs"],
       "dependsOrder": "sequence"
     },
     {
@@ -62,9 +60,7 @@
         "panel": "shared",
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Kill logs"
-      ],
+      "dependsOn": ["Kill logs"],
       "dependsOrder": "sequence"
     },
     {
@@ -80,9 +76,7 @@
         "panel": "shared",
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Kill logs"
-      ],
+      "dependsOn": ["Kill logs"],
       "dependsOrder": "sequence"
     },
     {
@@ -98,9 +92,7 @@
         "panel": "shared",
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Kill logs"
-      ],
+      "dependsOn": ["Kill logs"],
       "dependsOrder": "sequence"
     },
     {
@@ -116,9 +108,7 @@
         "panel": "shared",
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Kill logs"
-      ],
+      "dependsOn": ["Kill logs"],
       "dependsOrder": "sequence"
     },
     {
@@ -179,9 +169,7 @@
         "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Kill logs"
-      ],
+      "dependsOn": ["Kill logs"],
       "dependsOrder": "sequence"
     },
     {
@@ -208,9 +196,7 @@
       "type": "pickString",
       "default": "technitium-dns",
       "description": "Name of addon (to add your addon to this list, please edit .vscode/tasks.json)",
-      "options": [
-        "technitium-dns"
-      ]
+      "options": ["technitium-dns"]
     }
   ]
 }
