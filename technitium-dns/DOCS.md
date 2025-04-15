@@ -15,8 +15,8 @@ Quick setup and best practices:
 
 - Use encrypted forwarding (DoH/DoT/DoQ) to Cloudflare
 - Standard endpoints:
-  - DNS: `homeassistant.local` or `<Home Assistant IP>`
-  - DoH: `https://homeassistant.local/dns-query`
+  - DNS: `homeassistant.local:53` or `<Home Assistant IP>`
+  - DoH: `https://homeassistant.local/dns-query:443`
   - DoT: `tls://homeassistant.local:853`
   - DoQ: `quic://homeassistant.local:853`
 
