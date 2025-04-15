@@ -44,7 +44,10 @@
         "panel": "shared",
         "showReuseMessage": false
       },
-      "dependsOn": ["Kill logs"]
+      "dependsOn": [
+        "Kill logs"
+      ],
+      "dependsOrder": "sequence"
     },
     {
       "label": "Start Addon",
@@ -59,7 +62,10 @@
         "panel": "shared",
         "showReuseMessage": false
       },
-      "dependsOn": ["Kill logs"]
+      "dependsOn": [
+        "Kill logs"
+      ],
+      "dependsOrder": "sequence"
     },
     {
       "label": "Stop Addon",
@@ -74,7 +80,10 @@
         "panel": "shared",
         "showReuseMessage": false
       },
-      "dependsOn": ["Kill logs"]
+      "dependsOn": [
+        "Kill logs"
+      ],
+      "dependsOrder": "sequence"
     },
     {
       "label": "Uninstall Addon",
@@ -89,7 +98,10 @@
         "panel": "shared",
         "showReuseMessage": false
       },
-      "dependsOn": ["Kill logs"]
+      "dependsOn": [
+        "Kill logs"
+      ],
+      "dependsOrder": "sequence"
     },
     {
       "label": "Rebuild Addon",
@@ -104,7 +116,10 @@
         "panel": "shared",
         "showReuseMessage": false
       },
-      "dependsOn": ["Kill logs"]
+      "dependsOn": [
+        "Kill logs"
+      ],
+      "dependsOrder": "sequence"
     },
     {
       "label": "Reinstall Addon",
@@ -129,7 +144,7 @@
       "dependsOrder": "sequence"
     },
     {
-      "label": "Rebuild Addon",
+      "label": "Rest Addon",
       "type": "shell",
       "command": "",
       "group": {
@@ -138,7 +153,7 @@
       },
       "presentation": {
         "reveal": "always",
-        "panel": "shared",
+        "panel": "new",
         "showReuseMessage": false
       },
       "dependsOn": [
@@ -146,24 +161,28 @@
         "Rebuild Addon",
         "Start Addon",
         "Follow Addon Logs"
-      ]
+      ],
+      "dependsOrder": "sequence"
     },
     {
       "label": "Follow Addon Logs",
       "type": "shell",
-      "command": "docker logs --follow addon_local_${input:addonName};",
+      "command": "docker logs --follow \"addon_local_${input:addonName}\"",
       "group": {
         "kind": "test",
         "isDefault": false
       },
       "presentation": {
         "reveal": "always",
-        "panel": "new",
+        "panel": "shared",
         "clear": true,
         "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": ["Kill logs"]
+      "dependsOn": [
+        "Kill logs"
+      ],
+      "dependsOrder": "sequence"
     },
     {
       "label": "Kill logs",
@@ -174,7 +193,8 @@
         "isDefault": false
       },
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
+        "revealProblems": "never",
         "panel": "new",
         "clear": true,
         "close": true,
@@ -188,7 +208,9 @@
       "type": "pickString",
       "default": "technitium-dns",
       "description": "Name of addon (to add your addon to this list, please edit .vscode/tasks.json)",
-      "options": ["technitium-dns"]
+      "options": [
+        "technitium-dns"
+      ]
     }
   ]
 }
