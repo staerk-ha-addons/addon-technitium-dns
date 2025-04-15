@@ -4,51 +4,18 @@
 ![Project Stage][project-stage-shield]
 [![License][license-shield]](LICENSE.md)
 
-![Supports armhf Architecture][technitium-dns-armhf-shield]
-![Supports armv7 Architecture][technitium-dns-armv7-shield]
-![Supports aarch64 Architecture][technitium-dns-aarch64-shield]
-![Supports amd64 Architecture][technitium-dns-amd64-shield]
-![Supports i386 Architecture][technitium-dns-i386-shield]
-
 > [!TIP]
-> ⭐ Love this add-on? Show your support by giving us a star on GitHub! Every star helps make this project more visible and encourages continued development.
+> ⭐ Love this add-on? Show your support by giving a [star on GitHub!][repository] Every star helps make this project more visible and encourages continued development.
 
 ## 🌐 Modern DNS Solution for Home Assistant
 
 A fully featured DNS server for Home Assistant that acts as a secure forwarding DNS server, querying external providers using modern encrypted protocols. Perfect for improving your home network's privacy and security.
 
-## ✨ Features
-
-- Complete DNS solution for your home network
-- Modern DNS protocols support:
-  - DNS-over-HTTPS (DoH) with HTTP/3
-  - DNS-over-TLS (DoT)
-  - DNS-over-QUIC (DoQ)
-- Enhanced Security:
-  - Encrypted DNS queries
-  - DNSSEC validation
-  - SSL certificate management
-  - Automatic updates
-- Local DNS Features:
-  - Custom DNS zones
-  - Local domain hosting
-  - DNS filtering and blocking
-  - Fast DNS caching
-- Easy Management:
-  - Web interface
-  - Home Assistant integration
-  - API access
-  - Automatic configuration
-- Multiple DNS Forwarders:
-  - All Cloudflare DNS protocols
-  - IPv4 and IPv6 support
-  - Encrypted connections
-
 ## 🏃 Quick Start
 
 1. Click the Home Assistant My button below to add the repository to your Home Assistant instance.
 
-   [![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fstaerk-ha-addons%2Faddon-technitium-dns)
+   [![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fstaerk-ha-addons%2Frepository)
 
 2. Find the "Technitium DNS Server" add-on in the add-on store.
 3. Click "Install" to download the add-on.
@@ -64,6 +31,18 @@ A fully featured DNS server for Home Assistant that acts as a secure forwarding 
 >
 > You will be required to change the password on your first login for security purposes.
 
+## ✨ Features
+
+A fully featured DNS server for Home Assistant that:
+
+- 🔒 Securely forwards DNS queries using DoH/DoT/DoQ
+- 🌐 Supports local DNS zones and custom domains
+- 🔄 Auto-configures with Home Assistant
+- 📋 Manages SSL certificates automatically
+- 🚀 Uses Cloudflare DNS with modern protocols
+- ⚡ Provides fast DNS caching
+- 🛡️ Includes DNS filtering and blocking
+
 ## 📖 Documentation
 
 Want to get the most out of this add-on? Our comprehensive documentation covers:
@@ -75,29 +54,14 @@ Want to get the most out of this add-on? Our comprehensive documentation covers:
 - Troubleshooting
 - Client setup examples
 
-Check the [DOCS.md](https://github.com/staerk-ha-addons/addon-technitium-dns/blob/main/technitium-dns/DOCS.md) for full details.
-
-## 🛠️ Development
-
-This add-on uses:
-
-- Technitium DNS Server v13.5
-- .NET 8.0 Runtime
-- Debian base image
-- S6-Overlay for service management
-- Automatic certificate management
-- AppArmor profiles for enhanced security
-- Technitium DNS Server API for configuring the server
+Check the [:books: DOCS.md][docs] for full details.
 
 ## 💡 Support
 
-Got questions? You have several options to get them answered:
+Got questions?
 
-- The [Home Assistant Discord Chat Server][discord]
-- The Home Assistant [Community Forum][forum]
-- Join the [Reddit subreddit][reddit] in [/r/homeassistant][reddit]
-
-In case you've found a bug, please [open an issue on our GitHub][issue]
+- Create an [issue on GitHub][issue] for bug reports, feature requests, or questions
+- Add a ⭐️ [star on GitHub][repository] to support the project
 
 ## 🤝 Contributing
 
@@ -132,18 +96,12 @@ MIT License
 
 Copyright (c) 2025 Jeppe Stærk
 
-[technitium-dns-aarch64-shield]: https://img.shields.io/badge/aarch64-yes-green.svg
-[technitium-dns-amd64-shield]: https://img.shields.io/badge/amd64-yes-green.svg
-[technitium-dns-armhf-shield]: https://img.shields.io/badge/armhf-no-red.svg
-[technitium-dns-armv7-shield]: https://img.shields.io/badge/armv7-no-red.svg
-[technitium-dns-i386-shield]: https://img.shields.io/badge/i386-no-red.svg
-[discord]: https://discord.gg/c5DvZ4e
-[forum]: https://community.home-assistant.io
+[docs]: https://github.com/staerk-ha-addons/addon-technitium-dns/blob/main/technitium-dns/DOCS.md
 [frenck]: https://github.com/frenck
 [issue]: https://github.com/staerk-ha-addons/addon-technitium-dns/issues
-[reddit]: https://reddit.com/r/homeassistant
 [releases-shield]: https://img.shields.io/github/release/staerk-ha-addons/addon-technitium-dns.svg
 [releases]: https://github.com/staerk-ha-addons/addon-technitium-dns/releases
+[repository]: https://github.com/staerk-ha-addons/repository
 [staerk]: https://github.com/staerk-ha-addons
 [project-stage-shield]: https://img.shields.io/badge/project%20stage-experimental-yellow.svg
 [license-shield]: https://img.shields.io/github/license/staerk-ha-addons/addon-technitium-dns.svg
