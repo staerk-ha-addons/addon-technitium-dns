@@ -35,7 +35,7 @@ Quick setup and best practices:
 
 > This diagram illustrates how DNS queries flow through your network, showing both unencrypted (🔓) and encrypted (🔐) paths. Local devices can use either standard DNS or secure protocols (DoH/DoT/DoQ) to query the Technitium DNS Server, which then forwards requests to Cloudflare using selected forwarders.
 
-![DNS flow diagram](images/flowchart-dns.svg)
+![DNS flow diagram][dns-diagram]
 
 ### Key Points
 
@@ -393,6 +393,7 @@ This is a third-party add-on for Home Assistant and not an official add-on. It i
 
 MIT License - Copyright (c) 2025 Jeppe Stærk
 
+[dns-diagram]: https://raw.githubusercontent.com/staerk-ha-addons/addon-technitium-dns/refs/heads/main/technitium-dns/images/flowchart-dns.svg
 [frenck]: https://github.com/frenck
 [issue]: https://github.com/staerk-ha-addons/addon-technitium-dns/issues
 [repository]: https://github.com/staerk-ha-addons/repository

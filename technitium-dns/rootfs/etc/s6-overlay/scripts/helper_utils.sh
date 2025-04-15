@@ -4,35 +4,44 @@
 # Helper utilities for Technitium DNS Server
 # ==============================================================================
 
-print_system_information(){
+print_system_information() {
     bashio::log.debug "System Information:"
-    bashio::log.debug "$(bashio::info | jq .)"
+    bashio::log.debug "$(bashio::info | jq . || true)"
     bashio::log.debug "System Enviroment Variabels:"
-    bashio::log.debug "$(printenv)"
+    bashio::log.debug "$(printenv || true)"
 }
 
 get_hostname() {
-    local system_hostname
     local default_hostname="homeassistant.local"
+    local system_hostname
+    local config_hostname
     local hostname
 
-    system_hostname=$(bashio::info.hostname)
+    print_system_information
+    bashio::log.debug "Getting hostname..."
+    # Priority 1: Use configured hostname if available
+    if bashio::config.exists 'hostname' && bashio::config.has_value 'hostname'; then
+        config_hostname="$(bashio::config 'hostname')"
+        hostname="${config_hostname}"
+        bashio::log.debug "Using configured hostname: ${hostname}"
 
-    # Check for empty, null or undefined hostname
-    if [[ -z "$system_hostname" || "$system_hostname" == "null" || "$system_hostname" == "undefined" ]]; then
-        hostname="$default_hostname"
-        bashio::log.debug "Empty or invalid hostname, using default: ${hostname}"
+    # Priority 2: Use system hostname if available
+    elif system_hostname="$(bashio::info.hostname 2>/dev/null)" &&
+        [[ -n "${system_hostname}" && "${system_hostname}" != "null" ]]; then
+        hostname="${system_hostname}"
+        bashio::log.debug "Using system hostname: ${hostname}"
+
+    # Priority 3: Fall back to default hostname
     else
-        hostname="$system_hostname"
+        hostname="${default_hostname}"
+        bashio::log.debug "No valid hostname found, using default: ${hostname}"
     fi
 
-    # Check if hostname is an FQDN (contains at least one dot)
-    if [[ "$hostname" != *.* ]]; then
+    # Ensure hostname is an FQDN (contains at least one dot)
+    if [[ "${hostname}" != *.* ]]; then
         hostname="${hostname}.local"
-        bashio::log.debug "Hostname not an FQDN, using: ${hostname}"
-    else
-        bashio::log.debug "Using FQDN hostname: ${hostname}"
+        bashio::log.debug "Adding .local suffix: ${hostname}"
     fi
 
-    echo "$hostname"
+    echo "${hostname}"
 }

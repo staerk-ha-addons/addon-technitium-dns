@@ -1,5 +1,9 @@
 ---
 configuration:
+  hostname:
+    name: Hostname
+    description: >-
+      The hostname of the Home Assistant instance.
   logQueries:
     name: Enable Query Logging
     description: >-

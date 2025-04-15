@@ -17,6 +17,7 @@ map:
   - type: addon_config
     read_only: false
 options:
+  hostname: ""
   logQueries: true
   forwarders: Cloudflare (DNS-over-HTTPS)
   enableDnsOverTls: true
@@ -29,14 +30,15 @@ options:
   manualCertHandling: false
   log_level: info
 schema:
+  hostname: str?
   logQueries: bool
   forwarders: list(Cloudflare (DNS-over-UDP)|Cloudflare (DNS-over-TLS)|Cloudflare (DNS-over-HTTPS)|Cloudflare (Oblivious DNS-over-HTTPS))
   enableDnsOverTls: bool
   enableDnsOverHttps: bool
   enableDnsOverHttps3: bool
   enableDnsOverQuic: bool
-  keyfile: "str?"
-  certfile: "str?"
+  keyfile: str?
+  certfile: str?
   manualConfig: bool
   manualCertHandling: bool
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
