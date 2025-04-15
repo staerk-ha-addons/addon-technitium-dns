@@ -1,24 +1,29 @@
 ---
 configuration:
-  forwarders:
-    name: Forwarders
-    description: >-
-      Forwarders are upstream DNS servers which this DNS Server must use to resolve domain names.
-      You can set you own in the dns server UI under settings -> Proxy and Forwarders.
   logQueries:
     name: Enable Query Logging
     description: >-
       Enable this option to log every query received by this DNS Server
       and the corresponding response answers into the log.
+  forwarders:
+    name: Forwarders
+    description: >-
+      Forwarders are upstream DNS servers which this DNS Server must use to resolve domain names.
+      You can set you own in the dns server UI under settings -> Proxy and Forwarders.
   enableDnsOverTls:
     name: Enable DNS-over-TLS
     description: >-
       Enable this option to accept DNS-over-TLS requests.
       See port and protocol under Network Configuration.
   enableDnsOverHttps:
-    name: Enable DNS-over-HTTPS
+    name: Enable DNS-over-HTTPS (HTTP/1.1 + HTTP/2)
     description: >-
       Enable this option to accept DNS-over-HTTPS requests.
+      See port and protocol under Network Configuration.
+  enableDnsOverHttps3:
+    name: Enable DNS-over-HTTPS3 (HTTP/3)
+    description: >-
+      Enable this option to accept DNS-over-HTTPS3 requests.
       See port and protocol under Network Configuration.
   enableDnsOverQuic:
     name: Enable DNS-over-QUIC
@@ -47,11 +52,15 @@ configuration:
       Enable this option to disable automatic certificate management.
       When enabled, you must handle certificates manually through the web interface.
       This includes certificate generation, conversion, and renewal.
+  log_level:
+    name: Log level
+    description: >-
+      Controls the level of log details the add-on provides.
 network:
   53/udp: DNS-over-UDP (53/udp)
   853/tcp: DNS-over-TLS (853/tcp)
   443/tcp: DNS-over-HTTPS (443/tcp => HTTP/1.1 + HTTP/2)
-  443/udp: DNS-over-HTTPS (443/udp => HTTP/3)
+  443/udp: DNS-over-HTTPS3 (443/udp => HTTP/3)
   853/udp: DNS-over-QUIC (853/udp)
   5380/tcp: Web UI and API (5380/tcp => HTTP)
   53443/tcp: Web UI and API (53443/tcp => HTTPS)

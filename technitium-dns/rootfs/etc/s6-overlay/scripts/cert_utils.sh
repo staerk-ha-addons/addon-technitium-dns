@@ -5,10 +5,17 @@
 # ==============================================================================
 
 # -----------------------------------------------------------------------------
+# Debugging and Logging
+# -----------------------------------------------------------------------------
+
+LOG_LEVEL=$(bashio::config 'log_level' 'info')
+bashio::log.level "$LOG_LEVEL"
+
+# -----------------------------------------------------------------------------
 # Dependency Check
 # -----------------------------------------------------------------------------
 if ! command -v openssl >/dev/null 2>&1; then
-    bashio::log.error "openssl binary not found!"
+    bashio::log.debug "openssl binary not found!"
     exit 1
 fi
 
@@ -43,7 +50,7 @@ init_configuration() {
 
     # Create SSL directory if needed
     if [ ! -d "$SSL_DIR" ]; then
-        mkdir -p "$SSL_DIR"
+        mkdir -p "$SSL_DIR" >/dev/null 2>&1
     fi
 
     # Get certificate paths with defaults
@@ -58,26 +65,26 @@ check_pkcs12() {
     local expiry_date
 
     if [ ! -f "$PKCS12_FILE" ]; then
-        bashio::log.warning "No PKCS12 file found"
+        bashio::log.debug "No PKCS12 file found"
         return 1
     fi
 
     # Validate PKCS12 format
     if ! openssl pkcs12 -in "$PKCS12_FILE" -noout -passin pass:"$PKCS12_PASSWORD" 2>/dev/null; then
-        bashio::log.warning "Invalid PKCS12 file"
+        bashio::log.debug "Invalid PKCS12 file"
         return 1
     fi
 
     # Check expiration
     expiry_date=$(openssl pkcs12 -in "$PKCS12_FILE" -nokeys -passin pass:"$PKCS12_PASSWORD" 2>/dev/null |
-        openssl x509 -noout -enddate | cut -d'=' -f2)
+        openssl x509 -noout -enddate | cut -d'=' -f2 >/dev/null 2>&1)
 
     if openssl pkcs12 -in "$PKCS12_FILE" -nokeys -passin pass:"$PKCS12_PASSWORD" 2>/dev/null |
         openssl x509 -noout -checkend 0 2>/dev/null; then
-        bashio::log.info "Valid non-expired PKCS12 file found (expires: ${expiry_date})"
+        bashio::log.debug "Valid non-expired PKCS12 file found (expires: ${expiry_date})"
         return 0
     else
-        bashio::log.warning "PKCS12 certificate is expired (expired: ${expiry_date})"
+        bashio::log.debug "PKCS12 certificate is expired (expired: ${expiry_date})"
         return 1
     fi
 }
@@ -85,18 +92,18 @@ check_pkcs12() {
 check_cert_paths() {
     # Validate certificate file
     if [ ! -f "$CERT_FILE" ] || [ ! -r "$CERT_FILE" ]; then
-        bashio::log.warning "Certificate file not found or not readable, using default: $DEFAULT_CERT"
+        bashio::log.debug "Certificate file not found or not readable, using default: $DEFAULT_CERT"
         CERT_FILE="$DEFAULT_CERT"
     else
-        bashio::log.info "Using certificate file: $CERT_FILE"
+        bashio::log.debug "Using certificate file: $CERT_FILE"
     fi
 
     # Validate key file
     if [ ! -f "$KEY_FILE" ] || [ ! -r "$KEY_FILE" ]; then
-        bashio::log.warning "Key file not found or not readable, using default: $DEFAULT_KEY"
+        bashio::log.debug "Key file not found or not readable, using default: $DEFAULT_KEY"
         KEY_FILE="$DEFAULT_KEY"
     else
-        bashio::log.info "Using key file: $KEY_FILE"
+        bashio::log.debug "Using key file: $KEY_FILE"
     fi
 }
 
@@ -104,29 +111,31 @@ check_cert_paths() {
 # Certificate Generation Functions
 # -----------------------------------------------------------------------------
 generate_self_signed() {
-    bashio::log.info "Generating self-signed certificate..."
+    bashio::log.debug "Generating self-signed certificate..."
     openssl req -x509 \
         -newkey rsa:4096 \
         -keyout "$KEY_FILE" \
         -out "$CERT_FILE" \
         -days 365 \
         -nodes \
-        -subj "/CN=$HOSTNAME"
+        -subj "/CN=$HOSTNAME" \
+        >/dev/null 2>&1
 }
 
 generate_pkcs12() {
-    bashio::log.info "Generating PKCS12 file..."
+    bashio::log.debug "Generating PKCS12 file..."
     openssl pkcs12 -export \
         -out "$PKCS12_FILE" \
         -inkey "$KEY_FILE" \
         -in "$CERT_FILE" \
-        -password pass:"$PKCS12_PASSWORD"
+        -password pass:"$PKCS12_PASSWORD" \
+        >/dev/null 2>&1
 }
 
 # Add certificate cleanup
 cleanup_certs() {
     # Remove sensitive files
-    rm -f "${PKCS12_FILE}.tmp" 2>/dev/null || true
+    rm -f "${PKCS12_FILE}.tmp" >/dev/null 2>&1 || true
 }
 
 trap cleanup_certs EXIT
@@ -135,7 +144,7 @@ trap cleanup_certs EXIT
 # Main Certificate Management Function
 # -----------------------------------------------------------------------------
 handle_cert_update() {
-    bashio::log.info "Checking certificate status..."
+    bashio::log.debug "Checking certificate status..."
 
     # Initialize configuration
     init_configuration
@@ -147,7 +156,7 @@ handle_cert_update() {
 
     # Check if we need to generate certificates
     if [ ! -f "$CERT_FILE" ] || [ ! -f "$KEY_FILE" ]; then
-        bashio::log.warning "Certificate files are not present - generating self-signed certificates..."
+        bashio::log.debug "Certificate files are not present - generating self-signed certificates..."
         generate_self_signed
         regenerate_pkcs12=true
     fi
@@ -155,9 +164,9 @@ handle_cert_update() {
     # Update PKCS12 if needed
     if [ "$regenerate_pkcs12" = "true" ] || ! check_pkcs12; then
         if generate_pkcs12; then
-            bashio::log.info "PKCS12 certificate generated successfully"
+            bashio::log.debug "PKCS12 certificate generated successfully"
         else
-            bashio::log.error "Failed to generate PKCS12 certificate"
+            bashio::log.debug "Failed to generate PKCS12 certificate"
             return 1
         fi
     fi

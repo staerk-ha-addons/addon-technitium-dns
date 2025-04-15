@@ -5,6 +5,13 @@
 # ==============================================================================
 
 # -----------------------------------------------------------------------------
+# Debugging and Logging
+# -----------------------------------------------------------------------------
+
+LOG_LEVEL=$(bashio::config 'log_level' 'info')
+bashio::log.level "$LOG_LEVEL"
+
+# -----------------------------------------------------------------------------
 # Constants and Configuration
 # -----------------------------------------------------------------------------
 TOKEN=""
@@ -23,7 +30,7 @@ readonly LOCK_FILE="/tmp/.api_token.lock"
 validate_response() {
     local response=$1
     if ! echo "$response" | jq . >/dev/null 2>&1; then
-        bashio::log.error "Invalid JSON response"
+        bashio::log.debug "Invalid JSON response"
         return 1
     fi
     return 0
@@ -33,11 +40,11 @@ check_required_params() {
     local endpoint=$1
     local method=$2
     [[ -z "$endpoint" ]] && {
-        bashio::log.error "Missing endpoint"
+        bashio::log.debug "Missing endpoint"
         return 1
     }
     [[ ! "$method" =~ ^(GET|POST)$ ]] && {
-        bashio::log.error "Invalid method: $method"
+        bashio::log.debug "Invalid method: $method"
         return 1
     }
     return 0
@@ -76,13 +83,13 @@ acquire_lock() {
         sleep 0.1
         attempt=$((attempt + 1))
     done
-    bashio::log.error "Could not acquire lock after $max_attempts attempts"
+    bashio::log.debug "Could not acquire lock after $max_attempts attempts"
     return 1
 }
 
 release_lock() {
     if ! rm -rf "$LOCK_FILE"; then
-        bashio::log.error "Failed to release lock"
+        bashio::log.debug "Failed to release lock"
         return 1
     fi
     return 0
@@ -97,7 +104,7 @@ save_token() {
         encrypt_token "$token" >"$TOKEN_FILE"
         chmod 600 "$TOKEN_FILE"
         release_lock
-        bashio::log.info "Saved encrypted API token"
+        bashio::log.debug "Saved encrypted API token"
         return 0
     fi
     return 1
@@ -119,7 +126,7 @@ load_saved_token() {
     release_lock
 
     if [ -z "$saved_token" ]; then
-        bashio::log.warning "Failed to decrypt token"
+        bashio::log.debug "Failed to decrypt token"
         return 1
     fi
 
@@ -132,7 +139,7 @@ load_saved_token() {
     if acquire_lock; then
         TOKEN="$saved_token"
         release_lock
-        bashio::log.info "Loaded and verified saved API token"
+        bashio::log.debug "Loaded and verified saved API token"
         return 0
     fi
 
@@ -140,7 +147,7 @@ load_saved_token() {
         rm -f "$TOKEN_FILE"
         release_lock
     fi
-    bashio::log.warning "Saved token is invalid, will create new one"
+    bashio::log.debug "Saved token is invalid, will create new one"
     return 1
 }
 
@@ -164,7 +171,7 @@ get_auth_token() {
         return 0
     fi
 
-    bashio::log.info "Creating new API token..."
+    bashio::log.debug "Creating new API token..."
 
     # Create permanent token
     if response=$(make_direct_call "user/createToken?user=$username&pass=$password&tokenName=$TOKEN_NAME"); then
@@ -177,17 +184,17 @@ get_auth_token() {
     fi
 
     # Fallback to standard login if token creation fails
-    bashio::log.warning "API token creation failed, falling back to standard login..."
+    bashio::log.debug "API token creation failed, falling back to standard login..."
     if response=$(make_direct_call "user/login?user=$username&pass=$password&includeInfo=true"); then
         token=$(echo "$response" | jq -r '.token // empty')
         if [ -n "$token" ]; then
-            bashio::log.info "Authentication successful using standard login"
+            bashio::log.debug "Authentication successful using standard login"
             TOKEN="$token"
             return 0
         fi
     fi
 
-    bashio::log.error "Authentication failed"
+    bashio::log.debug "Authentication failed"
     return 1
 }
 
@@ -225,7 +232,7 @@ make_direct_call() {
     # Validate JSON response if successful
     if [ $status -eq 0 ] && [ -n "$response" ]; then
         if ! validate_response "$response"; then
-            bashio::log.error "Invalid response from API"
+            bashio::log.debug "Invalid response from API"
             return 1
         fi
     fi
@@ -234,13 +241,13 @@ make_direct_call() {
     if [ $status -eq 0 ]; then
         if [[ "$response" == *"\"status\":\"Error\""* ]]; then
             error_msg=$(echo "$response" | sed -n 's/.*"errorMessage":"\([^"]*\)".*/\1/p')
-            bashio::log.warning "Direct API call failed with error: $error_msg"
+            bashio::log.debug "Direct API call failed with error: $error_msg"
         else
             bashio::log.trace "Direct API call successful"
             bashio::log.trace "Response: $response"
         fi
     else
-        bashio::log.error "Direct API call failed with curl exit code: $status"
+        bashio::log.debug "Direct API call failed with curl exit code: $status"
     fi
 
     echo "$response"
@@ -289,20 +296,20 @@ make_api_call() {
         safe_endpoint=$(redact_url "$api_endpoint")
         bashio::log.debug "Attempt $attempt/$max_attempts"
         bashio::log.debug "Making API $method call to: $safe_endpoint"
-        [ -n "$data" ] && bashio::log.debug "Data: $data \n" && echo "$data" | jq .
+        [ -n "$data" ] && bashio::log.debug "Data: $data \n"
         response=$(make_direct_call "$api_endpoint" "$method" "$data")
         local call_status=$?
 
         if [ $call_status -eq 0 ]; then
             # Validate response before processing
             if ! validate_response "$response"; then
-                bashio::log.error "Invalid response format"
+                bashio::log.debug "Invalid response format"
                 return 1
             fi
 
             # Check if response indicates auth failure
             if [[ "$response" == *"\"status\":\"Error\""* ]] && [[ "$response" == *"\"responseText\":\"Access token invalid or expired\""* ]]; then
-                bashio::log.warning "Token expired, getting new token..."
+                bashio::log.debug "Token expired, getting new token..."
                 if ! get_auth_token; then
                     return 1
                 fi
@@ -315,9 +322,9 @@ make_api_call() {
             local formatted_response
             if echo "$response" | jq . >/dev/null 2>&1; then
                 formatted_response=$(echo "$response" | jq .)
-                printf "%s\n" "$formatted_response"
+                bashio::log.debug "$formatted_response"
             else
-                printf "%s\n" "$response"
+                bashio::log.debug "$response"
             fi
 
             # Ensure output is flushed before logging end
@@ -326,12 +333,12 @@ make_api_call() {
             return 0
         fi
 
-        bashio::log.warning "API call failed (attempt $attempt/$max_attempts), retrying in ${wait_time}s..."
+        bashio::log.debug "API call failed (attempt $attempt/$max_attempts), retrying in ${wait_time}s..."
         sleep $wait_time
         attempt=$((attempt + 1))
     done
 
-    bashio::log.error "Failed to connect to API after $max_attempts attempts"
+    bashio::log.debug "Failed to connect to API after $max_attempts attempts"
     bashio::log.debug "=== API Call End ==="
     return 1
 }
@@ -344,22 +351,22 @@ manage_dns_app() {
 
     # Validate app name
     if [ -z "$app_name" ]; then
-        bashio::log.error "App name is required"
-        return 1
+        bashio::log.debug "App name is required"
+        return 0
     fi
 
-    bashio::log.info "Managing DNS app: $app_name"
+    bashio::log.debug "Managing DNS app: $app_name"
 
     # Get store app info and validate response
     if ! store_info=$(make_api_call "apps/listStoreApps" "GET") ||
         ! validate_response "$store_info"; then
-        bashio::log.error "Failed to get valid store apps list"
-        return 1
+        bashio::log.debug "Failed to get valid store apps list"
+        return 0
     fi
 
     # Find app in store
     local app_details
-    app_details=$(echo "$store_info" | jq -r --arg name "$app_name" '.response.storeApps[] | 
+    app_details=$(echo "$store_info" | jq -r --arg name "$app_name" '.response.storeApps[] |
         select(.name == $name) | {
             version: .version,
             url: .url,
@@ -367,8 +374,8 @@ manage_dns_app() {
         }')
 
     if [ -z "$app_details" ]; then
-        bashio::log.error "App '$app_name' not found in store"
-        return 1
+        bashio::log.debug "App '$app_name' not found in store"
+        return 0
     fi
 
     # Extract version and encoded name and URLs
@@ -379,40 +386,40 @@ manage_dns_app() {
     encoded_url=$(echo "$app_details" | jq -r '.url | @uri')
     encoded_name=$(echo "$app_details" | jq -r '.name | @uri')
 
-    bashio::log.info "Found $app_name version $store_version in store"
+    bashio::log.debug "Found $app_name version $store_version in store"
 
     # Check if app is installed
     if ! local_info=$(make_api_call "apps/list" "GET"); then
-        bashio::log.error "Failed to get local apps list"
-        return 1
+        bashio::log.debug "Failed to get local apps list"
+        return 0
     fi
 
     # Check if app is installed and get version
     local local_version
-    local_version=$(echo "$local_info" | jq -r --arg name "$app_name" '.response.apps[] | 
+    local_version=$(echo "$local_info" | jq -r --arg name "$app_name" '.response.apps[] |
         select(.name == $name) | .version // empty')
 
     # Install or update as needed
     if [ -z "$local_version" ]; then
-        bashio::log.info "Installing $app_name v$store_version..."
+        bashio::log.debug "Installing $app_name v$store_version..."
         if make_api_call "apps/downloadAndInstall?name=$encoded_name&url=$encoded_url" "GET"; then
-            bashio::log.info "$app_name installed successfully"
+            bashio::log.debug "$app_name installed successfully"
             return 0
         else
-            bashio::log.error "Failed to install $app_name"
-            return 1
+            bashio::log.debug "Failed to install $app_name"
+            return 0
         fi
     elif [ "$local_version" != "$store_version" ]; then
-        bashio::log.info "Updating $app_name from v$local_version to v$store_version..."
+        bashio::log.debug "Updating $app_name from v$local_version to v$store_version..."
         if make_api_call "apps/downloadAndUpdate?url=$encoded_url" "GET"; then
-            bashio::log.info "$app_name updated successfully"
+            bashio::log.debug "$app_name updated successfully"
             return 0
         else
-            bashio::log.error "Failed to update $app_name"
-            return 1
+            bashio::log.debug "Failed to update $app_name"
+            return 0
         fi
     else
-        bashio::log.info "$app_name is up to date (v$local_version)"
+        bashio::log.debug "$app_name is up to date (v$local_version)"
         return 0
     fi
 }

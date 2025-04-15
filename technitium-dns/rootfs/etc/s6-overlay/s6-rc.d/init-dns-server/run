@@ -4,20 +4,23 @@
 # Initializing Technitium DNS Server
 # ==============================================================================
 
+LOG_LEVEL=$(bashio::config 'log_level' 'info')
+bashio::log.level "$LOG_LEVEL"
+
 # Add strict error handling
 set -euo pipefail
 
 sleep 5
 
-bashio::log.info "================================================="
-bashio::log.info "  Initializing Technitium DNS Server"
-bashio::log.info "================================================="
+bashio::log.debug "================================================="
+bashio::log.debug "  Initializing Technitium DNS Server"
+bashio::log.debug "================================================="
 
 # Get options from config
 MANUAL_CONFIG=$(bashio::config 'manualConfig' 'false')
 
 if bashio::var.true "${MANUAL_CONFIG}"; then
-    bashio::log.info "Manual configuration mode enabled - skipping automatic configuration"
+    bashio::log.debug "Manual configuration mode enabled - skipping automatic configuration"
     exit 0
 fi
 
@@ -41,6 +44,7 @@ done
 LOG_QUERIES=$(bashio::config 'logQueries' 'true')
 DNS_OVER_TLS=$(bashio::config 'enableDnsOverTls' 'true')
 DNS_OVER_HTTPS=$(bashio::config 'enableDnsOverHttps' 'true')
+DNS_OVER_HTTPS3=$(bashio::config 'enableDnsOverHttps3' 'true')
 DNS_OVER_QUIC=$(bashio::config 'enableDnsOverQuic' 'true')
 
 # Function to map forwarder name to DNS server and protocol
@@ -91,11 +95,11 @@ get_forwarder_config() {
         protocol="Https"
         ;;
     "Cloudflare (DNS-over-QUIC)")
-        dns_servers="[\"h3://cloudflare-dns.com (1.1.1.1:853)\",\"h3://cloudflare-dns.com (1.0.0.1:853)\"]"
+        dns_servers="[\"h3://cloudflare-dns.com (1.1.1.1)\",\"h3://cloudflare-dns.com (1.0.0.1)\"]"
         protocol="Quic"
         ;;
     "Cloudflare (DNS-over-QUIC IPv6)")
-        dns_servers="[\"h3://cloudflare-dns.com ([2606:4700:4700::1111]:853)\",\"h3://cloudflare-dns.com ([2606:4700:4700::1001]:853)\"]"
+        dns_servers="[\"h3://cloudflare-dns.com ([2606:4700:4700::1111])\",\"h3://cloudflare-dns.com ([2606:4700:4700::1001])\"]"
         protocol="Quic"
         ;;
     "Cloudflare (DNS-over-TOR!)")
@@ -125,6 +129,7 @@ make_api_call "settings/set" "POST" "{
     \"maxStatFileDays\": 30,
     \"enableDnsOverTls\": ${DNS_OVER_TLS},
     \"enableDnsOverHttps\": ${DNS_OVER_HTTPS},
+    \"enableDnsOverHttp3\": ${DNS_OVER_HTTPS3},
     \"enableDnsOverQuic\": ${DNS_OVER_QUIC},
     \"dnsTlsCertificatePath\": \"${PKCS12_FILE}\",
     \"dnsTlsCertificatePassword\": \"${PKCS12_PASSWORD}\",

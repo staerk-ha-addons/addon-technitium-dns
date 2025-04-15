@@ -37,7 +37,7 @@ RUN source /etc/os-release \
     /var/lib/apt/lists/*
 
 COPY rootfs /
-RUN chmod +x /etc/s6-overlay/scripts/*
+RUN chmod +x /etc/s6-overlay/scripts/* /etc/s6-overlay/s6-rc.d/**/run
 
 ARG BUILD_ARCH
 ARG BUILD_DATE

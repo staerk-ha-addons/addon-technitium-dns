@@ -4,15 +4,18 @@
 # Starts Technitium DNS Server
 # ==============================================================================
 
+LOG_LEVEL=$(bashio::config 'log_level' 'info')
+bashio::log.level "$LOG_LEVEL"
+
 sleep 3
 
-bashio::log.info "================================================="
-bashio::log.info "  Starting Technitium DNS Server"
-bashio::log.info "================================================="
+bashio::log.debug "================================================="
+bashio::log.debug "  Starting Technitium DNS Server"
+bashio::log.debug "================================================="
 
 cd "/opt/technitium/dns" || bashio::exit.nok "Could not change directory to Technitium DNS Server"
 
 command -v /usr/share/dotnet/dotnet >/dev/null 2>&1 || bashio::exit.nok "dotnet not found!"
-bashio::log.info "Dotnet version: $(/usr/share/dotnet/dotnet --version)"
+bashio::log.debug "Dotnet version: $(/usr/share/dotnet/dotnet --version)"
 
 exec /usr/share/dotnet/dotnet /opt/technitium/dns/DnsServerApp.dll /config

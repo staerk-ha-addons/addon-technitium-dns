@@ -27,7 +27,10 @@
     "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
     "editor.formatOnSave": true,
     "editor.wordWrap": "on",
-    "editor.rulers": [80, 120]
+    "editor.rulers": [
+      80,
+      120
+    ]
   },
   "[jinja]": {
     "editor.defaultFormatter": "samuelcolvin.jinjahtml",
@@ -37,12 +40,7 @@
     "editor.defaultFormatter": "samuelcolvin.jinjahtml",
     "editor.formatOnSave": true
   },
-  "hadolint.cliOptions": [
-    "--ignore DL3008",
-    "--ignore DL3013",
-    "--trusted-registry docker.io",
-    "--trusted-registry ghcr.io"
-  ],
+  "hadolint.cliOptions": [],
   "json.format.enable": true,
   "json.validate.enable": true,
   "markdownlint.config": {

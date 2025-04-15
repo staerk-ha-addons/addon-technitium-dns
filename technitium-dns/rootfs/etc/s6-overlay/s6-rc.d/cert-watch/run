@@ -4,16 +4,19 @@
 # Watch certificates for changes and regenerate PKCS #12 if needed
 # ==============================================================================
 
+LOG_LEVEL=$(bashio::config 'log_level' 'info')
+bashio::log.level "$LOG_LEVEL"
+
 # Add strict mode
 set -euo pipefail
 
-bashio::log.info "================================================="
-bashio::log.info "  Starting Certificate Tool"
-bashio::log.info "================================================="
+bashio::log.debug "================================================="
+bashio::log.debug "  Starting Certificate Tool"
+bashio::log.debug "================================================="
 
 # Check if manual certificate handling is enabled
 if bashio::config.true 'manualCertHandling'; then
-    bashio::log.info "Manual certificate handling enabled - disabling certificate watch"
+    bashio::log.debug "Manual certificate handling enabled - disabling certificate watch"
     exec sleep infinity
 fi
 
@@ -33,7 +36,7 @@ handle_cert_update
 # Add health check
 check_inotify() {
     if ! command -v inotifywait >/dev/null 2>&1; then
-        bashio::log.error "inotifywait not found"
+        bashio::log.debug "inotifywait not found"
         return 1
     fi
     return 0
@@ -61,15 +64,15 @@ done
 
 # Watch for changes
 sleep 10
-bashio::log.info "Starting certificate watch..."
+bashio::log.debug "Starting certificate watch..."
 while true; do
     # Watch parent directories for any changes
     if ! inotifywait -e close_write,move,create,delete "$(get_watch_dirs)" >/dev/null 2>&1; then
-        bashio::log.warning "inotifywait failed, retrying in 10 seconds..."
+        bashio::log.debug "inotifywait failed, retrying in 10 seconds..."
         sleep 10
         continue
     fi
 
-    bashio::log.info "Detected certificate change..."
+    bashio::log.debug "Detected certificate change..."
     handle_cert_changes
 done

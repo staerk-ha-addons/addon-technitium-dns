@@ -12,12 +12,13 @@ if [ ! -d "$WORKSPACE_DIRECTORY/.devcontainer/.storage-backup/" ]; then
 else
   if [ ! "$(docker container inspect -f '{{.State.Status}}' hassio_supervisor 2>/dev/null)" == "running" ]; then
     echo "You need to start the Home Assistant Supervisor before running this script."
+    exit 1
   fi
 
   # Wait until the homeassistant container is running
   while [ -z "$(docker ps --filter name=homeassistant --format '{{.ID}}')" ]; do
-    echo "Home Assistant container not running yet. Waiting..."
-    sleep 2
+    echo "Home Assistant container not running yet. Waiting... this might take a while. Please be patient."
+    sleep 3
   done
 
   HA_CONTAINER=$(docker ps --filter name=homeassistant --format '{{.ID}}')

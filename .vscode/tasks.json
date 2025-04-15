@@ -16,9 +16,9 @@
       }
     },
     {
-      "label": "Addon Bootstrap",
+      "label": "Dev Bootstrap",
       "type": "shell",
-      "command": "$WORKSPACE_DIRECTORY/.devcontainer/addon_bootstrap.sh",
+      "command": "$WORKSPACE_DIRECTORY/.devcontainer/dev_bootstrap.sh",
       "group": {
         "kind": "test",
         "isDefault": false
@@ -57,12 +57,14 @@
         "clear": true,
         "showReuseMessage": false
       },
-      "dependsOn": ["Kill addon docker logs follow"]
+      "dependsOn": [
+        "Kill addon docker logs follow"
+      ]
     },
     {
       "label": "Kill addon docker logs follow",
       "type": "shell",
-      "command": "pkill -f 'docker logs --follow addon_local_${input:addonName}' && pkill -f 'docker logs --follow \"addon_local_${input:addonName}\"' || true",
+      "command": "pkill -f 'docker logs --follow addon_local_${input:addonName}' && pkill -f 'docker logs --follow \"addon_local_${input:addonName}\"' && sleep 1 || true",
       "presentation": {
         "reveal": "never",
         "panel": "dedicated",
@@ -76,7 +78,9 @@
       "id": "addonName",
       "type": "pickString",
       "description": "Name of addon (to add your addon to this list, please edit .vscode/tasks.json)",
-      "options": ["technitium-dns"]
+      "options": [
+        "technitium-dns"
+      ]
     }
   ]
 }

@@ -17,25 +17,29 @@ map:
   - type: addon_config
     read_only: false
 options:
-  forwarders: Cloudflare (DNS-over-HTTPS)
   logQueries: true
+  forwarders: Cloudflare (DNS-over-HTTPS)
   enableDnsOverTls: true
   enableDnsOverHttps: true
-  enableDnsOverQuic: false
+  enableDnsOverHttps3: true
+  enableDnsOverQuic: true
   certfile: /ssl/fullchain.pem
   keyfile: /ssl/privkey.key
   manualConfig: false
   manualCertHandling: false
+  log_level: info
 schema:
-  forwarders: list(Cloudflare (DNS-over-UDP)|Cloudflare (DNS-over-UDP IPv6)|Cloudflare (DNS-over-TCP)|Cloudflare (DNS-over-TCP IPv6)|Cloudflare (DNS-over-TLS)|Cloudflare (DNS-over-TLS IPv6)|Cloudflare (DNS-over-HTTPS)|Cloudflare (DNS-over-HTTPS IPv6)|Cloudflare (Oblivious DNS-over-HTTPS)|Cloudflare (Oblivious DNS-over-HTTPS IPv6))
   logQueries: bool
+  forwarders: list(Cloudflare (DNS-over-UDP)|Cloudflare (DNS-over-TLS)|Cloudflare (DNS-over-HTTPS)|Cloudflare (Oblivious DNS-over-HTTPS))
   enableDnsOverTls: bool
   enableDnsOverHttps: bool
+  enableDnsOverHttps3: bool
   enableDnsOverQuic: bool
   keyfile: 'str?'
   certfile: 'str?'
   manualConfig: bool
   manualCertHandling: bool
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?
 ports:
   53/udp: 53
   443/tcp: 443
