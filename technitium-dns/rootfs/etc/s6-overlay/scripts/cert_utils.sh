@@ -244,31 +244,29 @@ handle_cert_update() {
     local regenerate_pkcs12=false
     local need_pkcs12=false
 
-    # Check if we need to generate certificates
+    # Check if we need to generate certificates - only if BOTH are missing
     if [[ ! -f "${CERT_FILE}" || ! -f "${KEY_FILE}" ]]; then
         bashio::log.debug "Certificate files are not present - generating self-signed certificates..."
         generate_self_signed
         regenerate_pkcs12=true
     fi
 
-    # Check if hostname matches certificate
-    if ! check_hostname_match; then
+    # Only check hostname match if PKCS12 exists
+    if [[ -f "${PKCS12_FILE}" ]] && ! check_hostname_match; then
         bashio::log.debug "Current hostname doesn't match certificate - regenerating"
         generate_self_signed
         regenerate_pkcs12=true
     fi
 
-    # Update PKCS12 if needed
-    if [[ "${regenerate_pkcs12}" = "true" ]]; then
-        bashio::log.debug "Regenerating PKCS12 due to regenerate flag or hostname mismatch"
+    # Update PKCS12 if needed or missing
+    if [[ "${regenerate_pkcs12}" = "true" || ! -f "${PKCS12_FILE}" ]]; then
+        bashio::log.debug "Generating PKCS12 file..."
         need_pkcs12=true
     else
-        # Run check_pkcs12 and check its return status directly
+        # Only check existing PKCS12 if it exists
         if ! check_pkcs12; then
             bashio::log.debug "Regenerating PKCS12 due to validation failure"
             need_pkcs12=true
-        else
-            need_pkcs12=false
         fi
     fi
 
