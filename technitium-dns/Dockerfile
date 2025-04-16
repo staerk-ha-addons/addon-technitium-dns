@@ -91,6 +91,7 @@ RUN source /etc/os-release \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
     openssl \
+    net-tools \
     inotify-tools \
     libmsquic \
     libc6 \
@@ -116,7 +117,7 @@ FROM install AS runtime
 
 # Copy Home Assistant add-on files
 COPY rootfs /
-RUN chmod +x /etc/s6-overlay/scripts/* /etc/s6-overlay/s6-rc.d/**/run
+RUN chmod +x /etc/s6-overlay/s6-rc.d/*/up /etc/s6-overlay/s6-rc.d/*/run /etc/s6-overlay/s6-rc.d/*/finish /etc/s6-overlay/scripts/*
 
 # Add build arguments for labels
 ARG BUILD_ARCH

@@ -46,7 +46,9 @@
         "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -63,7 +65,9 @@
         "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -80,7 +84,9 @@
         "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -97,7 +103,9 @@
         "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -114,7 +122,9 @@
         "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -187,7 +197,7 @@
     {
       "label": "Logs: Follow Addon",
       "type": "shell",
-      "command": "docker logs --follow \"addon_local_technitium-dns\"",
+      "command": "docker logs --follow \"addon_local_technitium-dns\" || true",
       "group": {
         "kind": "test",
         "isDefault": false
@@ -196,11 +206,13 @@
         "reveal": "always",
         "revealProblems": "never",
         "panel": "new",
-        "clear": true,
-        "close": true,
+        "clear": false,
+        "close": false,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -219,6 +231,23 @@
         "close": true,
         "showReuseMessage": false
       }
+    },
+    {
+      "label": "Local: Fix S6-Overlay files",
+      "type": "shell",
+      "command": "${workspaceFolder}/technitium-dns/assets/s6-overlay-fix.sh \"${workspaceFolder}/technitium-dns/rootfs\"",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "revealProblems": "always",
+        "panel": "new",
+        "clear": false,
+        "close": false,
+        "showReuseMessage": false
+      }
     }
   ],
   "inputs": [
@@ -227,7 +256,9 @@
       "type": "pickString",
       "default": "technitium-dns",
       "description": "Name of addon (to add your addon to this list, please edit .vscode/tasks.json)",
-      "options": ["technitium-dns"]
+      "options": [
+        "technitium-dns"
+      ]
     }
   ]
 }

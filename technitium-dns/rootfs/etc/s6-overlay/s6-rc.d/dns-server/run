@@ -5,9 +5,6 @@
 # Starts Technitium DNS Server
 # ==============================================================================
 
-# Short delay to allow other services to initialize
-sleep 3
-
 bashio::log.debug "================================================="
 bashio::log.debug "  Starting Technitium DNS Server"
 bashio::log.debug "================================================="
@@ -26,7 +23,5 @@ fi
 # -----------------------------------------------------------------------------
 # Launch DNS Server
 # -----------------------------------------------------------------------------
-# Start the DNS server with the Home Assistant config directory
-# This allows persistent storage of all settings and DNS records
-bashio::log.debug "Launching Technitium DNS Server..."
-exec /usr/share/dotnet/dotnet /opt/technitium/dns/DnsServerApp.dll /config
+# Start the DNS server in background
+/usr/share/dotnet/dotnet /opt/technitium/dns/DnsServerApp.dll /config

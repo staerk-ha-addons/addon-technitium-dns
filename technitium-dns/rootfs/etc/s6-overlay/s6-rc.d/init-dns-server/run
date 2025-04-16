@@ -6,8 +6,15 @@
 # Initializing Technitium DNS Server
 # ==============================================================================
 
+bashio::log.level "debug"
+
 # Allow DNS server to fully start before configuration
-sleep 5
+# Use curl to check if the web interface is responding
+while ! curl -s --head --fail "${ADDON_API_SERVER}" >/dev/null; do
+    bashio::log.debug "Waiting for DNS server to start..."
+    sleep 3
+done
+bashio::log.debug "DNS server is up and running"
 
 bashio::log.debug "================================================="
 bashio::log.debug "  Initializing Technitium DNS Server"

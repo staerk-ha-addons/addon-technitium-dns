@@ -5,6 +5,9 @@
 # Initialize environment variables for Technitium DNS Server addon
 # This script runs as a oneshot service during s6-overlay initialization
 # ==============================================================================
+
+bashio::log.level 'debug'
+
 bashio::log.debug "Setting up environment variables..."
 
 # -----------------------------------------------------------------------------
@@ -15,6 +18,16 @@ bashio::log.debug "Setting up environment variables..."
 if ! source "/etc/s6-overlay/scripts/config_utils.sh"; then
     bashio::exit.nok "Failed to source configurations utilities"
 fi
+
+# -----------------------------------------------------------------------------
+# Helper Functions
+# -----------------------------------------------------------------------------
+# Write environment variable without newline
+write_env() {
+    local name="$1"
+    local value="$2"
+    printf '%s' "$value" >"/run/s6/container_environment/$name"
+}
 
 check_cert_paths() {
     # Validate certificate file
@@ -80,42 +93,44 @@ ADDON_DNS_OVER_HTTPS3=$(bashio::config 'enableDnsOverHttps3' 'true')
 ADDON_DNS_OVER_QUIC=$(bashio::config 'enableDnsOverQuic' 'true')
 forwarder_config=$(get_forwarder_config || true)
 IFS='|' read -r ADDON_FORWARDER_SERVERS ADDON_FORWARDER_PROTOCOL <<<"${forwarder_config}"
-echo "${ADDON_FORWARDER_SERVERS}" >/run/s6/container_environment/ADDON_FORWARDER_SERVERS
-echo "${ADDON_FORWARDER_PROTOCOL}" >/run/s6/container_environment/ADDON_FORWARDER_PROTOCOL
-echo "${ADDON_LOG_QUERIES}" >/run/s6/container_environment/ADDON_LOG_QUERIES
-echo "${ADDON_DNS_OVER_TLS}" >/run/s6/container_environment/ADDON_DNS_OVER_TLS
-echo "${ADDON_DNS_OVER_HTTPS}" >/run/s6/container_environment/ADDON_DNS_OVER_HTTPS
-echo "${ADDON_DNS_OVER_HTTPS3}" >/run/s6/container_environment/ADDON_DNS_OVER_HTTPS3
-echo "${ADDON_DNS_OVER_QUIC}" >/run/s6/container_environment/ADDON_DNS_OVER_QUIC
+
+# Use write_env instead of echo to avoid newlines
+write_env "ADDON_FORWARDER_SERVERS" "${ADDON_FORWARDER_SERVERS}"
+write_env "ADDON_FORWARDER_PROTOCOL" "${ADDON_FORWARDER_PROTOCOL}"
+write_env "ADDON_LOG_QUERIES" "${ADDON_LOG_QUERIES}"
+write_env "ADDON_DNS_OVER_TLS" "${ADDON_DNS_OVER_TLS}"
+write_env "ADDON_DNS_OVER_HTTPS" "${ADDON_DNS_OVER_HTTPS}"
+write_env "ADDON_DNS_OVER_HTTPS3" "${ADDON_DNS_OVER_HTTPS3}"
+write_env "ADDON_DNS_OVER_QUIC" "${ADDON_DNS_OVER_QUIC}"
 
 # -----------------------------------------------------------------------------
 # Basic Configuration
 # -----------------------------------------------------------------------------
 # Get the hostname from config or use fallback
 ADDON_HOSTNAME=$(get_hostname || echo "homeassistant.local")
-echo "${ADDON_HOSTNAME}" >/run/s6/container_environment/ADDON_HOSTNAME
+write_env "ADDON_HOSTNAME" "${ADDON_HOSTNAME}"
 
 # Set the addon directoies
 ADDON_CONFIG_DIR="/config"
-echo "${ADDON_CONFIG_DIR}" >/run/s6/container_environment/ADDON_CONFIG_DIR
+write_env "ADDON_CONFIG_DIR" "${ADDON_CONFIG_DIR}"
 ADDON_CONFIG_SSL_DIR="${ADDON_CONFIG_DIR}/ssl"
-echo "${ADDON_CONFIG_SSL_DIR}" >/run/s6/container_environment/ADDON_CONFIG_SSL_DIR
+write_env "ADDON_CONFIG_SSL_DIR" "${ADDON_CONFIG_SSL_DIR}"
 mkdir -p "${ADDON_CONFIG_SSL_DIR}"
 
 # -----------------------------------------------------------------------------
 # API Access Configuration
 # -----------------------------------------------------------------------------
 # Define server API endpoint and authentication parameters
-ADDON_API_SERVER="http://localhost:5380"
+ADDON_API_SERVER="http://${HOSTNAME:-localhost}:5380"
 ADDON_TOKEN_NAME="ha-addon-token"
 ADDON_TOKEN_FILE="/config/.${ADDON_TOKEN_NAME}.enc"
 ADDON_LOCK_FILE="/tmp/.${ADDON_TOKEN_NAME}.lock"
 
 # Store API settings in container environment
-echo "${ADDON_API_SERVER}" >/run/s6/container_environment/ADDON_API_SERVER
-echo "${ADDON_TOKEN_NAME}" >/run/s6/container_environment/ADDON_TOKEN_NAME
-echo "${ADDON_TOKEN_FILE}" >/run/s6/container_environment/ADDON_TOKEN_FILE
-echo "${ADDON_LOCK_FILE}" >/run/s6/container_environment/ADDON_LOCK_FILE
+write_env "ADDON_API_SERVER" "${ADDON_API_SERVER}"
+write_env "ADDON_TOKEN_NAME" "${ADDON_TOKEN_NAME}"
+write_env "ADDON_TOKEN_FILE" "${ADDON_TOKEN_FILE}"
+write_env "ADDON_LOCK_FILE" "${ADDON_LOCK_FILE}"
 
 # -----------------------------------------------------------------------------
 # Certificate Path Configuration
@@ -158,11 +173,12 @@ ADDON_PKCS12_FILE="${ADDON_CONFIG_SSL_DIR}/technitium.pfx"
 ADDON_PKCS12_PASSWORD="TechnitiumDNS!SSL"
 
 # Store certificate paths and settings in container environment
-echo "${ADDON_SSL_DIR}" >/run/s6/container_environment/ADDON_SSL_DIR
-echo "${ADDON_CERT_FILE}" >/run/s6/container_environment/ADDON_CERT_FILE
-echo "${ADDON_KEY_FILE}" >/run/s6/container_environment/ADDON_KEY_FILE
-echo "${ADDON_PKCS12_FILE}" >/run/s6/container_environment/ADDON_PKCS12_FILE
-echo "${ADDON_PKCS12_PASSWORD}" >/run/s6/container_environment/ADDON_PKCS12_PASSWORD
+write_env "ADDON_SSL_DIR" "${ADDON_SSL_DIR}"
+write_env "ADDON_CERT_FILE" "${ADDON_CERT_FILE}"
+write_env "ADDON_KEY_FILE" "${ADDON_KEY_FILE}"
+write_env "ADDON_PKCS12_FILE" "${ADDON_PKCS12_FILE}"
+write_env "ADDON_PKCS12_PASSWORD" "${ADDON_PKCS12_PASSWORD}"
 
 # Indicate successful environment setup
 bashio::log.debug "Environment variables configured successfully"
+bashio::log.debug "API Server: ${ADDON_API_SERVER}"

@@ -5,6 +5,8 @@
 # Watch certificates for changes and regenerate PKCS #12 if needed
 # ==============================================================================
 
+bashio::log.level 'debug'
+
 # Wait for DNS server to fully initialize
 sleep 60
 
@@ -87,9 +89,9 @@ while true; do
     fi
 
     # Watch parent directories for any changes to certificate files
-    # Using array directly to avoid potential issues with reading into array
-    bashio::log.debug "Watching directories: ${ADDON_SSL_DIR} ${ADDON_CONFIG_SSL_DIR}"
-    if ! inotifywait -e close_write,move,create,delete "${ADDON_SSL_DIR} ${ADDON_CONFIG_SSL_DIR}" >/dev/null 2>&1; then
+    # Using array properly
+    dirs_to_watch=("${ADDON_SSL_DIR}" "${ADDON_CONFIG_SSL_DIR}")
+    if ! inotifywait -e close_write,move,create,delete "${dirs_to_watch[@]}" >/dev/null 2>&1; then
         bashio::log.debug "inotifywait failed, retrying in 30 seconds..."
         sleep 30
         continue
@@ -98,6 +100,8 @@ while true; do
     # Handle detected changes
     bashio::log.debug "Detected certificate change, processing..."
     handle_cert_changes
+
+    s6-rc -d change dns-server
 
     # Prevent too rapid looping
     sleep 1

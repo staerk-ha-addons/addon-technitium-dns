@@ -8,6 +8,8 @@
 # API, including authentication, token management, and DNS configuration.
 # ==============================================================================
 
+bashio::log.level "debug"
+
 # -----------------------------------------------------------------------------
 # Environment Variable Check
 # -----------------------------------------------------------------------------
@@ -183,37 +185,55 @@ get_auth_token() {
     local username="${1:-admin}"
     local password="${2:-admin}"
     local token
+    local max_retries=3
+    local retry=0
+    local response
 
     # Try to load existing token first
     if token=$(load_saved_token); then
+        bashio::log.debug "Using saved token"
         echo "${token}"
         return 0
     fi
 
     bashio::log.info "Creating new API token..."
 
-    # Create permanent token - preferred method
-    if response=$(make_direct_call "user/createToken?user=${username}&pass=${password}&tokenName=${ADDON_TOKEN_NAME}"); then
-        token=$(echo "${response}" | jq -r '.token // empty')
-        if [[ -n "${token}" ]]; then
-            save_token "${token}"
-            echo "${token}"
-            return 0
+    while ((retry < max_retries)); do
+        # Create permanent token - preferred method
+        bashio::log.debug "Attempting token creation (attempt ${retry})"
+        if response=$(make_direct_call "user/createToken?user=${username}&pass=${password}&tokenName=${ADDON_TOKEN_NAME}"); then
+            token=$(echo "${response}" | jq -r '.token // empty')
+            if [[ -n "${token}" ]]; then
+                bashio::log.info "API token created successfully"
+                save_token "${token}"
+                echo "${token}"
+                return 0
+            else
+                bashio::log.warning "API token creation failed - empty token (attempt ${retry})"
+            fi
+        else
+            bashio::log.warning "API token creation call failed (attempt ${retry})"
         fi
-    fi
 
-    # Fallback to standard login if token creation fails
-    bashio::log.info "API token creation failed, falling back to standard login..."
-    if response=$(make_direct_call "user/login?user=${username}&pass=${password}&includeInfo=true"); then
-        token=$(echo "${response}" | jq -r '.token // empty')
-        if [[ -n "${token}" ]]; then
-            bashio::log.debug "Authentication successful using standard login"
-            echo "${token}"
-            return 0
+        # Fallback to standard login if token creation fails
+        bashio::log.info "API token creation failed, trying standard login..."
+        if response=$(make_direct_call "user/login?user=${username}&pass=${password}&includeInfo=true"); then
+            token=$(echo "${response}" | jq -r '.token // empty')
+            if [[ -n "${token}" ]]; then
+                bashio::log.debug "Authentication successful using standard login"
+                echo "${token}"
+                return 0
+            fi
         fi
-    fi
 
-    bashio::log.error "Authentication failed"
+        ((retry++))
+        if ((retry < max_retries)); then
+            bashio::log.warning "Authentication attempt ${retry} failed, retrying in 2s..."
+            sleep 2
+        fi
+    done
+
+    bashio::log.error "Authentication failed after ${max_retries} attempts"
     return 1
 }
 
@@ -231,9 +251,18 @@ make_direct_call() {
         return 1
     fi
 
-    local url="${ADDON_API_SERVER}/api/${endpoint}"
+    # Ensure API server has proper protocol prefix
+    local api_server="${ADDON_API_SERVER}"
+    if [[ ! "${api_server}" =~ ^https?:// ]]; then
+        api_server="http://${api_server}"
+    fi
+
+    # Fix the URL construction
+    local url="${api_server}/api/${endpoint}"
     local safe_url
     safe_url=$(redact_url "${url}")
+
+    bashio::log.debug "Using API URL: ${safe_url}"
 
     # Build curl command with appropriate options
     local curl_cmd="curl -s --connect-timeout 10"
@@ -248,8 +277,15 @@ make_direct_call() {
 
     # Make the API call and capture response
     local response
+    bashio::log.debug "Executing: ${curl_cmd} '${safe_url}'"
     response=$(eval "${curl_cmd} '${url}'")
     local status=$?
+
+    # Log more details on failure
+    if [[ ${status} -ne 0 ]]; then
+        bashio::log.warning "API call failed with curl exit code: ${status}"
+        bashio::log.debug "Curl error details: $(curl -s --version | head -n1)"
+    fi
 
     # Validate JSON response if successful
     if [[ ${status} -eq 0 && -n "${response}" ]]; then
@@ -257,19 +293,6 @@ make_direct_call() {
             bashio::log.warning "Invalid response from API"
             return 1
         fi
-    fi
-
-    # Parse and log response status
-    if [[ ${status} -eq 0 ]]; then
-        if [[ "${response}" == *"\"status\":\"Error\""* ]]; then
-            local error_msg
-            error_msg=$(echo "${response}" | sed -n 's/.*"errorMessage":"\([^"]*\)".*/\1/p')
-            bashio::log.debug "API call failed with error: ${error_msg}"
-        else
-            bashio::log.trace "API call successful"
-        fi
-    else
-        bashio::log.warning "API call failed with curl exit code: ${status}"
     fi
 
     echo "${response}"
