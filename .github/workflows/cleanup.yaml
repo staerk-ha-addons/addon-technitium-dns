@@ -10,34 +10,26 @@ on:
 
 jobs:
   cleanup:
-    name: "Clean up old and untagged packages"
+    name: "Clean up old untagged packages"
     runs-on: ubuntu-latest
 
     steps:
-      - name: Delete old package versions of technitium-dns/amd64
+      - name: Delete old untagged versions of technitium-dns/amd64 package
         uses: actions/delete-package-versions@v5
         continue-on-error: true
         with:
           package-name: "technitium-dns/amd64"
           package-type: container
           owner: staerk-ha-addons
-          min-versions-to-keep: 1
-          ignore-versions: '^0\\.(0|[1-9]\\d*)\\.0$'
-      - name: Delete old package versions of technitium-dns/amd64
-        uses: actions/delete-package-versions@v5
-        continue-on-error: true
-        with:
-          package-name: "technitium-dns/amd64"
-          package-type: container
-          owner: staerk-ha-addons
-          ignore-versions: "^(?!0\\.2\\.).*$"
-          min-versions-to-keep: 0
-      - name: Delete old package versions of technitium-dns/aarch64
+          min-versions-to-keep: 3
+          ignore-versions: "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-beta)?$|^stable$|^beta$|^edge$"
+
+      - name: Delete old untagged versions of technitium-dns/aarch64 package
         uses: actions/delete-package-versions@v5
         continue-on-error: true
         with:
           package-name: "technitium-dns/aarch64"
           package-type: container
           owner: staerk-ha-addons
-          ignore-versions: "^(?!0\\.2\\.).*$"
-          min-versions-to-keep: 0
+          min-versions-to-keep: 3
+          ignore-versions: "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-beta)?$|^stable$|^beta$|^edge$"
