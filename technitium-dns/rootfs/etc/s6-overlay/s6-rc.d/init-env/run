@@ -5,9 +5,6 @@
 # Initialize environment variables for Technitium DNS Server addon
 # This script runs as a oneshot service during s6-overlay initialization
 # ==============================================================================
-if [[ "${DEBUG:-false}" == "true" ]]; then
-    bashio::log.level 'debug'
-fi
 bashio::log.debug "Setting up environment variables..."
 
 # -----------------------------------------------------------------------------
@@ -169,5 +166,3 @@ echo "${ADDON_PKCS12_PASSWORD}" >/run/s6/container_environment/ADDON_PKCS12_PASS
 
 # Indicate successful environment setup
 bashio::log.debug "Environment variables configured successfully"
-
-bashio::log.debug "$(printenv || true)"

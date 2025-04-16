@@ -1,4 +1,4 @@
-# hadolint global ignore=DL3006,DL3008,SC1091,SC3009
+# hadolint global ignore=DL3006,DL3008,SC1091,SC2039,SC3009
 
 # Base image for Home Assistant add-ons
 ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:7.8.1
@@ -6,6 +6,7 @@ ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:7.8.1
 # ============================================================================
 # BUILD STAGE
 # ============================================================================
+# hadolint ignore=DL3006
 FROM ${BUILD_FROM} AS build
 
 # Version configuration
@@ -27,6 +28,7 @@ WORKDIR /build/
 # https://learn.microsoft.com/en-us/dotnet/core/install/linux-scripted-manual#scripted-install
 # https://learn.microsoft.com/en-us/dotnet/core/install/linux-debian?tabs=dotnet8#dependencies
 # https://github.com/TechnitiumSoftware/DnsServer/blob/master/build.md
+# hadolint ignore=DL3008,SC2039
 RUN source /etc/os-release \
     # Add Microsoft package repository
     && curl -sSL -O "https://packages.microsoft.com/config/${ID}/${VERSION_ID}/packages-microsoft-prod.deb" \
@@ -67,9 +69,10 @@ RUN source /etc/os-release \
     /var/lib/apt/lists/*
 
 # ============================================================================
-# RUNTIME STAGE
+# INSTALL STAGE
 # ============================================================================
-FROM ${BUILD_FROM} AS runtime
+# hadolint ignore=DL3006
+FROM ${BUILD_FROM} AS install
 
 # Configure .NET runtime environment
 ARG DOTNET_SDK_VERSION=8.0
@@ -79,6 +82,7 @@ ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 ENV PATH="$PATH:$DOTNET_ROOT"
 
 # Install runtime dependencies and .NET runtime
+# hadolint ignore=DL3008,SC1091
 RUN source /etc/os-release \
     # Add Microsoft package repository
     && curl -sSL -O "https://packages.microsoft.com/config/${ID}/${VERSION_ID}/packages-microsoft-prod.deb" \
@@ -104,6 +108,11 @@ RUN source /etc/os-release \
 
 # Copy DNS server application from build stage
 COPY --from=build /opt/technitium/dns /opt/technitium/dns/
+
+# ============================================================================
+# RUNTIME STAGE
+# ============================================================================
+FROM install AS runtime
 
 # Copy Home Assistant add-on files
 COPY rootfs /
