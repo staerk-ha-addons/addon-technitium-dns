@@ -18,56 +18,11 @@ jobs:
         uses: actions/delete-package-versions@v5
         continue-on-error: true
         with:
-          package-name: technitium-dns/amd64
-          package-type: container
-          owner: staerk-ha-addons
-          delete-only-untagged-versions: true
-          min-versions-to-keep: 0
-      - name: Delete old package versions of technitium-dns/amd64
-        uses: actions/delete-package-versions@v5
-        continue-on-error: true
-        with:
-          package-name: 'technitium-dns/amd64'
-          package-type: container
-          owner: staerk-ha-addons
-          delete-only-untagged-versions: true
-          min-versions-to-keep: 0
-      - name: Delete old package versions of technitium-dns/amd64
-        uses: actions/delete-package-versions@v5
-        continue-on-error: true
-        with:
           package-name: "technitium-dns/amd64"
           package-type: container
           owner: staerk-ha-addons
-          delete-only-untagged-versions: true
           min-versions-to-keep: 0
-      - name: Delete old package versions of technitium-dns/amd64
-        uses: actions/delete-package-versions@v5
-        continue-on-error: true
-        with:
-          package-name: technitium-dns%2Famd64
-          package-type: container
-          owner: staerk-ha-addons
           delete-only-untagged-versions: true
-          min-versions-to-keep: 0
-      - name: Delete old package versions of technitium-dns/amd64
-        uses: actions/delete-package-versions@v5
-        continue-on-error: true
-        with:
-          package-name: "technitium-dns%2Famd64"
-          package-type: container
-          owner: staerk-ha-addons
-          delete-only-untagged-versions: true
-          min-versions-to-keep: 0
-      - name: Delete old package versions of technitium-dns/amd64
-        uses: actions/delete-package-versions@v5
-        continue-on-error: true
-        with:
-          package-name: 'technitium-dns%2Famd64'
-          package-type: container
-          owner: staerk-ha-addons
-          delete-only-untagged-versions: true
-          min-versions-to-keep: 0
       - name: Delete old package versions of technitium-dns/aarch64
         uses: actions/delete-package-versions@v5
         continue-on-error: true
@@ -75,14 +30,5 @@ jobs:
           package-name: "technitium-dns/aarch64"
           package-type: container
           owner: staerk-ha-addons
-          delete-only-untagged-versions: true
           min-versions-to-keep: 0
-      - name: Delete old package versions of technitium-dns/aarch64
-        uses: actions/delete-package-versions@v5
-        continue-on-error: true
-        with:
-          package-name: "technitium-dns%2Faarch64"
-          package-type: container
-          owner: staerk-ha-addons
           delete-only-untagged-versions: true
-          min-versions-to-keep: 0
