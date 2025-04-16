@@ -13,7 +13,7 @@ print_system_information() {
     bashio::log.debug "$(printenv || true)"
 }
 
-get_hostname() {
+get_domain() {
     local default_hostname="homeassistant.local"
     local system_hostname
     local config_hostname

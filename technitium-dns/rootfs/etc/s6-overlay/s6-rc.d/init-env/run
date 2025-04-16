@@ -107,8 +107,8 @@ write_env "ADDON_DNS_OVER_QUIC" "${ADDON_DNS_OVER_QUIC}"
 # Basic Configuration
 # -----------------------------------------------------------------------------
 # Get the hostname from config or use fallback
-ADDON_HOSTNAME=$(get_hostname || echo "homeassistant.local")
-write_env "ADDON_HOSTNAME" "${ADDON_HOSTNAME}"
+ADDON_DOMAIN=$(get_domain || echo "homeassistant.local")
+write_env "ADDON_DOMAIN" "${ADDON_DOMAIN}"
 
 # Set the addon directoies
 ADDON_CONFIG_DIR="/config"

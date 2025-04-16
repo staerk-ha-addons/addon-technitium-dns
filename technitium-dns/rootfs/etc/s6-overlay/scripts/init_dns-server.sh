@@ -50,7 +50,7 @@ if type make_api_call >/dev/null 2>&1; then
     # Apply configuration via API
     bashio::log.debug "Applying DNS server configuration..."
     make_api_call "settings/set" "POST" "{
-        \"dnsServerDomain\": \"${ADDON_HOSTNAME}\",
+        \"dnsServerDomain\": \"${ADDON_DOMAIN}\",
         \"loggingType\": \"FileAndConsole\",
         \"logQueries\": ${ADDON_LOG_QUERIES},
         \"useLocalTime\": true,

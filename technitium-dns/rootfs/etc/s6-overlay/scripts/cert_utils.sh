@@ -22,7 +22,7 @@ fi
 # Environment Variable Check
 # -----------------------------------------------------------------------------
 # Validate all required environment variables are set
-required_env_vars=("ADDON_SSL_DIR" "ADDON_CERT_FILE" "ADDON_KEY_FILE" "ADDON_PKCS12_FILE" "ADDON_PKCS12_PASSWORD" "ADDON_HOSTNAME")
+required_env_vars=("ADDON_SSL_DIR" "ADDON_CERT_FILE" "ADDON_KEY_FILE" "ADDON_PKCS12_FILE" "ADDON_PKCS12_PASSWORD" "ADDON_DOMAIN")
 
 for var in "${required_env_vars[@]}"; do
     if [[ -z "${!var}" ]]; then
@@ -115,10 +115,10 @@ check_hostname_match() {
     # Log certificate details for debugging
     bashio::log.debug "Certificate CN: ${cert_cn}"
     bashio::log.debug "Certificate SANs: ${cert_sans}"
-    bashio::log.debug "Current hostname: ${ADDON_HOSTNAME}"
+    bashio::log.debug "Current hostname: ${ADDON_DOMAIN}"
 
     # Check if current hostname matches the certificate's Common Name
-    if [[ "${cert_cn}" == "${ADDON_HOSTNAME}" ]]; then
+    if [[ "${cert_cn}" == "${ADDON_DOMAIN}" ]]; then
         bashio::log.debug "Hostname matches certificate CN"
         hostname_match=true
     fi
@@ -127,7 +127,7 @@ check_hostname_match() {
     if [[ "${hostname_match}" == "false" ]] && [[ -n "${cert_sans}" ]]; then
         # Process each SAN using a process substitution to avoid subshell issues
         while read -r san; do
-            if [[ "${san}" == "${ADDON_HOSTNAME}" ]]; then
+            if [[ "${san}" == "${ADDON_DOMAIN}" ]]; then
                 bashio::log.debug "Hostname matches certificate SAN: ${san}"
                 hostname_match=true
                 break
@@ -137,7 +137,7 @@ check_hostname_match() {
 
     # Return success if hostname matches certificate, otherwise failure
     if [[ "${hostname_match}" == "true" ]]; then
-        bashio::log.debug "Certificate valid for current hostname: ${ADDON_HOSTNAME}"
+        bashio::log.debug "Certificate valid for current hostname: ${ADDON_DOMAIN}"
         return 0
     else
         bashio::log.debug "Certificate NOT valid for current hostname - regeneration required"
@@ -150,7 +150,7 @@ check_hostname_match() {
 # -----------------------------------------------------------------------------
 # Generate a new self-signed certificate for the current hostname
 generate_self_signed() {
-    bashio::log.info "Generating self-signed certificate for hostname: ${ADDON_HOSTNAME}"
+    bashio::log.info "Generating self-signed certificate for hostname: ${ADDON_DOMAIN}"
 
     # Generate certificate with 4096-bit RSA key and 365 day validity
     if openssl req -x509 \
@@ -159,8 +159,8 @@ generate_self_signed() {
         -out "${ADDON_CERT_FILE}" \
         -days 365 \
         -nodes \
-        -subj "/CN=${ADDON_HOSTNAME}" \
-        -addext "subjectAltName=DNS:${ADDON_HOSTNAME}" 2>/dev/null; then
+        -subj "/CN=${ADDON_DOMAIN}" \
+        -addext "subjectAltName=DNS:${ADDON_DOMAIN}" 2>/dev/null; then
 
         # Set appropriate permissions for the generated files
         chmod 600 "${ADDON_KEY_FILE}"
