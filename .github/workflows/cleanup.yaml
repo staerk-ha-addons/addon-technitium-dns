@@ -20,9 +20,8 @@ jobs:
         with:
           package-name: "technitium-dns/amd64"
           package-type: container
-          owner: staerk-ha-addons
           min-versions-to-keep: 3
-          ignore-versions: "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-beta)?$|^stable$|^beta$|^edge$"
+          ignore-versions: "^stable$|^beta$|^edge$|^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
 
       - name: Delete old untagged versions of technitium-dns/aarch64 package
         uses: actions/delete-package-versions@v5
@@ -30,6 +29,5 @@ jobs:
         with:
           package-name: "technitium-dns/aarch64"
           package-type: container
-          owner: staerk-ha-addons
           min-versions-to-keep: 3
-          ignore-versions: "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-beta)?$|^stable$|^beta$|^edge$"
+          ignore-versions: "^stable$|^beta$|^edge$|^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
