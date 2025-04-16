@@ -1,0 +1,173 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# shellcheck disable=SC1091
+# ==============================================================================
+# Initialize environment variables for Technitium DNS Server addon
+# This script runs as a oneshot service during s6-overlay initialization
+# ==============================================================================
+if [[ "${DEBUG:-false}" == "true" ]]; then
+    bashio::log.level 'debug'
+fi
+bashio::log.debug "Setting up environment variables..."
+
+# -----------------------------------------------------------------------------
+# Source Dependencies
+# -----------------------------------------------------------------------------
+# Source helper utility functions for configuration and addon operations
+# shellcheck source=/etc/s6-overlay/scripts/config_utils.sh
+if ! source "/etc/s6-overlay/scripts/config_utils.sh"; then
+    bashio::exit.nok "Failed to source configurations utilities"
+fi
+
+check_cert_paths() {
+    # Validate certificate file
+    if bashio::config.exists 'certfile' && bashio::config.has_value 'certfile'; then
+        CERT_FILE="$(bashio::config 'certfile')"
+        if [[ ! -f "${CERT_FILE}" || ! -r "${CERT_FILE}" ]]; then
+            bashio::log.debug "Configured certificate file not found or not readable: ${CERT_FILE}"
+            CERT_FILE=""
+        else
+            bashio::log.debug "Using configured certificate file: ${CERT_FILE}"
+        fi
+    else
+        bashio::log.debug "No certificate file configured"
+        CERT_FILE=""
+    fi
+
+    # Try the Home Assistant SSL directory if primary cert file not available
+    if [[ -z "${CERT_FILE}" && -f "/ssl/fullchain.pem" && -r "/ssl/fullchain.pem" ]]; then
+        CERT_FILE="/ssl/fullchain.pem"
+        bashio::log.debug "Using Home Assistant SSL certificate: ${CERT_FILE}"
+    fi
+
+    # Fall back to default SSL directory if needed
+    if [[ -z "${CERT_FILE}" ]]; then
+        CERT_FILE="${CONFIG_SSL_DIR}/fullchain.pem"
+        bashio::log.debug "Using default certificate location: ${CERT_FILE}"
+    fi
+
+    # Validate key file
+    if bashio::config.exists 'keyfile' && bashio::config.has_value 'keyfile'; then
+        KEY_FILE="$(bashio::config 'keyfile')"
+        if [[ ! -f "${KEY_FILE}" || ! -r "${KEY_FILE}" ]]; then
+            bashio::log.debug "Configured key file not found or not readable: ${KEY_FILE}"
+            KEY_FILE=""
+        else
+            bashio::log.debug "Using configured key file: ${KEY_FILE}"
+        fi
+    else
+        bashio::log.debug "No key file configured"
+        KEY_FILE=""
+    fi
+
+    # Try the Home Assistant SSL directory if primary key file not available
+    if [[ -z "${KEY_FILE}" && -f "/ssl/privkey.pem" && -r "/ssl/privkey.pem" ]]; then
+        KEY_FILE="/ssl/privkey.pem"
+        bashio::log.debug "Using Home Assistant SSL key: ${KEY_FILE}"
+    fi
+
+    # Fall back to default SSL directory if needed
+    if [[ -z "${KEY_FILE}" ]]; then
+        KEY_FILE="${CONFIG_SSL_DIR}/privkey.pem"
+        bashio::log.debug "Using default key location: ${KEY_FILE}"
+    fi
+}
+# -----------------------------------------------------------------------------
+# Configuration Variables
+# -----------------------------------------------------------------------------
+# Read configuration options from user config
+ADDON_LOG_QUERIES=$(bashio::config 'logQueries' 'true')
+ADDON_DNS_OVER_TLS=$(bashio::config 'enableDnsOverTls' 'true')
+ADDON_DNS_OVER_HTTPS=$(bashio::config 'enableDnsOverHttps' 'true')
+ADDON_DNS_OVER_HTTPS3=$(bashio::config 'enableDnsOverHttps3' 'true')
+ADDON_DNS_OVER_QUIC=$(bashio::config 'enableDnsOverQuic' 'true')
+forwarder_config=$(get_forwarder_config || true)
+IFS='|' read -r ADDON_FORWARDER_SERVERS ADDON_FORWARDER_PROTOCOL <<<"${forwarder_config}"
+echo "${ADDON_FORWARDER_SERVERS}" >/run/s6/container_environment/ADDON_FORWARDER_SERVERS
+echo "${ADDON_FORWARDER_PROTOCOL}" >/run/s6/container_environment/ADDON_FORWARDER_PROTOCOL
+echo "${ADDON_LOG_QUERIES}" >/run/s6/container_environment/ADDON_LOG_QUERIES
+echo "${ADDON_DNS_OVER_TLS}" >/run/s6/container_environment/ADDON_DNS_OVER_TLS
+echo "${ADDON_DNS_OVER_HTTPS}" >/run/s6/container_environment/ADDON_DNS_OVER_HTTPS
+echo "${ADDON_DNS_OVER_HTTPS3}" >/run/s6/container_environment/ADDON_DNS_OVER_HTTPS3
+echo "${ADDON_DNS_OVER_QUIC}" >/run/s6/container_environment/ADDON_DNS_OVER_QUIC
+
+# -----------------------------------------------------------------------------
+# Basic Configuration
+# -----------------------------------------------------------------------------
+# Get the hostname from config or use fallback
+ADDON_HOSTNAME=$(get_hostname || echo "homeassistant.local")
+echo "${ADDON_HOSTNAME}" >/run/s6/container_environment/ADDON_HOSTNAME
+
+# Set the addon directoies
+ADDON_CONFIG_DIR="/config"
+echo "${ADDON_CONFIG_DIR}" >/run/s6/container_environment/ADDON_CONFIG_DIR
+ADDON_CONFIG_SSL_DIR="${ADDON_CONFIG_DIR}/ssl"
+echo "${ADDON_CONFIG_SSL_DIR}" >/run/s6/container_environment/ADDON_CONFIG_SSL_DIR
+mkdir -p "${ADDON_CONFIG_SSL_DIR}"
+
+# -----------------------------------------------------------------------------
+# API Access Configuration
+# -----------------------------------------------------------------------------
+# Define server API endpoint and authentication parameters
+ADDON_API_SERVER="http://localhost:5380"
+ADDON_TOKEN_NAME="ha-addon-token"
+ADDON_TOKEN_FILE="/config/.${ADDON_TOKEN_NAME}.enc"
+ADDON_LOCK_FILE="/tmp/.${ADDON_TOKEN_NAME}.lock"
+
+# Store API settings in container environment
+echo "${ADDON_API_SERVER}" >/run/s6/container_environment/ADDON_API_SERVER
+echo "${ADDON_TOKEN_NAME}" >/run/s6/container_environment/ADDON_TOKEN_NAME
+echo "${ADDON_TOKEN_FILE}" >/run/s6/container_environment/ADDON_TOKEN_FILE
+echo "${ADDON_LOCK_FILE}" >/run/s6/container_environment/ADDON_LOCK_FILE
+
+# -----------------------------------------------------------------------------
+# Certificate Path Configuration
+# -----------------------------------------------------------------------------
+# Get certificate and key file paths from config or default locations
+cert_paths=$(get_cert_paths || true)
+IFS='|' read -r ADDON_CERT_FILE ADDON_KEY_FILE <<<"${cert_paths}"
+
+# Extract directory paths for certificates
+cert_dir=$(dirname "${ADDON_CERT_FILE}" || true)
+key_dir=$(dirname "${ADDON_KEY_FILE}" || true)
+
+# Determine the best SSL directory to use
+if [[ "${cert_dir}" != "${key_dir}" ]]; then
+    # Log when certificate and key are in different locations
+    bashio::log.debug "Certificate directory (${cert_dir}) and key directory (${key_dir}) do not match"
+
+    # Pick the best directory based on existence checks
+    if [[ -n "${cert_dir}" && -d "${cert_dir}" ]]; then
+        # Use certificate directory if it exists
+        ADDON_SSL_DIR="${cert_dir}"
+    elif [[ -n "${key_dir}" && -d "${key_dir}" ]]; then
+        # Fall back to key directory if cert directory doesn't exist
+        ADDON_SSL_DIR="${key_dir}"
+    else
+        # Default to config ssl if neither directory exists
+        ADDON_SSL_DIR="${ADDON_CONFIG_SSL_DIR}"
+        bashio::log.warning "Using default SSL directory: ${ADDON_SSL_DIR}"
+    fi
+else
+    # Certificate and key are in the same directory (or both undefined)
+    ADDON_SSL_DIR="${cert_dir:-${ADDON_CONFIG_SSL_DIR}}" # Use cert_dir if defined, otherwise default to /ssl
+fi
+
+# -----------------------------------------------------------------------------
+# PKCS12 Certificate Configuration
+# -----------------------------------------------------------------------------
+# Define PKCS12 file location and password for Technitium DNS
+ADDON_PKCS12_FILE="${ADDON_CONFIG_SSL_DIR}/technitium.pfx"
+ADDON_PKCS12_PASSWORD="TechnitiumDNS!SSL"
+
+# Store certificate paths and settings in container environment
+echo "${ADDON_SSL_DIR}" >/run/s6/container_environment/ADDON_SSL_DIR
+echo "${ADDON_CERT_FILE}" >/run/s6/container_environment/ADDON_CERT_FILE
+echo "${ADDON_KEY_FILE}" >/run/s6/container_environment/ADDON_KEY_FILE
+echo "${ADDON_PKCS12_FILE}" >/run/s6/container_environment/ADDON_PKCS12_FILE
+echo "${ADDON_PKCS12_PASSWORD}" >/run/s6/container_environment/ADDON_PKCS12_PASSWORD
+
+# Indicate successful environment setup
+bashio::log.debug "Environment variables configured successfully"
+
+bashio::log.debug "$(printenv || true)"

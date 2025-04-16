@@ -35,41 +35,11 @@ if ! source "/etc/s6-overlay/scripts/cert_utils.sh"; then
     bashio::exit.nok "Failed to source certificate utilities"
 fi
 
-# shellcheck source=/etc/s6-overlay/scripts/helper_utils.sh
-if ! source "/etc/s6-overlay/scripts/helper_utils.sh"; then
-    bashio::exit.nok "Failed to source helper utilities"
-fi
-
-# -----------------------------------------------------------------------------
-# Configuration Variables
-# -----------------------------------------------------------------------------
-# Read configuration options from user config
-LOG_QUERIES=$(bashio::config 'logQueries' 'true')
-DNS_OVER_TLS=$(bashio::config 'enableDnsOverTls' 'true')
-DNS_OVER_HTTPS=$(bashio::config 'enableDnsOverHttps' 'true')
-DNS_OVER_HTTPS3=$(bashio::config 'enableDnsOverHttps3' 'true')
-DNS_OVER_QUIC=$(bashio::config 'enableDnsOverQuic' 'true')
-FORWARDER=$(bashio::config 'forwarders' 'Cloudflare (DNS-over-HTTPS)')
-
 # -----------------------------------------------------------------------------
 # Configure DNS Server
 # -----------------------------------------------------------------------------
 # Perform initial certificate setup
 handle_cert_update
-
-# Get hostname from helper utility
-ADDON_HOSTNAME=$(get_hostname)
-
-# Get forwarder settings from config
-forwarder_config=$(get_forwarder_config "${FORWARDER}" || true)
-IFS='|' read -r DNS_SERVERS PROTOCOL <<<"${forwarder_config}"
-
-# Validate we got required settings
-if [[ -z "${DNS_SERVERS}" || -z "${PROTOCOL}" ]]; then
-    bashio::log.debug "Failed to get valid forwarder configuration, using defaults"
-    DNS_SERVERS="[\"1.1.1.1\",\"1.0.0.1\"]"
-    PROTOCOL="Udp"
-fi
 
 # Apply configuration via API
 # See options here: https://github.com/TechnitiumSoftware/DnsServer/blob/master/APIDOCS.md#set-dns-settings
@@ -77,22 +47,22 @@ bashio::log.debug "Applying DNS server configuration..."
 make_api_call "settings/set" "POST" "{
     \"dnsServerDomain\": \"${ADDON_HOSTNAME}\",
     \"loggingType\": \"FileAndConsole\",
-    \"logQueries\": ${LOG_QUERIES},
+    \"logQueries\": ${ADDON_LOG_QUERIES},
     \"useLocalTime\": true,
     \"maxLogFileDays\": 7,
     \"maxStatFileDays\": 30,
-    \"enableDnsOverTls\": ${DNS_OVER_TLS},
-    \"enableDnsOverHttps\": ${DNS_OVER_HTTPS},
-    \"enableDnsOverHttp3\": ${DNS_OVER_HTTPS3},
-    \"enableDnsOverQuic\": ${DNS_OVER_QUIC},
-    \"dnsTlsCertificatePath\": \"${PKCS12_FILE}\",
-    \"dnsTlsCertificatePassword\": \"${PKCS12_PASSWORD}\",
+    \"enableDnsOverTls\": ${ADDON_DNS_OVER_TLS},
+    \"enableDnsOverHttps\": ${ADDON_DNS_OVER_HTTPS},
+    \"enableDnsOverHttp3\": ${ADDON_DNS_OVER_HTTPS3},
+    \"enableDnsOverQuic\": ${ADDON_DNS_OVER_QUIC},
+    \"dnsTlsCertificatePath\": \"${ADDON_PKCS12_FILE}\",
+    \"dnsTlsCertificatePassword\": \"${ADDON_PKCS12_PASSWORD}\",
     \"webServiceEnableTls\": true,
     \"webServiceEnableHttp3\": true,
-    \"webServiceTlsCertificatePath\": \"${PKCS12_FILE}\",
-    \"webServiceTlsCertificatePassword\": \"${PKCS12_PASSWORD}\",
-    \"forwarders\": ${DNS_SERVERS},
-    \"forwarderProtocol\": \"${PROTOCOL}\"
+    \"webServiceTlsCertificatePath\": \"${ADDON_PKCS12_FILE}\",
+    \"webServiceTlsCertificatePassword\": \"${ADDON_PKCS12_PASSWORD}\",
+    \"forwarders\": ${ADDON_FORWARDER_SERVERS},
+    \"forwarderProtocol\": \"${ADDON_FORWARDER_PROTOCOL}\"
 }"
 
 # -----------------------------------------------------------------------------

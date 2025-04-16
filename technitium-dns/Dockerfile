@@ -69,7 +69,7 @@ RUN source /etc/os-release \
 # ============================================================================
 # RUNTIME STAGE
 # ============================================================================
-FROM ${BUILD_FROM}
+FROM ${BUILD_FROM} AS runtime
 
 # Configure .NET runtime environment
 ARG DOTNET_SDK_VERSION=8.0
