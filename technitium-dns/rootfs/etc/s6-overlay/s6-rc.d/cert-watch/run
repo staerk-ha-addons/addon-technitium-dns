@@ -5,21 +5,23 @@
 # Watch certificates for changes and regenerate PKCS #12 if needed
 # ==============================================================================
 
-bashio::log.level 'debug'
+if [[ "${DEBUG:-false}" == "true" ]]; then
+    bashio::log.level 'debug'
+fi
 
 # Wait for DNS server to fully initialize
 sleep 60
 
-bashio::log.debug "================================================="
-bashio::log.debug "  Starting Certificate Tool"
-bashio::log.debug "================================================="
+bashio::log.debug "cert-watch: ================================================="
+bashio::log.debug "cert-watch:   Starting Certificate Tool"
+bashio::log.debug "cert-watch: ================================================="
 
 # -----------------------------------------------------------------------------
 # Configuration Check
 # -----------------------------------------------------------------------------
 # Skip certificate monitoring if user prefers manual handling
 if bashio::config.true 'manualCertHandling'; then
-    bashio::log.debug "Manual certificate handling enabled - disabling certificate watch"
+    bashio::log.debug "cert-watch: Manual certificate handling enabled - disabling certificate watch"
     exec sleep infinity
 fi
 
@@ -38,7 +40,7 @@ fi
 # Check for required inotify utility
 check_inotify() {
     if ! command -v inotifywait >/dev/null 2>&1; then
-        bashio::log.warning "inotifywait not found - certificate auto-updates may not work"
+        bashio::log.warning "cert-watch: inotifywait not found - certificate auto-updates may not work"
         return 1
     fi
     return 0
@@ -58,12 +60,12 @@ handle_cert_changes() {
 
     # Skip if we've updated recently
     if ((now - LAST_UPDATE_TIME < DEBOUNCE_SECONDS)); then
-        bashio::log.debug "Skipping update (within debounce period)"
+        bashio::log.debug "cert-watch: Skipping update (within debounce period)"
         return 0
     fi
 
     # Process certificate updates
-    bashio::log.debug "Updating certificates..."
+    bashio::log.debug "cert-watch: Updating certificates..."
     handle_cert_update
     LAST_UPDATE_TIME=$(date +%s)
 }
@@ -72,7 +74,7 @@ handle_cert_changes() {
 # Certificate Monitoring Loop
 # -----------------------------------------------------------------------------
 # Start continuous monitoring for certificate changes
-bashio::log.debug "Starting certificate watch service..."
+bashio::log.debug "cert-watch: Starting certificate watch service..."
 
 # Simple health check file to detect restarts
 touch "/tmp/.cert_watch_healthy"
@@ -82,7 +84,7 @@ trap 'rm -f /tmp/.cert_watch_healthy' EXIT
 while true; do
     # Check for proper inotify functionality
     if ! check_inotify; then
-        bashio::log.warning "inotify check failed, falling back to periodic checks"
+        bashio::log.warning "cert-watch: inotify check failed, falling back to periodic checks"
         sleep 300 # Check every 5 minutes as a fallback
         handle_cert_changes
         continue
@@ -92,17 +94,15 @@ while true; do
     # Using array properly
     dirs_to_watch=("${ADDON_SSL_DIR}" "${ADDON_CONFIG_SSL_DIR}")
     if ! inotifywait -e close_write,move,create,delete "${dirs_to_watch[@]}" >/dev/null 2>&1; then
-        bashio::log.debug "inotifywait failed, retrying in 30 seconds..."
+        bashio::log.debug "cert-watch: inotifywait failed, retrying in 30 seconds..."
         sleep 30
         continue
     fi
 
     # Handle detected changes
-    bashio::log.debug "Detected certificate change, processing..."
+    bashio::log.debug "cert-watch: Detected certificate change, processing..."
     handle_cert_changes
 
-    s6-rc -d change dns-server
-
     # Prevent too rapid looping
-    sleep 1
+    sleep 10
 done

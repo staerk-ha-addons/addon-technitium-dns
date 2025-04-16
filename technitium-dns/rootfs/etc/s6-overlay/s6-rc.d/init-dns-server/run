@@ -6,25 +6,27 @@
 # Initializing Technitium DNS Server
 # ==============================================================================
 
-bashio::log.level "debug"
+if [[ "${DEBUG:-false}" == "true" ]]; then
+    bashio::log.level 'debug'
+fi
 
 # Allow DNS server to fully start before configuration
 # Use curl to check if the web interface is responding
 while ! curl -s --head --fail "${ADDON_API_SERVER}" >/dev/null; do
-    bashio::log.debug "Waiting for DNS server to start..."
+    bashio::log.debug "init-dns-server: Waiting for DNS server to start..."
     sleep 3
 done
-bashio::log.debug "DNS server is up and running"
+bashio::log.debug "init-dns-server: DNS server is up and running"
 
-bashio::log.debug "================================================="
-bashio::log.debug "  Initializing Technitium DNS Server"
-bashio::log.debug "================================================="
+bashio::log.debug "init-dns-server: ================================================="
+bashio::log.debug "init-dns-server:   Initializing Technitium DNS Server"
+bashio::log.debug "init-dns-server: ================================================="
 
 # -----------------------------------------------------------------------------
 # Manual Configuration Check
 # -----------------------------------------------------------------------------
 if bashio::config.true 'manualConfig'; then
-    bashio::log.debug "Manual configuration mode enabled - skipping automatic configuration"
+    bashio::log.debug "init-dns-server: Manual configuration mode enabled - skipping automatic configuration"
     exit 0
 fi
 
@@ -50,7 +52,7 @@ handle_cert_update
 
 # Apply configuration via API
 # See options here: https://github.com/TechnitiumSoftware/DnsServer/blob/master/APIDOCS.md#set-dns-settings
-bashio::log.debug "Applying DNS server configuration..."
+bashio::log.debug "init-dns-server: Applying DNS server configuration..."
 make_api_call "settings/set" "POST" "{
     \"dnsServerDomain\": \"${ADDON_DOMAIN}\",
     \"loggingType\": \"FileAndConsole\",
@@ -76,5 +78,5 @@ make_api_call "settings/set" "POST" "{
 # Install Apps
 # -----------------------------------------------------------------------------
 # Install query logging app
-bashio::log.debug "Installing/updating query logs app..."
+bashio::log.debug "init-dns-server: Installing/updating query logs app..."
 manage_dns_app "Query Logs (Sqlite)"

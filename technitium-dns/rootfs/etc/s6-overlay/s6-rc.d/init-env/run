@@ -6,9 +6,11 @@
 # This script runs as a oneshot service during s6-overlay initialization
 # ==============================================================================
 
-bashio::log.level 'debug'
+if [[ "${DEBUG:-false}" == "true" ]]; then
+    bashio::log.level 'debug'
+fi
 
-bashio::log.debug "Setting up environment variables..."
+bashio::log.debug "init-env: Setting up environment variables..."
 
 # -----------------------------------------------------------------------------
 # Source Dependencies
@@ -34,52 +36,52 @@ check_cert_paths() {
     if bashio::config.exists 'certfile' && bashio::config.has_value 'certfile'; then
         CERT_FILE="$(bashio::config 'certfile')"
         if [[ ! -f "${CERT_FILE}" || ! -r "${CERT_FILE}" ]]; then
-            bashio::log.debug "Configured certificate file not found or not readable: ${CERT_FILE}"
+            bashio::log.debug "init-env: Configured certificate file not found or not readable: ${CERT_FILE}"
             CERT_FILE=""
         else
-            bashio::log.debug "Using configured certificate file: ${CERT_FILE}"
+            bashio::log.debug "init-env: Using configured certificate file: ${CERT_FILE}"
         fi
     else
-        bashio::log.debug "No certificate file configured"
+        bashio::log.debug "init-env: No certificate file configured"
         CERT_FILE=""
     fi
 
     # Try the Home Assistant SSL directory if primary cert file not available
     if [[ -z "${CERT_FILE}" && -f "/ssl/fullchain.pem" && -r "/ssl/fullchain.pem" ]]; then
         CERT_FILE="/ssl/fullchain.pem"
-        bashio::log.debug "Using Home Assistant SSL certificate: ${CERT_FILE}"
+        bashio::log.debug "init-env: Using Home Assistant SSL certificate: ${CERT_FILE}"
     fi
 
     # Fall back to default SSL directory if needed
     if [[ -z "${CERT_FILE}" ]]; then
         CERT_FILE="${CONFIG_SSL_DIR}/fullchain.pem"
-        bashio::log.debug "Using default certificate location: ${CERT_FILE}"
+        bashio::log.debug "init-env: Using default certificate location: ${CERT_FILE}"
     fi
 
     # Validate key file
     if bashio::config.exists 'keyfile' && bashio::config.has_value 'keyfile'; then
         KEY_FILE="$(bashio::config 'keyfile')"
         if [[ ! -f "${KEY_FILE}" || ! -r "${KEY_FILE}" ]]; then
-            bashio::log.debug "Configured key file not found or not readable: ${KEY_FILE}"
+            bashio::log.debug "init-env: Configured key file not found or not readable: ${KEY_FILE}"
             KEY_FILE=""
         else
-            bashio::log.debug "Using configured key file: ${KEY_FILE}"
+            bashio::log.debug "init-env: Using configured key file: ${KEY_FILE}"
         fi
     else
-        bashio::log.debug "No key file configured"
+        bashio::log.debug "init-env: No key file configured"
         KEY_FILE=""
     fi
 
     # Try the Home Assistant SSL directory if primary key file not available
     if [[ -z "${KEY_FILE}" && -f "/ssl/privkey.pem" && -r "/ssl/privkey.pem" ]]; then
         KEY_FILE="/ssl/privkey.pem"
-        bashio::log.debug "Using Home Assistant SSL key: ${KEY_FILE}"
+        bashio::log.debug "init-env: Using Home Assistant SSL key: ${KEY_FILE}"
     fi
 
     # Fall back to default SSL directory if needed
     if [[ -z "${KEY_FILE}" ]]; then
         KEY_FILE="${CONFIG_SSL_DIR}/privkey.pem"
-        bashio::log.debug "Using default key location: ${KEY_FILE}"
+        bashio::log.debug "init-env: Using default key location: ${KEY_FILE}"
     fi
 }
 # -----------------------------------------------------------------------------
@@ -146,7 +148,7 @@ key_dir=$(dirname "${ADDON_KEY_FILE}" || true)
 # Determine the best SSL directory to use
 if [[ "${cert_dir}" != "${key_dir}" ]]; then
     # Log when certificate and key are in different locations
-    bashio::log.debug "Certificate directory (${cert_dir}) and key directory (${key_dir}) do not match"
+    bashio::log.debug "init-env: Certificate directory (${cert_dir}) and key directory (${key_dir}) do not match"
 
     # Pick the best directory based on existence checks
     if [[ -n "${cert_dir}" && -d "${cert_dir}" ]]; then
@@ -158,7 +160,7 @@ if [[ "${cert_dir}" != "${key_dir}" ]]; then
     else
         # Default to config ssl if neither directory exists
         ADDON_SSL_DIR="${ADDON_CONFIG_SSL_DIR}"
-        bashio::log.warning "Using default SSL directory: ${ADDON_SSL_DIR}"
+        bashio::log.warning "init-env: Using default SSL directory: ${ADDON_SSL_DIR}"
     fi
 else
     # Certificate and key are in the same directory (or both undefined)
@@ -180,5 +182,5 @@ write_env "ADDON_PKCS12_FILE" "${ADDON_PKCS12_FILE}"
 write_env "ADDON_PKCS12_PASSWORD" "${ADDON_PKCS12_PASSWORD}"
 
 # Indicate successful environment setup
-bashio::log.debug "Environment variables configured successfully"
-bashio::log.debug "API Server: ${ADDON_API_SERVER}"
+bashio::log.debug "init-env: Environment variables configured successfully"
+bashio::log.debug "init-env: API Server: ${ADDON_API_SERVER}"

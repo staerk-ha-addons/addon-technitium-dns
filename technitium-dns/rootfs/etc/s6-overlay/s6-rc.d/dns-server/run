@@ -5,9 +5,13 @@
 # Starts Technitium DNS Server
 # ==============================================================================
 
-bashio::log.debug "================================================="
-bashio::log.debug "  Starting Technitium DNS Server"
-bashio::log.debug "================================================="
+if [[ "${DEBUG:-false}" == "true" ]]; then
+    bashio::log.level 'debug'
+fi
+
+bashio::log.debug "dns-server: ================================================="
+bashio::log.debug "dns-server:   Starting Technitium DNS Server"
+bashio::log.debug "dns-server: ================================================="
 
 # -----------------------------------------------------------------------------
 # Environment Validation
