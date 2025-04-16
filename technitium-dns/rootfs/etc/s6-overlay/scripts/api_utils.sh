@@ -16,7 +16,7 @@ fi
 # Environment Variable Check
 # -----------------------------------------------------------------------------
 # Ensure required environment variables are set before proceeding
-required_env_vars=("ADDON_API_SERVER" "ADDON_TOKEN_NAME" "ADDON_TOKEN_FILE" "ADDON_LOCK_FILE" "ADDON_HOSTNAME")
+required_env_vars=("ADDON_API_SERVER" "ADDON_TOKEN_NAME" "ADDON_TOKEN_FILE" "ADDON_LOCK_FILE" "ADDON_DOMAIN")
 
 for var in "${required_env_vars[@]}"; do
     if [[ -z "${!var}" ]]; then
