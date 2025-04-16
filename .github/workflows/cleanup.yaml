@@ -12,16 +12,35 @@ jobs:
   cleanup:
     name: "Clean up old and untagged packages"
     runs-on: ubuntu-latest
-    permissions:
-      packages: admin
 
     steps:
-      - name: Delete old package versions
+      - name: Delete old package versions of technitium-dns
         uses: actions/delete-package-versions@v5
+        continue-on-error: true
         with:
-          package-name: "addon-technitium-dns"
+          package-name: "technitium-dns"
           package-type: "container"
           min-versions-to-keep: 1
           delete-only-untagged-versions: true
           owner: "staerk-ha-addons"
-          token: ${{ secrets.DISPATCH_TOKEN }}
+          token: ${{ secrets.CLEANUP_TOKEN }}
+      - name: Delete old package versions of technitium-dns/amd64
+        uses: actions/delete-package-versions@v5
+        continue-on-error: true
+        with:
+          package-name: "technitium-dns/amd64"
+          package-type: "container"
+          min-versions-to-keep: 1
+          delete-only-untagged-versions: true
+          owner: "staerk-ha-addons"
+          token: ${{ secrets.CLEANUP_TOKEN }}
+      - name: Delete old package versions of technitium-dns/aarch64
+        uses: actions/delete-package-versions@v5
+        continue-on-error: true
+        with:
+          package-name: "technitium-dns/aarch64"
+          package-type: "container"
+          min-versions-to-keep: 1
+          delete-only-untagged-versions: true
+          owner: "staerk-ha-addons"
+          token: ${{ secrets.CLEANUP_TOKEN }}
