@@ -20,7 +20,7 @@ required_env_vars=("ADDON_API_SERVER" "ADDON_TOKEN_NAME" "ADDON_TOKEN_FILE" "ADD
 
 for var in "${required_env_vars[@]}"; do
     if [[ -z "${!var}" ]]; then
-        bashio::log.error "Api Utils: Required environment variable ${var} is not set!"
+        bashio::log.error "api_utils: Required environment variable ${var} is not set!"
         exit 1
     fi
 done
@@ -32,12 +32,12 @@ done
 validate_response() {
     local response="${1}"
     if [[ -z "${response}" ]]; then
-        bashio::log.debug "Api Utils: Empty response received"
+        bashio::log.debug "api_utils: Empty response received"
         return 1
     fi
 
     if ! echo "${response}" | jq . >/dev/null 2>&1; then
-        bashio::log.debug "Api Utils: Invalid JSON response"
+        bashio::log.debug "api_utils: Invalid JSON response"
         return 1
     fi
     return 0
@@ -49,12 +49,12 @@ check_required_params() {
     local method="${2}"
 
     if [[ -z "${endpoint}" ]]; then
-        bashio::log.debug "Api Utils: Missing API endpoint"
+        bashio::log.debug "api_utils: Missing API endpoint"
         return 1
     fi
 
     if [[ ! "${method}" =~ ^(GET|POST)$ ]]; then
-        bashio::log.debug "Api Utils: Invalid HTTP method: ${method}"
+        bashio::log.debug "api_utils: Invalid HTTP method: ${method}"
         return 1
     fi
 
@@ -101,14 +101,14 @@ acquire_lock() {
         attempt=$((attempt + 1))
     done
 
-    bashio::log.warning "Api Utils: Could not acquire lock after ${max_attempts} attempts"
+    bashio::log.warning "api_utils: Could not acquire lock after ${max_attempts} attempts"
     return 1
 }
 
 # Remove the directory lock
 release_lock() {
     if ! rm -rf "${ADDON_LOCK_FILE}"; then
-        bashio::log.warning "Api Utils: Failed to release lock"
+        bashio::log.warning "api_utils: Failed to release lock"
         return 1
     fi
     return 0
@@ -122,7 +122,7 @@ save_token() {
     local token="${1}"
 
     if [[ -z "${token}" ]]; then
-        bashio::log.debug "Api Utils: Cannot save empty token"
+        bashio::log.debug "api_utils: Cannot save empty token"
         return 1
     fi
 
@@ -133,27 +133,27 @@ save_token() {
         release_lock
 
         if [[ ${status} -eq 0 ]]; then
-            bashio::log.debug "Api Utils: API token encrypted and saved"
+            bashio::log.debug "api_utils: API token encrypted and saved"
             return 0
         else
-            bashio::log.warning "Api Utils: Failed to save encrypted token"
+            bashio::log.warning "api_utils: Failed to save encrypted token"
             return 1
         fi
     fi
 
-    bashio::log.warning "Api Utils: Failed to acquire lock for saving token"
+    bashio::log.warning "api_utils: Failed to acquire lock for saving token"
     return 1
 }
 
 # Load and decrypt the saved API token
 load_saved_token() {
     if [[ ! -f "${ADDON_TOKEN_FILE}" ]]; then
-        bashio::log.debug "Api Utils: No saved token file exists"
+        bashio::log.debug "api_utils: No saved token file exists"
         return 1
     fi
 
     if ! acquire_lock; then
-        bashio::log.warning "Api Utils: Failed to acquire lock for loading token"
+        bashio::log.warning "api_utils: Failed to acquire lock for loading token"
         return 1
     fi
 
@@ -164,20 +164,20 @@ load_saved_token() {
     release_lock
 
     if [[ -z "${saved_token}" ]]; then
-        bashio::log.warning "Api Utils: Failed to decrypt token"
+        bashio::log.warning "api_utils: Failed to decrypt token"
 
         # Clean up invalid token file
         if acquire_lock; then
             rm -f "${ADDON_TOKEN_FILE}"
             release_lock
-            bashio::log.debug "Api Utils: Removed invalid token file"
+            bashio::log.debug "api_utils: Removed invalid token file"
         fi
 
         return 1
     fi
 
     echo "${saved_token}"
-    bashio::log.debug "Api Utils: Successfully loaded saved API token"
+    bashio::log.debug "api_utils: Successfully loaded saved API token"
     return 0
 }
 
@@ -193,36 +193,36 @@ get_auth_token() {
 
     # Try to load existing token first
     if token=$(load_saved_token); then
-        bashio::log.debug "Api Utils: Using saved token"
+        bashio::log.debug "api_utils: Using saved token"
         echo "${token}"
         return 0
     fi
 
-    bashio::log.info "Api Utils: Creating new API token..."
+    bashio::log.info "api_utils: Creating new API token..."
 
     while ((retry < max_retries)); do
         # Create permanent token - preferred method
-        bashio::log.debug "Api Utils: Attempting token creation (attempt ${retry})"
+        bashio::log.debug "api_utils: Attempting token creation (attempt ${retry})"
         if response=$(make_direct_call "user/createToken?user=${username}&pass=${password}&tokenName=${ADDON_TOKEN_NAME}"); then
             token=$(echo "${response}" | jq -r '.token // empty')
             if [[ -n "${token}" ]]; then
-                bashio::log.info "Api Utils: API token created successfully"
+                bashio::log.info "api_utils: API token created successfully"
                 save_token "${token}"
                 echo "${token}"
                 return 0
             else
-                bashio::log.warning "Api Utils: API token creation failed - empty token (attempt ${retry})"
+                bashio::log.warning "api_utils: API token creation failed - empty token (attempt ${retry})"
             fi
         else
-            bashio::log.warning "Api Utils: API token creation call failed (attempt ${retry})"
+            bashio::log.warning "api_utils: API token creation call failed (attempt ${retry})"
         fi
 
         # Fallback to standard login if token creation fails
-        bashio::log.info "Api Utils: API token creation failed, trying standard login..."
+        bashio::log.info "api_utils: API token creation failed, trying standard login..."
         if response=$(make_direct_call "user/login?user=${username}&pass=${password}&includeInfo=true"); then
             token=$(echo "${response}" | jq -r '.token // empty')
             if [[ -n "${token}" ]]; then
-                bashio::log.debug "Api Utils: Authentication successful using standard login"
+                bashio::log.debug "api_utils: Authentication successful using standard login"
                 echo "${token}"
                 return 0
             fi
@@ -230,12 +230,12 @@ get_auth_token() {
 
         ((retry++))
         if ((retry < max_retries)); then
-            bashio::log.warning "Api Utils: Authentication attempt ${retry} failed, retrying in 2s..."
+            bashio::log.warning "api_utils: Authentication attempt ${retry} failed, retrying in 2s..."
             sleep 2
         fi
     done
 
-    bashio::log.error "Api Utils: Authentication failed after ${max_retries} attempts"
+    bashio::log.error "api_utils: Authentication failed after ${max_retries} attempts"
     return 1
 }
 
@@ -264,35 +264,35 @@ make_direct_call() {
     local safe_url
     safe_url=$(redact_url "${url}")
 
-    bashio::log.debug "Api Utils: Using API URL: ${safe_url}"
+    bashio::log.debug "api_utils: Using API URL: ${safe_url}"
 
     # Build curl command with appropriate options
     local curl_cmd="curl -s --connect-timeout 10"
 
     if [[ "${method}" = "POST" ]]; then
         curl_cmd="${curl_cmd} -X POST -H 'Content-Type: application/json' -d '${data}'"
-        bashio::log.trace "Api Utils: Making Direct POST to: ${safe_url}"
-        bashio::log.trace "Api Utils: POST data: ${data}"
+        bashio::log.trace "api_utils: Making Direct POST to: ${safe_url}"
+        bashio::log.trace "api_utils: POST data: ${data}"
     else
-        bashio::log.trace "Api Utils: Making Direct GET to: ${safe_url}"
+        bashio::log.trace "api_utils: Making Direct GET to: ${safe_url}"
     fi
 
     # Make the API call and capture response
     local response
-    bashio::log.debug "Api Utils: Executing: ${curl_cmd} '${safe_url}'"
+    bashio::log.debug "api_utils: Executing: ${curl_cmd} '${safe_url}'"
     response=$(eval "${curl_cmd} '${url}'")
     local status=$?
 
     # Log more details on failure
     if [[ ${status} -ne 0 ]]; then
-        bashio::log.warning "Api Utils: API call failed with curl exit code: ${status}"
-        bashio::log.debug "Api Utils: Curl error details: $(curl -s --version | head -n1)"
+        bashio::log.warning "api_utils: API call failed with curl exit code: ${status}"
+        bashio::log.debug "api_utils: Curl error details: $(curl -s --version | head -n1)"
     fi
 
     # Validate JSON response if successful
     if [[ ${status} -eq 0 && -n "${response}" ]]; then
         if ! validate_response "${response}"; then
-            bashio::log.warning "Api Utils: Invalid response from API"
+            bashio::log.warning "api_utils: Invalid response from API"
             return 1
         fi
     fi
@@ -319,15 +319,15 @@ make_api_call() {
         return 1
     fi
 
-    bashio::log.debug "Api Utils: === API Call Start ==="
-    bashio::log.debug "Api Utils: Endpoint: ${endpoint}"
-    bashio::log.debug "Api Utils: Method: ${method}"
+    bashio::log.debug "api_utils: === API Call Start ==="
+    bashio::log.debug "api_utils: Endpoint: ${endpoint}"
+    bashio::log.debug "api_utils: Method: ${method}"
     # Log data if available (for debugging)
-    [[ -n "${data}" ]] && bashio::log.debug "Api Utils: Data: \n $(echo "${data}" | jq . || true)"
+    [[ -n "${data}" ]] && bashio::log.debug "api_utils: Data: \n $(echo "${data}" | jq . || true)"
 
     # Retry loop for API calls
     while [[ ${attempt} -le ${max_attempts} ]]; do
-        bashio::log.debug "Api Utils: Attempt ${attempt}/${max_attempts}"
+        bashio::log.debug "api_utils: Attempt ${attempt}/${max_attempts}"
 
         # Construct endpoint with token if needed
         local api_endpoint="${endpoint}"
@@ -337,7 +337,7 @@ make_api_call() {
             else
                 api_endpoint="${endpoint}?token=${token}"
             fi
-            bashio::log.trace "Api Utils: Added auth token to request"
+            bashio::log.trace "api_utils: Added auth token to request"
         fi
 
         # Make the API call
@@ -348,34 +348,34 @@ make_api_call() {
         if [[ ${call_status} -eq 0 ]]; then
             # Validate response before processing
             if ! validate_response "${response}"; then
-                bashio::log.warning "Api Utils: Invalid response format"
+                bashio::log.warning "api_utils: Invalid response format"
                 return 1
             fi
 
-            bashio::log.debug "Api Utils: API call successful"
+            bashio::log.debug "api_utils: API call successful"
 
             # Format and log response
             local formatted_response
             if echo "${response}" | jq . >/dev/null 2>&1; then
                 formatted_response=$(echo "${response}" | jq .)
-                bashio::log.trace "Api Utils: ${formatted_response}"
+                bashio::log.trace "api_utils: ${formatted_response}"
             else
-                bashio::log.trace "Api Utils: ${response}"
+                bashio::log.trace "api_utils: ${response}"
             fi
 
             # Ensure logging output is complete before returning
-            bashio::log.debug "Api Utils: === API Call End ==="
+            bashio::log.debug "api_utils: === API Call End ==="
             echo "${response}"
             return 0
         fi
 
-        bashio::log.debug "Api Utils: API call failed (attempt ${attempt}/${max_attempts}), retrying in ${wait_time}s..."
+        bashio::log.debug "api_utils: API call failed (attempt ${attempt}/${max_attempts}), retrying in ${wait_time}s..."
         sleep "${wait_time}"
         attempt=$((attempt + 1))
     done
 
-    bashio::log.error "Api Utils: Failed to connect to API after ${max_attempts} attempts"
-    bashio::log.debug "Api Utils: === API Call End ==="
+    bashio::log.error "api_utils: Failed to connect to API after ${max_attempts} attempts"
+    bashio::log.debug "api_utils: === API Call End ==="
     return 1
 }
 
@@ -388,17 +388,17 @@ manage_dns_app() {
 
     # Validate app name
     if [[ -z "${app_name}" ]]; then
-        bashio::log.warning "Api Utils: App name is required"
+        bashio::log.warning "api_utils: App name is required"
         return 1
     fi
 
-    bashio::log.info "Api Utils: Managing DNS app: ${app_name}"
+    bashio::log.info "api_utils: Managing DNS app: ${app_name}"
 
     # Get store app info and validate response
     local store_info
     if ! store_info=$(make_api_call "apps/listStoreApps" "GET") ||
         ! validate_response "${store_info}"; then
-        bashio::log.warning "Api Utils: Failed to get valid store apps list"
+        bashio::log.warning "api_utils: Failed to get valid store apps list"
         return 1
     fi
 
@@ -412,7 +412,7 @@ manage_dns_app() {
         }')
 
     if [[ -z "${app_details}" ]]; then
-        bashio::log.warning "Api Utils: App '${app_name}' not found in store"
+        bashio::log.warning "api_utils: App '${app_name}' not found in store"
         return 1
     fi
 
@@ -424,12 +424,12 @@ manage_dns_app() {
     encoded_url=$(echo "${app_details}" | jq -r '.url | @uri')
     encoded_name=$(echo "${app_details}" | jq -r '.name | @uri')
 
-    bashio::log.info "Api Utils: Found ${app_name} version ${store_version} in store"
+    bashio::log.info "api_utils: Found ${app_name} version ${store_version} in store"
 
     # Check if app is installed
     local local_info
     if ! local_info=$(make_api_call "apps/list" "GET"); then
-        bashio::log.warning "Api Utils: Failed to get local apps list"
+        bashio::log.warning "api_utils: Failed to get local apps list"
         return 1
     fi
 
@@ -440,25 +440,25 @@ manage_dns_app() {
 
     # Install or update as needed
     if [[ -z "${local_version}" ]]; then
-        bashio::log.info "Api Utils: Installing ${app_name} v${store_version}..."
+        bashio::log.info "api_utils: Installing ${app_name} v${store_version}..."
         if make_api_call "apps/downloadAndInstall?name=${encoded_name}&url=${encoded_url}" "GET" >/dev/null; then
-            bashio::log.info "Api Utils: ${app_name} installed successfully"
+            bashio::log.info "api_utils: ${app_name} installed successfully"
             return 0
         else
-            bashio::log.warning "Api Utils: Failed to install ${app_name}"
+            bashio::log.warning "api_utils: Failed to install ${app_name}"
             return 1
         fi
     elif [[ "${local_version}" != "${store_version}" ]]; then
-        bashio::log.info "Api Utils: Updating ${app_name} from v${local_version} to v${store_version}..."
+        bashio::log.info "api_utils: Updating ${app_name} from v${local_version} to v${store_version}..."
         if make_api_call "apps/downloadAndUpdate?url=${encoded_url}" "GET" >/dev/null; then
-            bashio::log.info "Api Utils: ${app_name} updated successfully"
+            bashio::log.info "api_utils: ${app_name} updated successfully"
             return 0
         else
-            bashio::log.warning "Api Utils: Failed to update ${app_name}"
+            bashio::log.warning "api_utils: Failed to update ${app_name}"
             return 1
         fi
     else
-        bashio::log.debug "Api Utils: ${app_name} is up to date (v${local_version})"
+        bashio::log.debug "api_utils: ${app_name} is up to date (v${local_version})"
         return 0
     fi
 }

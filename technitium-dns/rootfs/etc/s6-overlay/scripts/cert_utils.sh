@@ -18,7 +18,7 @@ fi
 # -----------------------------------------------------------------------------
 # Verify OpenSSL is available for certificate operations
 if ! command -v openssl >/dev/null 2>&1; then
-    bashio::log.error "Cert Utils: OpenSSL binary not found! Certificate management requires OpenSSL."
+    bashio::log.error "cert_utils: OpenSSL binary not found! Certificate management requires OpenSSL."
     exit 1
 fi
 
@@ -30,7 +30,7 @@ required_env_vars=("ADDON_SSL_DIR" "ADDON_CERT_FILE" "ADDON_KEY_FILE" "ADDON_PKC
 
 for var in "${required_env_vars[@]}"; do
     if [[ -z "${!var}" ]]; then
-        bashio::log.error "Cert Utils: Required environment variable ${var} is not set!"
+        bashio::log.error "cert_utils: Required environment variable ${var} is not set!"
         exit 1
     fi
 done
@@ -44,13 +44,13 @@ check_pkcs12() {
 
     # Check if the file exists
     if [[ ! -f "${ADDON_PKCS12_FILE}" ]]; then
-        bashio::log.debug "Cert Utils: No PKCS12 file found at ${ADDON_PKCS12_FILE}"
+        bashio::log.debug "cert_utils: No PKCS12 file found at ${ADDON_PKCS12_FILE}"
         return 1
     fi
 
     # Validate PKCS12 format using OpenSSL
     if ! openssl pkcs12 -in "${ADDON_PKCS12_FILE}" -noout -passin pass:"${ADDON_PKCS12_PASSWORD}" 2>/dev/null; then
-        bashio::log.warning "Cert Utils: Invalid PKCS12 file format at ${ADDON_PKCS12_FILE}"
+        bashio::log.warning "cert_utils: Invalid PKCS12 file format at ${ADDON_PKCS12_FILE}"
         return 1
     fi
 
@@ -70,14 +70,14 @@ check_pkcs12() {
         local valid=$?
 
         if [[ ${valid} -eq 0 ]]; then
-            bashio::log.debug "Cert Utils: Valid non-expired PKCS12 certificate (expires: ${expiry_date})"
+            bashio::log.debug "cert_utils: Valid non-expired PKCS12 certificate (expires: ${expiry_date})"
             return 0
         else
-            bashio::log.warning "Cert Utils: PKCS12 certificate has expired (expired: ${expiry_date})"
+            bashio::log.warning "cert_utils: PKCS12 certificate has expired (expired: ${expiry_date})"
             return 1
         fi
     else
-        bashio::log.warning "Cert Utils: Failed to extract certificate data from PKCS12 file"
+        bashio::log.warning "cert_utils: Failed to extract certificate data from PKCS12 file"
         return 1
     fi
 }
@@ -93,7 +93,7 @@ check_hostname_match() {
 
     # Skip validation if PKCS12 file doesn't exist
     if [[ ! -f "${ADDON_PKCS12_FILE}" ]]; then
-        bashio::log.debug "Cert Utils: No PKCS12 file exists yet for hostname validation"
+        bashio::log.debug "cert_utils: No PKCS12 file exists yet for hostname validation"
         return 1
     fi
 
@@ -102,7 +102,7 @@ check_hostname_match() {
     cert_data=$(openssl pkcs12 -in "${ADDON_PKCS12_FILE}" -nokeys -passin pass:"${ADDON_PKCS12_PASSWORD}" 2>/dev/null || true)
 
     if [[ -z "${cert_data}" ]]; then
-        bashio::log.warning "Cert Utils: Cannot extract certificate data for hostname validation"
+        bashio::log.warning "cert_utils: Cannot extract certificate data for hostname validation"
         return 1
     fi
 
@@ -117,13 +117,13 @@ check_hostname_match() {
     cert_sans=$(echo "${sans_output}" | grep -o "DNS:[^,]*" | sed 's/DNS://g' || true)
 
     # Log certificate details for debugging
-    bashio::log.debug "Cert Utils: Certificate CN: ${cert_cn}"
-    bashio::log.debug "Cert Utils: Certificate SANs: ${cert_sans}"
-    bashio::log.debug "Cert Utils: Current hostname: ${ADDON_DOMAIN}"
+    bashio::log.debug "cert_utils: Certificate CN: ${cert_cn}"
+    bashio::log.debug "cert_utils: Certificate SANs: ${cert_sans}"
+    bashio::log.debug "cert_utils: Current hostname: ${ADDON_DOMAIN}"
 
     # Check if current hostname matches the certificate's Common Name
     if [[ "${cert_cn}" == "${ADDON_DOMAIN}" ]]; then
-        bashio::log.debug "Cert Utils: Hostname matches certificate CN"
+        bashio::log.debug "cert_utils: Hostname matches certificate CN"
         hostname_match=true
     fi
 
@@ -132,7 +132,7 @@ check_hostname_match() {
         # Process each SAN using a process substitution to avoid subshell issues
         while read -r san; do
             if [[ "${san}" == "${ADDON_DOMAIN}" ]]; then
-                bashio::log.debug "Cert Utils: Hostname matches certificate SAN: ${san}"
+                bashio::log.debug "cert_utils: Hostname matches certificate SAN: ${san}"
                 hostname_match=true
                 break
             fi
@@ -141,10 +141,10 @@ check_hostname_match() {
 
     # Return success if hostname matches certificate, otherwise failure
     if [[ "${hostname_match}" == "true" ]]; then
-        bashio::log.debug "Cert Utils: Certificate valid for current hostname: ${ADDON_DOMAIN}"
+        bashio::log.debug "cert_utils: Certificate valid for current hostname: ${ADDON_DOMAIN}"
         return 0
     else
-        bashio::log.debug "Cert Utils: Certificate NOT valid for current hostname - regeneration required"
+        bashio::log.debug "cert_utils: Certificate NOT valid for current hostname - regeneration required"
         return 1
     fi
 }
@@ -154,7 +154,7 @@ check_hostname_match() {
 # -----------------------------------------------------------------------------
 # Generate a new self-signed certificate for the current hostname
 generate_self_signed() {
-    bashio::log.info "Cert Utils: Generating self-signed certificate for hostname: ${ADDON_DOMAIN}"
+    bashio::log.info "cert_utils: Generating self-signed certificate for hostname: ${ADDON_DOMAIN}"
 
     # Generate certificate with 4096-bit RSA key and 365 day validity
     if openssl req -x509 \
@@ -169,26 +169,26 @@ generate_self_signed() {
         # Set appropriate permissions for the generated files
         chmod 600 "${ADDON_KEY_FILE}"
         chmod 644 "${ADDON_CERT_FILE}"
-        bashio::log.debug "Cert Utils: Self-signed certificate generated successfully"
+        bashio::log.debug "cert_utils: Self-signed certificate generated successfully"
         return 0
     else
-        bashio::log.error "Cert Utils: Failed to generate self-signed certificate"
+        bashio::log.error "cert_utils: Failed to generate self-signed certificate"
         return 1
     fi
 }
 
 # Convert certificate and key to PKCS12 format for Technitium DNS Server
 generate_pkcs12() {
-    bashio::log.info "Cert Utils: Generating PKCS12 file from certificate and key..."
+    bashio::log.info "cert_utils: Generating PKCS12 file from certificate and key..."
 
     # Verify that source files exist
     if [[ ! -f "${ADDON_CERT_FILE}" ]]; then
-        bashio::log.error "Cert Utils: Certificate file doesn't exist: ${ADDON_CERT_FILE}"
+        bashio::log.error "cert_utils: Certificate file doesn't exist: ${ADDON_CERT_FILE}"
         return 1
     fi
 
     if [[ ! -f "${ADDON_KEY_FILE}" ]]; then
-        bashio::log.error "Cert Utils: Key file doesn't exist: ${ADDON_KEY_FILE}"
+        bashio::log.error "cert_utils: Key file doesn't exist: ${ADDON_KEY_FILE}"
         return 1
     fi
 
@@ -201,10 +201,10 @@ generate_pkcs12() {
 
         # Set appropriate permissions for the generated PKCS12 file
         chmod 600 "${ADDON_PKCS12_FILE}"
-        bashio::log.debug "Cert Utils: PKCS12 file generated successfully: ${ADDON_PKCS12_FILE}"
+        bashio::log.debug "cert_utils: PKCS12 file generated successfully: ${ADDON_PKCS12_FILE}"
         return 0
     else
-        bashio::log.error "Cert Utils: Failed to generate PKCS12 file"
+        bashio::log.error "cert_utils: Failed to generate PKCS12 file"
         return 1
     fi
 }
@@ -214,7 +214,7 @@ generate_pkcs12() {
 # -----------------------------------------------------------------------------
 # Handle certificate updates and ensure valid certificates are available
 handle_cert_update() {
-    bashio::log.info "Cert Utils: Checking certificate status..."
+    bashio::log.info "cert_utils: Checking certificate status..."
 
     # Track if we need to regenerate certificates
     local regenerate_pkcs12=false
@@ -222,11 +222,11 @@ handle_cert_update() {
 
     # Check if we need to generate certificates - if either cert or key is missing
     if [[ ! -f "${ADDON_CERT_FILE}" || ! -f "${ADDON_KEY_FILE}" ]]; then
-        bashio::log.info "Cert Utils: Certificate or key file missing - generating self-signed certificate"
+        bashio::log.info "cert_utils: Certificate or key file missing - generating self-signed certificate"
         if generate_self_signed; then
             regenerate_pkcs12=true
         else
-            bashio::log.error "Cert Utils: Failed to generate self-signed certificate"
+            bashio::log.error "cert_utils: Failed to generate self-signed certificate"
             return 1
         fi
     fi
@@ -234,11 +234,11 @@ handle_cert_update() {
     # Check if certificate matches current hostname
     if [[ -f "${ADDON_PKCS12_FILE}" ]]; then
         if ! check_hostname_match; then
-            bashio::log.info "Cert Utils: Current hostname doesn't match certificate - regenerating"
+            bashio::log.info "cert_utils: Current hostname doesn't match certificate - regenerating"
             if generate_self_signed; then
                 regenerate_pkcs12=true
             else
-                bashio::log.error "Cert Utils: Failed to generate new certificate for hostname change"
+                bashio::log.error "cert_utils: Failed to generate new certificate for hostname change"
                 return 1
             fi
         fi
@@ -249,27 +249,27 @@ handle_cert_update() {
 
     # Update PKCS12 if needed or missing
     if [[ "${regenerate_pkcs12}" == "true" || "${need_pkcs12}" == "true" ]]; then
-        bashio::log.info "Cert Utils: Generating PKCS12 certificate for Technitium DNS Server"
+        bashio::log.info "cert_utils: Generating PKCS12 certificate for Technitium DNS Server"
         if generate_pkcs12; then
-            bashio::log.info "Cert Utils: PKCS12 certificate generated successfully"
+            bashio::log.info "cert_utils: PKCS12 certificate generated successfully"
         else
-            bashio::log.error "Cert Utils: Failed to generate PKCS12 certificate"
+            bashio::log.error "cert_utils: Failed to generate PKCS12 certificate"
             return 1
         fi
     else
         # Validate existing PKCS12 file
         if ! check_pkcs12; then
-            bashio::log.info "Cert Utils: Regenerating PKCS12 due to validation failure"
+            bashio::log.info "cert_utils: Regenerating PKCS12 due to validation failure"
             if generate_pkcs12; then
-                bashio::log.info "Cert Utils: PKCS12 certificate regenerated successfully"
+                bashio::log.info "cert_utils: PKCS12 certificate regenerated successfully"
             else
-                bashio::log.error "Cert Utils: Failed to regenerate PKCS12 certificate"
+                bashio::log.error "cert_utils: Failed to regenerate PKCS12 certificate"
                 return 1
             fi
         fi
     fi
 
-    bashio::log.debug "Cert Utils: Certificate check complete - all certificates are valid"
+    bashio::log.debug "cert_utils: Certificate check complete - all certificates are valid"
     return 0
 }
 
