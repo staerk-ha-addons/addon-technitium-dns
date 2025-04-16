@@ -14,21 +14,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Delete old package versions of technitium-dns
-        uses: actions/delete-package-versions@v5
-        continue-on-error: true
-        with:
-          package-name: "technitium-dns"
-          package-type: "container"
-          min-versions-to-keep: 1
-          delete-only-untagged-versions: true
-          owner: "staerk-ha-addons"
-          token: ${{ secrets.CLEANUP_TOKEN }}
       - name: Delete old package versions of technitium-dns/amd64
         uses: actions/delete-package-versions@v5
         continue-on-error: true
         with:
-          package-name: "technitium-dns/amd64"
+          package-name: "technitium-dns%2Famd64"
           package-type: "container"
           min-versions-to-keep: 1
           delete-only-untagged-versions: true
@@ -38,7 +28,7 @@ jobs:
         uses: actions/delete-package-versions@v5
         continue-on-error: true
         with:
-          package-name: "technitium-dns/aarch64"
+          package-name: "technitium-dns%2Faarch64"
           package-type: "container"
           min-versions-to-keep: 1
           delete-only-untagged-versions: true
