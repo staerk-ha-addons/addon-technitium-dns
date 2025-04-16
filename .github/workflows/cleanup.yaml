@@ -21,8 +21,17 @@ jobs:
           package-name: "technitium-dns/amd64"
           package-type: container
           owner: staerk-ha-addons
+          min-versions-to-keep: 1
+          ignore-versions: '^0\\.(0|[1-9]\\d*)\\.0$'
+      - name: Delete old package versions of technitium-dns/amd64
+        uses: actions/delete-package-versions@v5
+        continue-on-error: true
+        with:
+          package-name: "technitium-dns/amd64"
+          package-type: container
+          owner: staerk-ha-addons
+          ignore-versions: "^(?!0\\.2\\.).*$"
           min-versions-to-keep: 0
-          delete-only-untagged-versions: true
       - name: Delete old package versions of technitium-dns/aarch64
         uses: actions/delete-package-versions@v5
         continue-on-error: true
@@ -30,5 +39,5 @@ jobs:
           package-name: "technitium-dns/aarch64"
           package-type: container
           owner: staerk-ha-addons
+          ignore-versions: "^(?!0\\.2\\.).*$"
           min-versions-to-keep: 0
-          delete-only-untagged-versions: true
