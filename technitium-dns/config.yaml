@@ -9,7 +9,6 @@ ingress_port: 5380
 panel_icon: mdi:dns
 startup: services
 init: false
-apparmor: false
 arch:
   - amd64
   - aarch64
@@ -19,7 +18,6 @@ map:
     read_only: false
 options:
   forwarders: Cloudflare (DNS-over-HTTPS)
-  log_level: debug
 schema:
   forwarders: list(Cloudflare (DNS-over-UDP)|Cloudflare (DNS-over-TLS)|Cloudflare (DNS-over-HTTPS)|Cloudflare (Oblivious DNS-over-HTTPS))
   logQueries: bool?

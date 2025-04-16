@@ -79,10 +79,12 @@ decrypt_token() {
 # Redact sensitive information from URLs for logging
 redact_url() {
     local url="${1}"
+    local redacted_url
+
     # Replace token and password values with REDACTED
-    local redacted="${url//token=[^&]*\(&\|$\)/token=REDACTED\1}"
-    redacted="${redacted//password=[^&]*\(&\|$\)/password=REDACTED\1}"
-    echo "${redacted}"
+    redacted_url=$(echo "${url}" | sed -E 's/([?&])(token|pass)=[^&]*/\1\2=REDACTED/g')
+
+    echo "${redacted_url}"
 }
 
 # -----------------------------------------------------------------------------

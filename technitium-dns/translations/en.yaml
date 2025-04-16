@@ -18,22 +18,22 @@ configuration:
     name: Enable DNS-over-TLS
     description: >-
       Enable this option to accept DNS-over-TLS requests.
-      See port and protocol under Network Configuration.
+      Remember to enable port and protocol under Network Configuration.
   enableDnsOverHttps:
     name: Enable DNS-over-HTTPS (HTTP/1.1 + HTTP/2)
     description: >-
       Enable this option to accept DNS-over-HTTPS requests.
-      See port and protocol under Network Configuration.
+      Remember to enable and protocol under Network Configuration.
   enableDnsOverHttps3:
     name: Enable DNS-over-HTTPS3 (HTTP/3)
     description: >-
       Enable this option to accept DNS-over-HTTPS3 requests.
-      See port and protocol under Network Configuration.
+      Remember to enable and protocol under Network Configuration.
   enableDnsOverQuic:
     name: Enable DNS-over-QUIC
     description: >-
       Enable this option to accept DNS-over-QUIC requests.
-      See port and protocol under Network Configuration.
+      Remember to enable and protocol under Network Configuration.
   certfile:
     name: Certificate File
     description: >-
