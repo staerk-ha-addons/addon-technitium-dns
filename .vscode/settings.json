@@ -30,10 +30,7 @@
     "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
     "editor.formatOnSave": true,
     "editor.wordWrap": "on",
-    "editor.rulers": [
-      80,
-      120
-    ]
+    "editor.rulers": [80, 120]
   },
   "[jinja]": {
     "editor.defaultFormatter": "samuelcolvin.jinjahtml",
@@ -50,5 +47,5 @@
     "default": true,
     "MD013": false,
     "MD024": false
-  },
+  }
 }
