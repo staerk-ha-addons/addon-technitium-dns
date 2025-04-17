@@ -5,42 +5,65 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
     "source.fixAll": "always",
-    "source.fixAll.shellcheck": "always",
     "source.fixAll.json": "always",
     "source.fixAll.markdownlint": "always",
-    "source.fixAll.dockerfile": "always"
+    "source.fixAll.dockerfile": "always",
+    "source.fixAll.shellcheck": "always",
   },
   "[shellscript]": {
-    "editor.defaultFormatter": "foxundermoon.shell-format",
-    "editor.formatOnSave": true
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.wordWrap": "on",
+    "editor.rulers": [
+      80,
+      120
+    ]
   },
   "[yaml]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "editor.wordWrap": "on",
+    "editor.rulers": [
+      80,
+      120
+    ]
   },
   "[json]": {
-    "editor.defaultFormatter": "vscode.json-language-features",
-    "editor.formatOnSave": true
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.wordWrap": "on",
+    "editor.rulers": [
+      80,
+      120
+    ]
   },
   "[dockerfile]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-docker",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "editor.wordWrap": "on",
+    "editor.rulers": [
+      80,
+      120
+    ]
   },
   "[markdown]": {
-    "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
     "editor.wordWrap": "on",
     "editor.rulers": [80, 120]
   },
   "[jinja]": {
-    "editor.defaultFormatter": "samuelcolvin.jinjahtml",
-    "editor.formatOnSave": true
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.wordWrap": "on",
+    "editor.rulers": [
+      80,
+      120
+    ]
   },
-  "[jinja-html]": {
-    "editor.defaultFormatter": "samuelcolvin.jinjahtml",
-    "editor.formatOnSave": true
-  },
-  "hadolint.cliOptions": [],
+  "hadolint.cliOptions": [
+    "./technitium-dns/Dockerfile"
+  ],
   "json.format.enable": true,
   "json.validate.enable": true,
   "markdownlint.config": {

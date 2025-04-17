@@ -84,7 +84,8 @@ api_get_token() {
     local response
 
     # Try to load existing token first
-    if token=$(api_load_token); then
+    token=$(api_load_token)
+    if token; then
         bashio::log.debug "api_utils: Using saved token"
         echo "${token}"
         return 0

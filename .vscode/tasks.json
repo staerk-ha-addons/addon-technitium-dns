@@ -237,6 +237,104 @@
         "close": true,
         "showReuseMessage": false
       }
+    },
+    {
+      "label": "Lint: All",
+      "type": "shell",
+      "command": "",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true,
+        "showReuseMessage": false
+      },
+      "dependsOn": [
+        "Lint: JSONLint",
+        "Lint: YAMLLint",
+        "Lint: Hadolint",
+        "Lint: Markdownlint",
+        "Lint: ShellCheck"
+      ],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "Lint: Markdownlint",
+      "type": "shell",
+      "command": "find ${workspaceFolder}/technitium-dns -type f -name '*.md' | xargs markdownlint",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false,
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "Lint: ShellCheck",
+      "type": "shell",
+      "command": "find ${workspaceFolder}/technitium-dns -type f -name '*.sh' | xargs shellcheck -s bash -x -o all",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false,
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "Lint: JSONLint",
+      "type": "shell",
+      "command": "find ${workspaceFolder}/technitium-dns -type f -name '*.json' | xargs -I{} sh -c 'echo \"Checking {}\"; cat {} | jsonlint --strict --no-duplicate-keys'",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false,
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "Lint: YAMLLint",
+      "type": "shell",
+      "command": "find ${workspaceFolder}/technitium-dns -type f \\( -name '*.yaml' -o -name '*.yml' \\) | xargs yamllint -c ${workspaceFolder}/.yamllint",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false,
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "Lint: Hadolint",
+      "type": "shell",
+      "command": "hadolint ${workspaceFolder}/technitium-dns/Dockerfile",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false,
+        "showReuseMessage": false
+      }
     }
   ],
   "inputs": [

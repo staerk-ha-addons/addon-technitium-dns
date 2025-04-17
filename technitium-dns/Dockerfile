@@ -18,6 +18,7 @@ ARG DOTNET_SDK_VERSION=8.0
 ENV DOTNET_ROOT=/usr/share/dotnet
 ENV DOTNET_NOLOGO=1
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
+ENV DOTNET_EnableDiagnostics=0
 ENV PATH="$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools"
 
 # Set up build workspace
@@ -79,6 +80,7 @@ ARG DOTNET_SDK_VERSION=8.0
 ENV DOTNET_ROOT=/usr/share/dotnet
 ENV DOTNET_NOLOGO=1
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
+ENV DOTNET_EnableDiagnostics=0
 ENV PATH="$PATH:$DOTNET_ROOT"
 
 # Install runtime dependencies and .NET runtime
@@ -91,7 +93,6 @@ RUN source /etc/os-release \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
     openssl \
-    net-tools \
     inotify-tools \
     libmsquic \
     libc6 \

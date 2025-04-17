@@ -53,7 +53,7 @@ api_direct() {
     # Log more details on failure
     if [[ ${status} -ne 0 ]]; then
         bashio::log.warning "api_utils: API call failed with curl exit code: ${status}"
-        bashio::log.debug "api_utils: Curl error details: $(curl -s --version | head -n1)"
+        bashio::log.debug "api_utils: Curl error details: $(curl -s --version | head -n1 || true)"
     fi
 
     # Validate JSON response if successful

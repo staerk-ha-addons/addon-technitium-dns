@@ -109,7 +109,7 @@ api_install_app() {
             bashio::log.warning "api_utils: Failed to install ${app_name}"
             return 1
         fi
-    elif [[ $(api_app_version_compare "${store_version}" "${local_version}") -gt 0 ]]; then
+    elif [[ $(api_app_version_compare "${store_version}" "${local_version}" || true) -gt 0 ]]; then
         bashio::log.info "api_utils: Updating ${app_name} from v${local_version} to v${store_version}..."
 
         # Fix SC2310/SC2312: Invoke API call separately to avoid masking return values
