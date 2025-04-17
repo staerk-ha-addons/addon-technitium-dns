@@ -66,7 +66,7 @@ handle_cert_changes() {
 
     # Process certificate updates
     bashio::log.debug "cert-watch: Updating certificates..."
-    handle_cert_update
+    cert_update
     LAST_UPDATE_TIME=$(date +%s)
 }
 

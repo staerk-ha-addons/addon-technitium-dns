@@ -46,7 +46,9 @@
         "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -63,7 +65,9 @@
         "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -80,7 +84,9 @@
         "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -97,7 +103,9 @@
         "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -114,7 +122,9 @@
         "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -198,10 +208,30 @@
         "panel": "new",
         "clear": false,
         "close": false,
-        "showReuseMessage": false
+        "showReuseMessage": false,
+        "focus": true
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
+    },
+    {
+      "label": "Termianl: Open Terminal in Addon",
+      "type": "shell",
+      "command": "docker exec -it \"addon_local_technitium-dns\" /bin/bash -c 'cd /etc/s6-overlay/scripts && exec /bin/bash' || true",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "revealProblems": "never",
+        "panel": "new",
+        "clear": false,
+        "close": false,
+        "showReuseMessage": false
+      }
     },
     {
       "label": "Command: Kill logs",
@@ -227,7 +257,9 @@
       "type": "pickString",
       "default": "technitium-dns",
       "description": "Name of addon (to add your addon to this list, please edit .vscode/tasks.json)",
-      "options": ["technitium-dns"]
+      "options": [
+        "technitium-dns"
+      ]
     }
   ]
 }

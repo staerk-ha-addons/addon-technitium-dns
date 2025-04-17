@@ -48,12 +48,12 @@ fi
 # Configure DNS Server
 # -----------------------------------------------------------------------------
 # Perform initial certificate setup
-handle_cert_update
+cert_update
 
 # Apply configuration via API
 # See options here: https://github.com/TechnitiumSoftware/DnsServer/blob/master/APIDOCS.md#set-dns-settings
 bashio::log.debug "init-dns-server: Applying DNS server configuration..."
-make_api_call "settings/set" "POST" "{
+api_call "settings/set" "POST" "{
     \"dnsServerDomain\": \"${ADDON_DOMAIN}\",
     \"loggingType\": \"FileAndConsole\",
     \"logQueries\": ${ADDON_LOG_QUERIES},
@@ -79,4 +79,4 @@ make_api_call "settings/set" "POST" "{
 # -----------------------------------------------------------------------------
 # Install query logging app
 bashio::log.debug "init-dns-server: Installing/updating query logs app..."
-manage_dns_app "Query Logs (Sqlite)"
+api_install_app "Query Logs (Sqlite)"

@@ -40,7 +40,7 @@ ADDON_DNS_OVER_TLS=$(bashio::config 'enableDnsOverTls' 'true')
 ADDON_DNS_OVER_HTTPS=$(bashio::config 'enableDnsOverHttps' 'true')
 ADDON_DNS_OVER_HTTPS3=$(bashio::config 'enableDnsOverHttps3' 'true')
 ADDON_DNS_OVER_QUIC=$(bashio::config 'enableDnsOverQuic' 'true')
-forwarder_config=$(get_forwarder_config || true)
+forwarder_config=$(config_get_forwarders || true)
 IFS='|' read -r ADDON_FORWARDER_SERVERS ADDON_FORWARDER_PROTOCOL <<<"${forwarder_config}"
 
 # Use write_env instead of echo to avoid newlines
@@ -56,7 +56,7 @@ write_env "ADDON_DNS_OVER_QUIC" "${ADDON_DNS_OVER_QUIC}"
 # Basic Configuration
 # -----------------------------------------------------------------------------
 # Get the hostname from config or use fallback
-ADDON_DOMAIN=$(get_domain || echo "homeassistant.local")
+ADDON_DOMAIN=$(config_get_domain || echo "homeassistant.local")
 write_env "ADDON_DOMAIN" "${ADDON_DOMAIN}"
 
 # Set the addon directoies
@@ -85,7 +85,7 @@ write_env "ADDON_LOCK_FILE" "${ADDON_LOCK_FILE}"
 # Certificate Path Configuration
 # -----------------------------------------------------------------------------
 # Get certificate and key file paths from config or default locations
-cert_paths=$(get_cert_paths || true)
+cert_paths=$(config_get_cert_paths || true)
 IFS='|' read -r ADDON_CERT_FILE ADDON_KEY_FILE <<<"${cert_paths}"
 
 # Extract directory paths for certificates
@@ -128,6 +128,14 @@ write_env "ADDON_KEY_FILE" "${ADDON_KEY_FILE}"
 write_env "ADDON_PKCS12_FILE" "${ADDON_PKCS12_FILE}"
 write_env "ADDON_PKCS12_PASSWORD" "${ADDON_PKCS12_PASSWORD}"
 
-# Indicate successful environment setup
-bashio::log.debug "init-env: Environment variables configured successfully"
-bashio::log.debug "init-env: API Server: ${ADDON_API_SERVER}"
+# -----------------------------------------------------------------------------
+# .NET Runtime Configuration
+# -----------------------------------------------------------------------------
+# Disable .NET diagnostics for better performance
+write_env "DOTNET_EnableDiagnostics" "0"
+
+# -----------------------------------------------------------------------------
+# Certificate Management
+# -----------------------------------------------------------------------------
+# Check if the certificate and key files exist
+cert_update

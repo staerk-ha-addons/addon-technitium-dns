@@ -1,4 +1,6 @@
 {
+  "chat.promptFiles": true,
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
@@ -28,7 +30,10 @@
     "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
     "editor.formatOnSave": true,
     "editor.wordWrap": "on",
-    "editor.rulers": [80, 120]
+    "editor.rulers": [
+      80,
+      120
+    ]
   },
   "[jinja]": {
     "editor.defaultFormatter": "samuelcolvin.jinjahtml",
@@ -45,5 +50,5 @@
     "default": true,
     "MD013": false,
     "MD024": false
-  }
+  },
 }
