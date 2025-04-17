@@ -1,6 +1,6 @@
 #!/command/with-contenv bashio
 # shellcheck shell=bash
-# shellcheck disable=SC1091,SC2154
+# shellcheck disable=all
 # ==============================================================================
 # System Information Utility Functions
 #

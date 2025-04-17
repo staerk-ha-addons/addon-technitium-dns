@@ -38,9 +38,6 @@ readonly EMOJI_EXEC="🚀"
 readonly EMOJI_CONFIG="⚙️ "
 readonly EMOJI_API="🌐"
 readonly EMOJI_CERT="🔒"
-readonly EMOJI_DNS="🔮"
-readonly EMOJI_HELPER="🧰"
-readonly EMOJI_SECURITY="🛡️ "
 readonly EMOJI_TIME="⏱️ "
 
 # -----------------------------------------------------------------------------
@@ -124,7 +121,6 @@ cli_list_all_functions() {
 # First source all utility modules to make their functions available
 # shellcheck source=rootfs/etc/s6-overlay/scripts/all_utils.sh
 source /etc/s6-overlay/scripts/all_utils.sh
-
 
 # -----------------------------------------------------------------------------
 # Command Processing
