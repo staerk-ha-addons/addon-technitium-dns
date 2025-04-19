@@ -56,6 +56,20 @@ Want to get the most out of this add-on? Our comprehensive documentation covers:
 
 Check the [:books: DOCS.md][docs] for full details.
 
+## DNS Flow and Protocol Options
+
+> This diagram illustrates how DNS queries flow through your network, showing both unencrypted (🔓) and encrypted (🔐) paths. Local devices can use either standard DNS or secure protocols (DoH/DoT/DoQ) to query the Technitium DNS Server, which then forwards requests to Cloudflare using selected forwarders.
+
+![DNS flow diagram][dns-diagram]
+
+### Key Points
+
+- 🏡 **Local Network**: Devices and router can use any supported protocol
+- 🔒 **Security Options**: Choose between standard DNS or encrypted protocols
+- 🌐 **Flexible Forwarding**: All protocols supported for external queries
+- ⚡ **Modern Standards**: Full support for DoH, DoT, and DoQ
+- 🛡️ **End-to-End**: Possible to encrypt entire DNS path
+
 ## 💡 Support
 
 Got questions?
@@ -94,6 +108,7 @@ This is a third-party add-on for Home Assistant and not an official add-on. It i
 
 MIT License - Copyright (c) 2025 Jeppe Stærk
 
+[dns-diagram]: https://raw.githubusercontent.com/staerk-ha-addons/addon-technitium-dns/refs/heads/main/images/flowchart-dns.svg
 [docs]: https://github.com/staerk-ha-addons/addon-technitium-dns/blob/main/technitium-dns/DOCS.md
 [frenck]: https://github.com/frenck
 [issue]: https://github.com/staerk-ha-addons/addon-technitium-dns/issues

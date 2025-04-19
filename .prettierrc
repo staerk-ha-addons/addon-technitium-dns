@@ -1,4 +1,5 @@
 {
+  "plugins": ["prettier-plugin-jinja-template", "prettier-plugin-sh"],
   "printWidth": 120,
   "tabWidth": 2,
   "useTabs": false,
@@ -12,6 +13,14 @@
   "overrides": [
     {
       "files": "*.md",
+      "options": {
+        "tabWidth": 2,
+        "useTabs": false,
+        "printWidth": 80
+      }
+    },
+    {
+      "files": "*.j2",
       "options": {
         "tabWidth": 2,
         "useTabs": false,
