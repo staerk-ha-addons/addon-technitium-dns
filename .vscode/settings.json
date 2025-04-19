@@ -14,55 +14,37 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": false,
     "editor.wordWrap": "on",
-    "editor.rulers": [
-      80,
-      120
-    ]
+    "editor.rulers": [80, 120]
   },
   "[yaml]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": false,
     "editor.wordWrap": "on",
-    "editor.rulers": [
-      80,
-      120
-    ]
+    "editor.rulers": [80, 120]
   },
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
     "editor.wordWrap": "on",
-    "editor.rulers": [
-      80,
-      120
-    ]
+    "editor.rulers": [80, 120]
   },
   "[dockerfile]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
     "editor.wordWrap": "on",
-    "editor.rulers": [
-      80,
-      120
-    ]
+    "editor.rulers": [80, 120]
   },
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
     "editor.wordWrap": "on",
-    "editor.rulers": [
-      80,
-      120
-    ]
+    "editor.rulers": [80, 120]
   },
   "[jinja]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
     "editor.wordWrap": "on",
-    "editor.rulers": [
-      80,
-      120
-    ]
+    "editor.rulers": [80, 120]
   },
   "json.format.enable": true,
   "json.validate.enable": true

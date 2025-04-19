@@ -5,16 +5,16 @@
 ### Stuck at onboardning
 
 ```js
-fetch("http://localhost:7123/api/onboarding/integration", {
+fetch('http://localhost:7123/api/onboarding/integration', {
   headers: {
-    Accept: "*/*",
-    "User-Agent":
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
+    Accept: '*/*',
+    'User-Agent':
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36',
     Authorization:
-      "Bearer INSERT_ACCESS_TOKEN_FROM_TOKEN_CALL_IN_NETWORK_TAB_HERE",
+      'Bearer INSERT_ACCESS_TOKEN_FROM_TOKEN_CALL_IN_NETWORK_TAB_HERE',
   },
   body: '{"client_id": "http://localhost:7123/", "redirect_uri": "http://localhost:7123/?auth_callback=1"}',
-  method: "POST",
+  method: 'POST',
 });
 ```
 
