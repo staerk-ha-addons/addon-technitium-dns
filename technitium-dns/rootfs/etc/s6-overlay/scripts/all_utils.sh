@@ -40,23 +40,23 @@ trap cleanup EXIT INT TERM HUP
 # -----------------------------------------------------------------------------
 # Ensure proper cleanup when script terminates
 all_cleanup() {
-    bashio::log.trace "all_utils: Performing cleanup operations"
+	bashio::log.trace "all_utils: Performing cleanup operations"
 
-    # Each module has its own cleanup function that will be called if defined
-    if declare -f api_cleanup >/dev/null; then
-        api_cleanup || true
-    fi
+	# Each module has its own cleanup function that will be called if defined
+	if declare -f api_cleanup >/dev/null; then
+		api_cleanup || true
+	fi
 
-    if declare -f cert_cleanup >/dev/null; then
-        cert_cleanup || true
-    fi
+	if declare -f cert_cleanup >/dev/null; then
+		cert_cleanup || true
+	fi
 
-    if declare -f dns_cleanup >/dev/null; then
-        dns_cleanup || true
-    fi
+	if declare -f dns_cleanup >/dev/null; then
+		dns_cleanup || true
+	fi
 
-    # Remove any temporary files or locks
-    if [[ -n "${TEMP_DIR:-}" && -d "${TEMP_DIR}" ]]; then
-        rm -rf "${TEMP_DIR}"
-    fi
+	# Remove any temporary files or locks
+	if [[ -n ${TEMP_DIR-} && -d ${TEMP_DIR} ]]; then
+		rm -rf "${TEMP_DIR}"
+	fi
 }

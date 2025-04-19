@@ -23,6 +23,18 @@ cd "/opt/technitium/dns" || bashio::exit.nok "Could not change directory to Tech
 if ! command -v /usr/share/dotnet/dotnet >/dev/null 2>&1; then
     bashio::exit.nok "Required dependency 'dotnet' not found!"
 fi
+# -----------------------------------------------------------------------------
+# Load All Utility Modules
+# -----------------------------------------------------------------------------
+# First source all utility modules to make their functions available
+# shellcheck source=rootfs/etc/s6-overlay/scripts/all_utils.sh
+source /etc/s6-overlay/scripts/all_utils.sh
+
+# -----------------------------------------------------------------------------
+# Initialize certificates
+# -----------------------------------------------------------------------------
+# Check if the certificate file exists and creates self-signed cert if not
+cert_update
 
 # -----------------------------------------------------------------------------
 # Launch DNS Server

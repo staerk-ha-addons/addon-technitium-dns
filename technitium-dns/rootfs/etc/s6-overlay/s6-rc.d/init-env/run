@@ -133,9 +133,3 @@ write_env "ADDON_PKCS12_PASSWORD" "${ADDON_PKCS12_PASSWORD}"
 # -----------------------------------------------------------------------------
 # Disable .NET diagnostics for better performance
 write_env "DOTNET_EnableDiagnostics" "0"
-
-# -----------------------------------------------------------------------------
-# Certificate Management
-# -----------------------------------------------------------------------------
-# Check if the certificate and key files exist
-cert_update

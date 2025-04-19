@@ -62,3 +62,4 @@ secrets.yaml.bak
 
 # Devcontainer HA storage backups
 .devcontainer/.storage-backup
+.vm/

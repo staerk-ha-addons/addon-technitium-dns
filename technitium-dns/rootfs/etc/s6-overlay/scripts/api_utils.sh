@@ -10,8 +10,8 @@
 set -o nounset -o errexit -o pipefail
 
 # Enable debug logging if DEBUG environment variable is set to true
-if [[ "${DEBUG:-false}" == "true" ]]; then
-    bashio::log.level 'debug'
+if [[ ${DEBUG:-false} == "true" ]]; then
+	bashio::log.level 'debug'
 fi
 
 bashio::log.trace "api_utils: Initializing API utilities"

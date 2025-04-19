@@ -19,7 +19,7 @@
     {
       "label": "Init: Dev Bootstrap",
       "type": "shell",
-      "command": "$WORKSPACE_DIRECTORY/.devcontainer/dev_bootstrap.sh",
+      "command": "$WORKSPACE_DIRECTORY/scripts/dev_bootstrap.sh",
       "group": {
         "kind": "test",
         "isDefault": false
@@ -46,7 +46,9 @@
         "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -63,7 +65,9 @@
         "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -80,7 +84,9 @@
         "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -97,7 +103,9 @@
         "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -114,7 +122,9 @@
         "close": true,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -201,7 +211,9 @@
         "showReuseMessage": false,
         "focus": true
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -237,104 +249,6 @@
         "close": true,
         "showReuseMessage": false
       }
-    },
-    {
-      "label": "Lint: All",
-      "type": "shell",
-      "command": "",
-      "group": {
-        "kind": "test",
-        "isDefault": false
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared",
-        "clear": true,
-        "showReuseMessage": false
-      },
-      "dependsOn": [
-        "Lint: JSONLint",
-        "Lint: YAMLLint",
-        "Lint: Hadolint",
-        "Lint: Markdownlint",
-        "Lint: ShellCheck"
-      ],
-      "dependsOrder": "sequence"
-    },
-    {
-      "label": "Lint: Markdownlint",
-      "type": "shell",
-      "command": "find ${workspaceFolder}/technitium-dns -type f -name '*.md' | xargs markdownlint",
-      "group": {
-        "kind": "test",
-        "isDefault": false
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared",
-        "clear": false,
-        "showReuseMessage": false
-      }
-    },
-    {
-      "label": "Lint: ShellCheck",
-      "type": "shell",
-      "command": "find ${workspaceFolder}/technitium-dns -type f -name '*.sh' | xargs shellcheck -s bash -x -o all",
-      "group": {
-        "kind": "test",
-        "isDefault": false
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared",
-        "clear": false,
-        "showReuseMessage": false
-      }
-    },
-    {
-      "label": "Lint: JSONLint",
-      "type": "shell",
-      "command": "find ${workspaceFolder}/technitium-dns -type f -name '*.json' | xargs -I{} sh -c 'echo \"Checking {}\"; cat {} | jsonlint --strict --no-duplicate-keys'",
-      "group": {
-        "kind": "test",
-        "isDefault": false
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared",
-        "clear": false,
-        "showReuseMessage": false
-      }
-    },
-    {
-      "label": "Lint: YAMLLint",
-      "type": "shell",
-      "command": "find ${workspaceFolder}/technitium-dns -type f \\( -name '*.yaml' -o -name '*.yml' \\) | xargs yamllint -c ${workspaceFolder}/.yamllint",
-      "group": {
-        "kind": "test",
-        "isDefault": false
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared",
-        "clear": false,
-        "showReuseMessage": false
-      }
-    },
-    {
-      "label": "Lint: Hadolint",
-      "type": "shell",
-      "command": "hadolint ${workspaceFolder}/technitium-dns/Dockerfile",
-      "group": {
-        "kind": "test",
-        "isDefault": false
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared",
-        "clear": false,
-        "showReuseMessage": false
-      }
     }
   ],
   "inputs": [
@@ -343,7 +257,9 @@
       "type": "pickString",
       "default": "technitium-dns",
       "description": "Name of addon (to add your addon to this list, please edit .vscode/tasks.json)",
-      "options": ["technitium-dns"]
+      "options": [
+        "technitium-dns"
+      ]
     }
   ]
 }

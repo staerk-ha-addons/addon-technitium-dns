@@ -120,6 +120,8 @@ FROM install AS runtime
 COPY rootfs /
 RUN chmod +x /etc/s6-overlay/s6-rc.d/*/up /etc/s6-overlay/s6-rc.d/*/run /etc/s6-overlay/s6-rc.d/*/finish /etc/s6-overlay/scripts/*
 
+HEALTHCHECK CMD curl --fail --silent --output /dev/null  http://127.0.0.1:5380/api/user/login || exit
+
 # Add build arguments for labels
 ARG BUILD_ARCH
 ARG BUILD_DATE

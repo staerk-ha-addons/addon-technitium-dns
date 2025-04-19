@@ -393,7 +393,7 @@ This is a third-party add-on for Home Assistant and not an official add-on. It i
 
 MIT License - Copyright (c) 2025 Jeppe Stærk
 
-[dns-diagram]: https://raw.githubusercontent.com/staerk-ha-addons/addon-technitium-dns/refs/heads/main/technitium-dns/images/flowchart-dns.svg
+[dns-diagram]: https://raw.githubusercontent.com/staerk-ha-addons/addon-technitium-dns/refs/heads/main/images/flowchart-dns.svg
 [frenck]: https://github.com/frenck
 [issue]: https://github.com/staerk-ha-addons/addon-technitium-dns/issues
 [repository]: https://github.com/staerk-ha-addons/repository

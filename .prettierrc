@@ -1,0 +1,54 @@
+{
+  "printWidth": 120,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": true,
+  "quoteProps": "as-needed",
+  "trailingComma": "es5",
+  "bracketSpacing": true,
+  "arrowParens": "avoid",
+  "endOfLine": "lf",
+  "overrides": [
+    {
+      "files": "*.md",
+      "options": {
+        "tabWidth": 2,
+        "useTabs": false,
+        "printWidth": 80
+      }
+    },
+    {
+      "files": "*.yaml",
+      "options": {
+        "tabWidth": 2,
+        "useTabs": false,
+        "singleQuote": false
+      }
+    },
+    {
+      "files": "*.sh",
+      "options": {
+        "tabWidth": 4,
+        "useTabs": false,
+        "parser": "bash"
+      }
+    },
+    {
+      "files": ["Dockerfile", ".dockerignore"],
+      "options": {
+        "tabWidth": 4,
+        "useTabs": false,
+        "parser": "docker"
+      }
+    },
+    {
+      "files": "*.json",
+      "options": {
+        "tabWidth": 2,
+        "useTabs": false,
+        "parser": "json"
+      }
+    }
+  ]
+}
