@@ -10,39 +10,43 @@
   "extends": ["config:best-practices"],
   "prConcurrentLimit": 10,
   "prHourlyLimit": 5,
+  "platformAutomerge": true,
+  "automerge": true,
+  "automergeType": "pr",
+  "automergeStrategy": "squash",
   "packageRules": [
     {
       "groupName": "all dependencies",
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
-      "automerge": false
+      "automerge": true
     },
     {
       "matchDatasources": ["repology"],
-      "automerge": false
+      "automerge": true
     },
     {
       "groupName": "Add-on base image",
       "matchDatasources": ["docker"],
       "matchDepNames": ["ghcr.io/hassio-addons/debian-base"],
       "matchUpdateTypes": ["major"],
-      "automerge": false
+      "automerge": true
     },
     {
       "groupName": "Add-on base image",
       "matchDatasources": ["docker"],
       "matchDepNames": ["ghcr.io/hassio-addons/debian-base"],
       "matchUpdateTypes": ["minor", "patch"],
-      "automerge": false
+      "automerge": true
     },
     {
       "groupName": ".NET SDK & Runtime",
       "matchDepNames": ["DOTNET_SDK_VERSION"],
-      "automerge": false
+      "automerge": true
     },
     {
       "groupName": "Technitium DNS Server",
       "matchDepNames": ["DNS_SERVER_VERSION", "DNS_LIBRARY_VERSION"],
-      "automerge": false
+      "automerge": true
     }
   ],
   "customManagers": [
