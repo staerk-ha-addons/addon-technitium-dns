@@ -4,7 +4,6 @@
   "dependencyDashboard": true,
   "dependencyDashboardApproval": false,
   "prCreation": "immediate",
-  "requireApproval": false,
   "labels": ["dependencies", "no-stale"],
   "commitMessagePrefix": "⬆️",
   "commitMessageTopic": "{{depName}}",
@@ -13,8 +12,13 @@
   "prHourlyLimit": 5,
   "packageRules": [
     {
+      "groupName": "all dependencies",
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": false
+    },
+    {
       "matchDatasources": ["repology"],
-      "automerge": true
+      "automerge": false
     },
     {
       "groupName": "Add-on base image",
@@ -28,7 +32,7 @@
       "matchDatasources": ["docker"],
       "matchDepNames": ["ghcr.io/hassio-addons/debian-base"],
       "matchUpdateTypes": ["minor", "patch"],
-      "automerge": true
+      "automerge": false
     },
     {
       "groupName": ".NET SDK & Runtime",
