@@ -4,6 +4,18 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: daily
-      time: "21:20"
+      interval: "daily"
+      time: "21:30"
+      timezone: "Europe/Copenhagen"
+  - package-ecosystem: "docker"
+    directory: "technitium-dns"
+    schedule:
+      interval: "daily"
+      time: "21:30"
+      timezone: "Europe/Copenhagen"
+  - package-ecosystem: "devcontainers"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "21:30"
       timezone: "Europe/Copenhagen"
