@@ -122,15 +122,15 @@ _service.home.lab.   TXT    "location=basement rack=1"
 
 #### Reverse DNS Zone
 
-   ```plaintext
-   # Create reverse zone for 192.168.1.0/24
-   Zone name: 1.168.192.in-addr.arpa
+```plaintext
+# Create reverse zone for 192.168.1.0/24
+Zone name: 1.168.192.in-addr.arpa
 
-   # PTR Records
-   10    PTR    server1.home.lab.
-   20    PTR    nas.home.lab.
-   30    PTR    printer.home.lab.
-   ```
+# PTR Records
+10    PTR    server1.home.lab.
+20    PTR    nas.home.lab.
+30    PTR    printer.home.lab.
+```
 
 > [!TIP]
 > Best practices for local zones:

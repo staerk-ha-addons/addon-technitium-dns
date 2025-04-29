@@ -63,9 +63,7 @@
         "close": false,
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Command: Kill logs"
-      ],
+      "dependsOn": ["Command: Kill logs"],
       "dependsOrder": "sequence"
     },
     {
@@ -83,9 +81,7 @@
         "close": false,
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Command: Kill logs"
-      ],
+      "dependsOn": ["Command: Kill logs"],
       "dependsOrder": "sequence"
     },
     {
@@ -103,9 +99,7 @@
         "close": false,
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Command: Kill logs"
-      ],
+      "dependsOn": ["Command: Kill logs"],
       "dependsOrder": "sequence"
     },
     {
@@ -123,9 +117,7 @@
         "close": false,
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Command: Kill logs"
-      ],
+      "dependsOn": ["Command: Kill logs"],
       "dependsOrder": "sequence"
     },
     {
@@ -143,9 +135,7 @@
         "close": false,
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Command: Kill logs"
-      ],
+      "dependsOn": ["Command: Kill logs"],
       "dependsOrder": "sequence"
     },
     {
@@ -163,12 +153,7 @@
         "close": false,
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Command: Kill logs",
-        "Command: Install Addon",
-        "Command: Start Addon",
-        "Logs: Follow Addon"
-      ],
+      "dependsOn": ["Command: Kill logs", "Command: Install Addon", "Command: Start Addon", "Logs: Follow Addon"],
       "dependsOrder": "sequence"
     },
     {
@@ -210,12 +195,7 @@
         "close": false,
         "showReuseMessage": false
       },
-      "dependsOn": [
-        "Command: Kill logs",
-        "Command: Rebuild Addon",
-        "Command: Start Addon",
-        "Logs: Follow Addon"
-      ],
+      "dependsOn": ["Command: Kill logs", "Command: Rebuild Addon", "Command: Start Addon", "Logs: Follow Addon"],
       "dependsOrder": "sequence"
     },
     {
@@ -234,9 +214,7 @@
         "showReuseMessage": false,
         "focus": true
       },
-      "dependsOn": [
-        "Command: Kill logs"
-      ],
+      "dependsOn": ["Command: Kill logs"],
       "dependsOrder": "sequence"
     },
     {
@@ -279,9 +257,7 @@
       "type": "pickString",
       "default": "technitium-dns",
       "description": "Name of addon (to add your addon to this list, please edit .vscode/tasks.json)",
-      "options": [
-        "technitium-dns"
-      ]
+      "options": ["technitium-dns"]
     }
   ]
 }
