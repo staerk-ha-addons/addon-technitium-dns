@@ -1,82 +1,20 @@
 #!/command/with-contenv bashio
 # shellcheck shell=bash
 # shellcheck disable=SC1091
-# shellcheck disable=SC2154
 # ==============================================================================
-# Initializing Technitium DNS Server
+# Set up environment variables for Technitium DNS Server
 # ==============================================================================
 
-if [[ "${DEBUG:-false}" == "true" ]]; then
-    bashio::log.level 'debug'
-fi
+# Enable strict error handling
+set -o nounset -o errexit -o pipefail
 
-# Allow DNS server to fully start before configuration
-# Use curl to check if the web interface is responding
-while ! curl -s --head --fail "${ADDON_API_SERVER}" >/dev/null; do
-    bashio::log.debug "init-dns-server: Waiting for DNS server to start..."
-    sleep 3
-done
-bashio::log.debug "init-dns-server: DNS server is up and running"
-
-bashio::log.debug "init-dns-server: ================================================="
-bashio::log.debug "init-dns-server:   Initializing Technitium DNS Server"
-bashio::log.debug "init-dns-server: ================================================="
+bashio::log.info "ENV: Initializing Technitium DNS environment variables..."
 
 # -----------------------------------------------------------------------------
-# Manual Configuration Check
+# Module Dependencies
 # -----------------------------------------------------------------------------
-if bashio::config.true 'manualConfig'; then
-    bashio::log.debug "init-dns-server: Manual configuration mode enabled - skipping automatic configuration"
-    exit 0
-fi
+# Load utility modules
+# shellcheck source=rootfs/etc/s6-overlay/scripts/utils/init_utils.sh
+source /etc/s6-overlay/scripts/init_utils.sh
 
-# -----------------------------------------------------------------------------
-# Source Dependencies
-# -----------------------------------------------------------------------------
-# Source utilities and perform initial setup
-# shellcheck source=/etc/s6-overlay/scripts/api_utils.sh
-if ! source "/etc/s6-overlay/scripts/api_utils.sh"; then
-    bashio::exit.nok "Failed to source API utilities"
-fi
-
-# shellcheck source=/etc/s6-overlay/scripts/cert_utils.sh
-if ! source "/etc/s6-overlay/scripts/cert_utils.sh"; then
-    bashio::exit.nok "Failed to source certificate utilities"
-fi
-
-# -----------------------------------------------------------------------------
-# Configure DNS Server
-# -----------------------------------------------------------------------------
-# Perform initial certificate setup
-cert_update
-
-# Apply configuration via API
-# See options here: https://github.com/TechnitiumSoftware/DnsServer/blob/master/APIDOCS.md#set-dns-settings
-bashio::log.debug "init-dns-server: Applying DNS server configuration..."
-api_call "settings/set" "POST" "{
-    \"dnsServerDomain\": \"${ADDON_DOMAIN}\",
-    \"loggingType\": \"FileAndConsole\",
-    \"logQueries\": ${ADDON_LOG_QUERIES},
-    \"useLocalTime\": true,
-    \"maxLogFileDays\": 7,
-    \"maxStatFileDays\": 30,
-    \"enableDnsOverTls\": ${ADDON_DNS_OVER_TLS},
-    \"enableDnsOverHttps\": ${ADDON_DNS_OVER_HTTPS},
-    \"enableDnsOverHttp3\": ${ADDON_DNS_OVER_HTTPS3},
-    \"enableDnsOverQuic\": ${ADDON_DNS_OVER_QUIC},
-    \"dnsTlsCertificatePath\": \"${ADDON_PKCS12_FILE}\",
-    \"dnsTlsCertificatePassword\": \"${ADDON_PKCS12_PASSWORD}\",
-    \"webServiceEnableTls\": true,
-    \"webServiceEnableHttp3\": true,
-    \"webServiceTlsCertificatePath\": \"${ADDON_PKCS12_FILE}\",
-    \"webServiceTlsCertificatePassword\": \"${ADDON_PKCS12_PASSWORD}\",
-    \"forwarders\": ${ADDON_FORWARDER_SERVERS},
-    \"forwarderProtocol\": \"${ADDON_FORWARDER_PROTOCOL}\"
-}"
-
-# -----------------------------------------------------------------------------
-# Install Apps
-# -----------------------------------------------------------------------------
-# Install query logging app
-bashio::log.debug "init-dns-server: Installing/updating query logs app..."
-api_install_app "Query Logs (Sqlite)"
+initialize_configuration

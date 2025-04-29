@@ -118,9 +118,9 @@ FROM install AS runtime
 
 # Copy Home Assistant add-on files
 COPY rootfs /
-RUN chmod +x /etc/s6-overlay/s6-rc.d/*/up /etc/s6-overlay/s6-rc.d/*/run /etc/s6-overlay/s6-rc.d/*/finish /etc/s6-overlay/scripts/*
+RUN chmod +x /etc/s6-overlay/s6-rc.d/*/run /etc/s6-overlay/s6-rc.d/*/finish /etc/s6-overlay/scripts/*.sh /etc/s6-overlay/scripts/**/*.sh
 
-HEALTHCHECK CMD curl --fail --silent --output /dev/null  http://127.0.0.1:5380/api/user/login || exit
+# HEALTHCHECK CMD curl --fail --silent --output /dev/null http://127.0.0.1:5380/api/user/login || exit
 
 # Add build arguments for labels
 ARG BUILD_ARCH

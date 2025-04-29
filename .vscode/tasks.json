@@ -17,9 +17,25 @@
       }
     },
     {
-      "label": "Init: Dev Bootstrap",
+      "label": "Dev: Restore Home Assistant Storage",
       "type": "shell",
-      "command": "$WORKSPACE_DIRECTORY/scripts/dev_bootstrap.sh",
+      "command": "$WORKSPACE_DIRECTORY/scripts/devcontainer_restore_ha_storage.sh",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true,
+        "close": true,
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "Dev: Backup Home Assistant Storage",
+      "type": "shell",
+      "command": "$WORKSPACE_DIRECTORY/scripts/devcontainer_backup_ha_storage.sh",
       "group": {
         "kind": "test",
         "isDefault": false
@@ -43,10 +59,13 @@
       "presentation": {
         "reveal": "always",
         "panel": "shared",
-        "close": true,
+        "clear": false,
+        "close": false,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -60,10 +79,13 @@
       "presentation": {
         "reveal": "always",
         "panel": "shared",
-        "close": true,
+        "clear": false,
+        "close": false,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -77,10 +99,13 @@
       "presentation": {
         "reveal": "always",
         "panel": "shared",
-        "close": true,
+        "clear": false,
+        "close": false,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -94,10 +119,13 @@
       "presentation": {
         "reveal": "always",
         "panel": "shared",
-        "close": true,
+        "clear": false,
+        "close": false,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -111,10 +139,13 @@
       "presentation": {
         "reveal": "always",
         "panel": "shared",
-        "close": true,
+        "clear": false,
+        "close": false,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -127,11 +158,17 @@
       },
       "presentation": {
         "reveal": "always",
-        "panel": "new",
-        "close": true,
+        "panel": "shared",
+        "clear": false,
+        "close": false,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs", "Command: Install Addon", "Command: Start Addon", "Logs: Follow Addon"],
+      "dependsOn": [
+        "Command: Kill logs",
+        "Command: Install Addon",
+        "Command: Start Addon",
+        "Logs: Follow Addon"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -145,7 +182,8 @@
       "presentation": {
         "reveal": "always",
         "panel": "new",
-        "close": true,
+        "clear": false,
+        "close": false,
         "showReuseMessage": false
       },
       "dependsOn": [
@@ -168,10 +206,16 @@
       "presentation": {
         "reveal": "always",
         "panel": "new",
-        "close": true,
+        "clear": false,
+        "close": false,
         "showReuseMessage": false
       },
-      "dependsOn": ["Command: Kill logs", "Command: Rebuild Addon", "Command: Start Addon", "Logs: Follow Addon"],
+      "dependsOn": [
+        "Command: Kill logs",
+        "Command: Rebuild Addon",
+        "Command: Start Addon",
+        "Logs: Follow Addon"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -184,27 +228,27 @@
       },
       "presentation": {
         "reveal": "always",
-        "revealProblems": "never",
-        "panel": "new",
+        "panel": "dedicated",
         "clear": false,
         "close": false,
         "showReuseMessage": false,
         "focus": true
       },
-      "dependsOn": ["Command: Kill logs"],
+      "dependsOn": [
+        "Command: Kill logs"
+      ],
       "dependsOrder": "sequence"
     },
     {
       "label": "Termianl: Open Terminal in Addon",
       "type": "shell",
-      "command": "docker exec -it \"addon_local_technitium-dns\" /bin/bash -c 'cd /etc/s6-overlay/scripts && exec /bin/bash' || true",
+      "command": "docker exec -it \"addon_local_technitium-dns\" /bin/bash",
       "group": {
         "kind": "test",
         "isDefault": false
       },
       "presentation": {
         "reveal": "always",
-        "revealProblems": "never",
         "panel": "new",
         "clear": false,
         "close": false,
@@ -235,7 +279,9 @@
       "type": "pickString",
       "default": "technitium-dns",
       "description": "Name of addon (to add your addon to this list, please edit .vscode/tasks.json)",
-      "options": ["technitium-dns"]
+      "options": [
+        "technitium-dns"
+      ]
     }
   ]
 }

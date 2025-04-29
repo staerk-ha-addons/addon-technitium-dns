@@ -33,7 +33,7 @@ Quick setup and best practices:
 
 ## DNS Flow and Protocol Options
 
-> This diagram illustrates how DNS queries flow through your network, showing both unencrypted (🔓) and encrypted (🔐) paths. Local devices can use either standard DNS or secure protocols (DoH/DoT/DoQ) to query the Technitium DNS Server, which then forwards requests to Cloudflare using selected forwarders.
+> This diagram illustrates how DNS queries flow through your network, showing both unencrypted (🔓) and encrypted (🔐) paths. Local devices can use either standard DNS or secure protocols (DoH/DoT/DoQ) to query the Technitium DNS Server, which then forwards requests to Cloudflare using selected dns_forwarders.
 
 ![DNS flow diagram][dns-diagram]
 

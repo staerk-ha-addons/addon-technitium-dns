@@ -28,7 +28,7 @@ flowchart LR
           DNSDoT["`DNS-over-TLS&NewLine;_homeassistant&period;local_`"]
           DNSDoQ["`DNS-over-QUIC&NewLine;_homeassistant&period;local_`"]
         end
-        F{"`Forwarders`"}
+        F{"`dns_forwarders`"}
       end
     end
   end

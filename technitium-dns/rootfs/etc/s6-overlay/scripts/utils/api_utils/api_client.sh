@@ -21,13 +21,9 @@ api_direct() {
 	fi
 
 	# Ensure API server has proper protocol prefix
-	local api_server="${ADDON_API_SERVER}"
-	if [[ ! ${api_server} =~ ^https?:// ]]; then
-		api_server="http://${api_server}"
-	fi
 
-	# Fix the URL construction
-	local url="${api_server}/api/${endpoint}"
+	# URL construction
+	local url="http://${HOSTNAME}:5380/api/${endpoint}"
 	local safe_url
 	safe_url=$(api_redact_url "${url}")
 
@@ -158,7 +154,7 @@ api_call() {
 
 			# Remove old token file to force recreation
 			if api_acquire_lock; then
-				rm -f "${ADDON_TOKEN_FILE}"
+				rm -f "${DNS_API_TOKEN_FILE}"
 				api_release_lock
 			fi
 

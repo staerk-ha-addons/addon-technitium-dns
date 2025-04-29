@@ -7,18 +7,63 @@
 set -o nounset -o errexit -o pipefail
 
 # -----------------------------------------------------------------------------
+# Hostname Selection Functions
+# -----------------------------------------------------------------------------
+
+# Select the hostname based on priority logic from flowchart
+# No arguments
+# Returns the selected hostname
+function select_hostname() {
+    local selected_hostname=""
+
+    bashio::log.info "DNS-Init: Selecting hostname"
+
+    # Check config hostname (highest priority)
+    if bashio::config.exists 'hostname' && bashio::config.has_value 'hostname'; then
+        selected_hostname=$(bashio::config 'hostname')
+        bashio::log.info "DNS-Init: Using configured hostname: ${selected_hostname}"
+
+    # Check home assistant hostname
+    elif ha_hostname=$(bashio::info.hostname 2>/dev/null) && \
+         [[ -n "${ha_hostname}" ]] && \
+         [[ "${ha_hostname}" != "null" ]]; then
+        selected_hostname="${ha_hostname}"
+        bashio::log.info "DNS-Init: Using home assistant hostname: ${selected_hostname}"
+
+    # Check addon hostname
+    elif [[ -n "${HOSTNAME}" ]]; then
+        selected_hostname="${HOSTNAME}"
+        bashio::log.info "DNS-Init: Using addon hostname: ${selected_hostname}"
+
+    # Use default hostname (lowest priority)
+    else
+        selected_hostname="homeassistant.local"
+        bashio::log.info "DNS-Init: Using default hostname: ${selected_hostname}"
+    fi
+
+    # Check if hostname is FQDN (contains at least one dot)
+    if [[ "${selected_hostname}" != *.* ]]; then
+        bashio::log.info "DNS-Init: Hostname is not FQDN, appending .local domain"
+        selected_hostname="${selected_hostname}.local"
+        bashio::log.info "DNS-Init: Using FQDN hostname: ${selected_hostname}"
+    fi
+
+    echo "${selected_hostname}"
+}
+
+# -----------------------------------------------------------------------------
 # DNS Forwarder Configuration
 # -----------------------------------------------------------------------------
 # Map selected forwarder name to DNS server and protocol configuration
-config_get_forwarders() {
+config_get_dns_forwarders() {
 	local servers=""
 	local protocol=""
 	local forwarder
-	forwarder="$(bashio::config 'forwarders' 'Cloudflare (DNS-over-HTTPS)')"
+	forwarder="$(bashio::config 'dns_forwarders' 'Cloudflare (DNS-over-HTTPS)')"
 
 	# Map selected forwarder to appropriate server configuration
 	case "${forwarder}" in
-	# Standard UDP forwarders
+	# Standard UDP dns_forwarders
 	"Cloudflare (DNS-over-UDP)")
 		servers='["1.1.1.1","1.0.0.1"]'
 		protocol="Udp"
@@ -28,7 +73,7 @@ config_get_forwarders() {
 		protocol="Udp"
 		;;
 
-	# TCP forwarders
+	# TCP dns_forwarders
 	"Cloudflare (DNS-over-TCP)")
 		servers='["1.1.1.1","1.0.0.1"]'
 		protocol="Tcp"
@@ -38,7 +83,7 @@ config_get_forwarders() {
 		protocol="Tcp"
 		;;
 
-	# TLS forwarders
+	# TLS dns_forwarders
 	"Cloudflare (DNS-over-TLS)")
 		servers='["cloudflare-dns.com (1.1.1.1:853)","cloudflare-dns.com (1.0.0.1:853)"]'
 		protocol="Tls"
@@ -48,7 +93,7 @@ config_get_forwarders() {
 		protocol="Tls"
 		;;
 
-	# HTTPS forwarders
+	# HTTPS dns_forwarders
 	"Cloudflare (DNS-over-HTTPS)")
 		servers='["https://cloudflare-dns.com/dns-query (1.1.1.1)","https://cloudflare-dns.com/dns-query (1.0.0.1)"]'
 		protocol="Https"
@@ -68,7 +113,7 @@ config_get_forwarders() {
 		protocol="Https"
 		;;
 
-	# QUIC forwarders (HTTP/3)
+	# QUIC dns_forwarders (HTTP/3)
 	"Cloudflare (DNS-over-QUIC)")
 		servers='["h3://cloudflare-dns.com (1.1.1.1)","h3://cloudflare-dns.com (1.0.0.1)"]'
 		protocol="Quic"

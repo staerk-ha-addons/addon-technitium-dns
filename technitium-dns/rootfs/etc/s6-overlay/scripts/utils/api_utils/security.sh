@@ -12,7 +12,7 @@ set -o nounset -o errexit -o pipefail
 # Encrypt API token for secure storage
 api_encrypt_token() {
 	local token="${1}"
-	echo "${token}" | openssl enc -aes-256-cbc -pbkdf2 -a -salt -pass pass:"${ADDON_TOKEN_NAME}" 2>/dev/null
+	echo "${token}" | openssl enc -aes-256-cbc -pbkdf2 -a -salt -pass pass:"${DNS_API_TOKEN_NAME}" 2>/dev/null
 }
 
 # Decrypt API token from secure storage
@@ -20,7 +20,7 @@ api_decrypt_token() {
 	local encrypted="${1}"
 	local decrypted
 
-	if ! decrypted=$(echo "${encrypted}" | openssl enc -aes-256-cbc -pbkdf2 -a -d -salt -pass pass:"${ADDON_TOKEN_NAME}" 2>/dev/null); then
+	if ! decrypted=$(echo "${encrypted}" | openssl enc -aes-256-cbc -pbkdf2 -a -d -salt -pass pass:"${DNS_API_TOKEN_NAME}" 2>/dev/null); then
 		bashio::log.debug "api_utils: Decryption failed"
 		return 1
 	fi

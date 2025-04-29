@@ -6,31 +6,12 @@
 # ==============================================================================
 set -o nounset -o errexit -o pipefail
 
-if [[ ${DEBUG:-false} == "true" ]]; then
-	bashio::log.level 'debug'
-fi
-
-# -----------------------------------------------------------------------------
-# Environment Variable Check
-# -----------------------------------------------------------------------------
-# Ensure required environment variables are set before proceeding
-required_env_vars=("ADDON_API_SERVER" "ADDON_TOKEN_NAME" "ADDON_TOKEN_FILE" "ADDON_LOCK_FILE" "ADDON_DOMAIN")
-
-for var in "${required_env_vars[@]}"; do
-	if [[ -z ${!var} ]]; then
-		bashio::log.error "api_utils: Required environment variable ${var} is not set!"
-		exit 1
-	fi
-done
-
-bashio::log.trace "api_utils: All required environment variables present"
-
 # -----------------------------------------------------------------------------
 # File Lock Management
 # -----------------------------------------------------------------------------
 # Acquire a file lock for operations requiring exclusivity
 api_acquire_lock() {
-	exec 200>"${ADDON_LOCK_FILE}"
+	exec 200>"${DNS_API_TOKEN_LOCK_FILE}"
 	if flock -n 200; then
 		return 0
 	else
@@ -60,8 +41,8 @@ api_cleanup() {
 	done
 
 	# Remove lock file
-	if [[ -f ${ADDON_LOCK_FILE} ]]; then
-		rm -f "${ADDON_LOCK_FILE}" 2>/dev/null || true
+	if [[ -f ${DNS_API_TOKEN_LOCK_FILE} ]]; then
+		rm -f "${DNS_API_TOKEN_LOCK_FILE}" 2>/dev/null || true
 	fi
 
 	bashio::log.debug "api_utils: Cleanup completed"

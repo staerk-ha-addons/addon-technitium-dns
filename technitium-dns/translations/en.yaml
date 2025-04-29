@@ -4,32 +4,36 @@ configuration:
     name: Hostname
     description: >-
       The hostname of the Home Assistant instance.
-  logQueries:
+  log_queries:
     name: Enable Query Logging
     description: >-
       Enable this option to log every query received by this DNS Server
       and the corresponding response answers into the log.
-  forwarders:
-    name: Forwarders
+  dns_forwarders:
+    name: dns_forwarders
     description: >-
-      Forwarders are upstream DNS servers which this DNS Server must use to resolve domain names.
-      You can set you own in the dns server UI under settings -> Proxy and Forwarders.
-  enableDnsOverTls:
+      dns_forwarders are upstream DNS servers which this DNS Server must use to resolve domain names.
+      You can set you own in the dns server UI under settings -> Proxy and dns_forwarders.
+  enable_ssl:
+    name: Enable SSL
+    description: >-
+      Enable this option to use SSL, it is needed for DNS-over-HTTPS, DNS-over-TLS and/or DNS-over-QUIC.
+  enable_dns_over_tls:
     name: Enable DNS-over-TLS
     description: >-
       Enable this option to accept DNS-over-TLS requests.
       Remember to enable port and protocol under Network Configuration.
-  enableDnsOverHttps:
+  enable_dns_over_https:
     name: Enable DNS-over-HTTPS (HTTP/1.1 + HTTP/2)
     description: >-
       Enable this option to accept DNS-over-HTTPS requests.
       Remember to enable and protocol under Network Configuration.
-  enableDnsOverHttps3:
+  enable_dns_over_https3:
     name: Enable DNS-over-HTTPS3 (HTTP/3)
     description: >-
       Enable this option to accept DNS-over-HTTPS3 requests.
       Remember to enable and protocol under Network Configuration.
-  enableDnsOverQuic:
+  enable_dns_over_quic:
     name: Enable DNS-over-QUIC
     description: >-
       Enable this option to accept DNS-over-QUIC requests.
@@ -44,7 +48,7 @@ configuration:
     description: >-
       Specify a keyfile (.pem or .key) file path.
       If not present, the server will use a self-signed certificate.
-  manualConfig:
+  manual_config:
     name: Manual Configuration Mode
     description: >-
       Enable this option to disable automatic API configuration.

@@ -19,8 +19,8 @@ api_save_token() {
 	fi
 
 	if api_acquire_lock; then
-		api_encrypt_token "${token}" >"${ADDON_TOKEN_FILE}"
-		chmod 600 "${ADDON_TOKEN_FILE}"
+		api_encrypt_token "${token}" >"${DNS_API_TOKEN_FILE}"
+		chmod 600 "${DNS_API_TOKEN_FILE}"
 		local status=$?
 		api_release_lock
 
@@ -39,7 +39,7 @@ api_save_token() {
 
 # Load and decrypt the saved API token
 api_load_token() {
-	if [[ ! -f ${ADDON_TOKEN_FILE} ]]; then
+	if [[ ! -f ${DNS_API_TOKEN_FILE} ]]; then
 		bashio::log.debug "api_utils: No saved token file exists"
 		return 1
 	fi
@@ -51,7 +51,7 @@ api_load_token() {
 
 	local encrypted_token
 	local saved_token
-	encrypted_token=$(cat "${ADDON_TOKEN_FILE}")
+	encrypted_token=$(cat "${DNS_API_TOKEN_FILE}")
 	saved_token=$(api_decrypt_token "${encrypted_token}")
 	api_release_lock
 
@@ -60,7 +60,7 @@ api_load_token() {
 
 		# Clean up invalid token file
 		if api_acquire_lock; then
-			rm -f "${ADDON_TOKEN_FILE}"
+			rm -f "${DNS_API_TOKEN_FILE}"
 			api_release_lock
 			bashio::log.debug "api_utils: Removed invalid token file"
 		fi
@@ -85,7 +85,7 @@ api_get_token() {
 
 	# Try to load existing token first
 	token=$(api_load_token)
-	if token; then
+	if [[ -n ${token} ]]; then
 		bashio::log.debug "api_utils: Using saved token"
 		echo "${token}"
 		return 0
@@ -98,7 +98,7 @@ api_get_token() {
 		bashio::log.debug "api_utils: Attempting token creation (attempt ${retry})"
 
 		# Invoke API call separately to avoid masking return value (SC2312)
-		response=$(api_direct "user/createToken?user=${username}&pass=${password}&tokenName=${ADDON_TOKEN_NAME}")
+		response=$(api_direct "user/createToken?user=${username}&pass=${password}&tokenName=${DNS_API_TOKEN_NAME}")
 		call_status=$?
 
 		if [[ ${call_status} -eq 0 ]]; then
