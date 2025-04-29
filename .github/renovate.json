@@ -7,7 +7,7 @@
   "labels": ["dependencies", "no-stale"],
   "commitMessagePrefix": "⬆️",
   "commitMessageTopic": "{{depName}}",
-  "extends": ["config:best-practices"],
+  "extends": ["config:best-practices", ":disablePinDigests"],
   "prConcurrentLimit": 10,
   "prHourlyLimit": 5,
   "platformAutomerge": true,
