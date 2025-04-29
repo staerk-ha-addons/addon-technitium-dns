@@ -16,33 +16,12 @@ map:
   - type: ssl
   - type: addon_config
     read_only: false
-options:
-  dns_forwarders: Cloudflare (DNS-over-HTTPS)
-  enable_ssl: true
-  enable_dns_over_tls: true
-  enable_dns_over_https: true
-  enable_dns_over_https3: true
-  enable_dns_over_quic: true
-  log_level: debug
-schema:
-  dns_forwarders: list(Cloudflare (DNS-over-UDP)|Cloudflare (DNS-over-TLS)|Cloudflare (DNS-over-HTTPS)|Cloudflare (Oblivious DNS-over-HTTPS))
-  log_queries: bool?
-  enable_ssl: bool?
-  enable_dns_over_tls: bool?
-  enable_dns_over_https: bool?
-  enable_dns_over_https3: bool?
-  enable_dns_over_quic: bool?
-  hostname: str?
-  certfile: str?
-  keyfile: str?
-  manual_config: bool?
-  log_level: list(trace|debug|info|notice|warning|error|fatal)?
 ports:
   53/tcp: null
   53/udp: 53
-  443/tcp: 443
-  443/udp: 443
-  853/tcp: 853
-  853/udp: 853
+  443/tcp: null
+  443/udp: null
+  853/tcp: null
+  853/udp: null
   5380/tcp: null
   53443/tcp: null

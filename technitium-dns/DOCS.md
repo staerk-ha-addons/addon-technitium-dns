@@ -8,17 +8,6 @@ Quick setup and best practices:
 
 - Use this add-on as your primary DNS server
 - Configure your router DNS to use `homeassistant.local` (or Home Assistant IP)
-- All ports (53, 443, 853) enabled by default
-- Self-signed certificates generated automatically
-
-### Secure DNS
-
-- Use encrypted forwarding (DoH/DoT/DoQ) to Cloudflare
-- Standard endpoints:
-  - DNS: `homeassistant.local:53` or `<Home Assistant IP>`
-  - DoH: `https://homeassistant.local/dns-query:443`
-  - DoT: `tls://homeassistant.local:853`
-  - DoQ: `quic://homeassistant.local:853`
 
 ### Local DNS Zone
 
@@ -43,10 +32,9 @@ Quick setup and best practices:
 - 🔒 **Security Options**: Choose between standard DNS or encrypted protocols
 - 🌐 **Flexible Forwarding**: All protocols supported for external queries
 - ⚡ **Modern Standards**: Full support for DoH, DoT, and DoQ
-- 🛡️ **End-to-End**: Possible to encrypt entire DNS path
 
 > [!NOTE]
-> Port 53 (DNS) is always available for compatibility with standard clients, while ports 443 (DoH) and 853 (DoT/DoQ) provide encrypted options for supported devices.
+> Port 53 (DNS) is always available for compatibility with standard clients.
 
 ## 🔧 Configuration
 
@@ -81,30 +69,6 @@ Recommended setup:
 > - Custom domain names for local devices
 > - Service discovery through DNS records
 
-### ⚙️ Add-on Configuration
-
-The add-on can be configured via the Home Assistant frontend:
-
-1. Navigate to Settings → Add-ons → Technitium DNS Server
-2. Click the "Configuration" tab
-3. Update the configuration as needed
-4. Click "Save" to apply changes
-5. Restart the add-on for the changes to take effect
-
-### 🤖 Automatic Server Configuration
-
-The add-on automatically configures Technitium DNS Server on startup using its API. This includes:
-
-- DNS protocol settings (DoH, DoT, DoQ)
-- SSL certificate paths and configurations
-- DNS forwarder settings
-- Query logging preferences
-- Port configurations
-- Web interface settings
-
-> [!NOTE]
-> Any manual changes made in the Technitium DNS Server web interface may be overwritten on add-on restart.
-
 ### 🔌 Port Configuration
 
 | Port | Protocol | Description                        |
@@ -124,144 +88,7 @@ To change port mappings:
 5. Click "Save"
 
 > [!NOTE]
-> All ports are enabled by default. You only need to change ports if you have conflicts with other services.
-
-### 🔒 SSL Certificate Setup
-
-The add-on supports three certificate options for secure DNS protocols (DoH, DoT, and DoQ):
-
-#### Option 1: Self-Signed Certificates (Default)
-
-If no certificates are specified, the add-on automatically:
-
-1. Generates self-signed certificates
-2. Creates PKCS#12 file for Technitium DNS
-3. Configures all necessary paths
-
-> [!NOTE]
-> Self-signed certificates are perfect for testing but may trigger security warnings in browsers and clients.
-
-#### Option 2: Let's Encrypt Integration (Recommended for Production)
-
-For secure remote access, Home Assistant recommends using Let's Encrypt certificates.
-
-##### Duck DNS Add-on with Let's Encrypt
-
-- Free alternative
-- Requires manual setup
-- [Duck DNS Add-on documentation][duckdns-link]
-
-> [!IMPORTANT]
-> For detailed information about securing remote access, see the [Home Assistant Security Documentation][security-link].
-
-#### Option 3: Custom Certificates
-
-You can use your own certificates by:
-
-1. Placing them in the `/ssl` directory
-2. Update path in configuration
-3. Restart this add-on
-
-> [!TIP]
-> Regardless of the option chosen, the add-on handles:
->
-> - PKCS#12 conversion
-> - File permissions
-> - Certificate monitoring
-> - Service restarts
-
-### 🌐 DNS Protocol Configuration
-
-#### DNS-over-HTTPS (DoH)
-
-1. Default ports:
-
-   - 443/TCP for HTTP/1.1 + HTTP/2
-   - 443/UDP for HTTP/3
-
-2. Endpoint URLs:
-   - Standard: `https://homeassistant.local:443/dns-query`
-   - Custom domain: `https://your-domain:443/dns-query`
-   - Custom port: `https://homeassistant.local:port/dns-query`
-
-Example client configurations:
-
-```bash
-# Chrome/Brave/Edge browsers
-chrome://settings/security → Use secure DNS → Custom → Enter DoH URL:
-https://homeassistant.local/dns-query
-
-# Firefox
-Settings → Network Settings → Enable DNS over HTTPS → Custom:
-https://homeassistant.local/dns-query
-
-# iOS/macOS
-Settings → Wi-Fi → DNS → Configure DNS:
-https://homeassistant.local/dns-query
-
-# Android 9+
-Settings → Network & Internet → Private DNS → Enter hostname:
-homeassistant.local
-
-# Windows 11
-Settings → Network & Internet → Wi-Fi/Ethernet → Hardware Properties → DNS:
-https://homeassistant.local/dns-query
-
-# Ubuntu/Debian (systemd-resolved)
-sudo tee /etc/systemd/resolved.conf << EOF
-[Resolve]
-DNS=homeassistant.local
-DNSOverTLS=yes
-EOF
-sudo systemctl restart systemd-resolved
-
-# Pi-hole
-Settings → DNS → Upstream DNS Servers → Add Custom:
-tls://homeassistant.local:853
-
-# OPNsense/pfSense
-System → Settings → General → DNS Server Settings:
-https://homeassistant.local/dns-query
-
-# AdGuard Home
-Settings → DNS Settings → Upstream DNS Servers:
-quic://homeassistant.local:853
-```
-
-#### DNS-over-TLS (DoT)
-
-1. Default port: 853/TCP
-
-2. Endpoint format:
-   - Standard: `tls://homeassistant.local:853`
-   - Custom domain: `tls://your-domain:853`
-   - Custom port: `tls://homeassistant.local:port`
-
-#### DNS-over-QUIC (DoQ)
-
-1. Default port: 853/UDP
-
-2. Endpoint format:
-   - Standard: `quic://homeassistant.local:853`
-   - Custom domain: `quic://your-domain:853`
-   - Custom port: `quic://homeassistant.local:port`
-
-> [!TIP]
-> Test your DNS endpoints:
->
-> ```bash
-> # Test DoH
-> curl -H 'accept: application/dns-json' \
->   'https://homeassistant.local/dns-query?name=example.com&type=A'
->
-> # Test DoT
-> kdig @853 example.com +tls-host=homeassistant.local
->
-> # Test DoQ
-> dog example.com @quic://homeassistant.local:853
-> ```
-
-The add-on automatically configures all enabled protocols based on your settings. No manual configuration in the Technitium web interface is required.
+> Only port 53 are enabled by default.
 
 ### 🏠 Local DNS Zones
 
@@ -293,7 +120,7 @@ _service.home.lab.   TXT    "location=basement rack=1"
 
 ### 🏗️ Advanced Configuration
 
-1. **Reverse DNS Zone**
+#### Reverse DNS Zone
 
    ```plaintext
    # Create reverse zone for 192.168.1.0/24
@@ -303,26 +130,6 @@ _service.home.lab.   TXT    "location=basement rack=1"
    10    PTR    server1.home.lab.
    20    PTR    nas.home.lab.
    30    PTR    printer.home.lab.
-   ```
-
-2. **Split DNS**
-
-   - Create different views for internal/external access
-   - Navigate to DNS Server → Settings → Advanced
-   - Add networks under "Allow Recursion Networks"
-
-3. **Dynamic DNS Updates**
-
-   ```bash
-   # Update record using curl
-   curl -X POST "http://homeassistant.local:5380/api/zones/updateRecord" \
-     -H "Content-Type: application/json" \
-     -d '{
-       "token": "your-api-token",
-       "domain": "device.home.lab",
-       "type": "A",
-       "value": "192.168.1.100"
-     }'
    ```
 
 > [!TIP]
@@ -346,7 +153,7 @@ _service.home.lab.   TXT    "location=basement rack=1"
 
 2. **Port Conflicts**
 
-   - Ensure no other services use ports 53, 443, or 853
+   - Ensure no other services use ports
    - Try alternative ports if needed
    - Check firewall settings
 

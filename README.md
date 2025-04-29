@@ -17,9 +17,6 @@ A fully featured DNS server for Home Assistant that:
 
 - 🔒 Securely forwards DNS queries using DoH/DoT/DoQ
 - 🌐 Supports local DNS zones and custom domains
-- 🔄 Auto-configures with Home Assistant
-- 📋 Manages SSL certificates automatically
-- 🚀 Uses Cloudflare DNS with modern protocols
 - ⚡ Provides fast DNS caching
 - 🛡️ Includes DNS filtering and blocking
 
@@ -52,7 +49,6 @@ Want to get the most out of this add-on? Our comprehensive documentation covers:
 - Best practices
 - Local DNS hosting
 - Troubleshooting
-- Client setup examples
 
 Check the [:books: DOCS.md][docs] for full details.
 
@@ -68,7 +64,6 @@ Check the [:books: DOCS.md][docs] for full details.
 - 🔒 **Security Options**: Choose between standard DNS or encrypted protocols
 - 🌐 **Flexible Forwarding**: All protocols supported for external queries
 - ⚡ **Modern Standards**: Full support for DoH, DoT, and DoQ
-- 🛡️ **End-to-End**: Possible to encrypt entire DNS path
 
 ## 💡 Support
 

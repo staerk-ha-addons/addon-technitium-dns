@@ -1,6 +1,3 @@
-# DNS Flowchart
-
-```mermaid
 ---
 config:
   flowchart:
@@ -21,13 +18,7 @@ flowchart LR
     end
     subgraph HA ["`🏠&nbsp;Home&nbsp;Assistant`"]
       subgraph AO["`🌐&nbsp;Technitium&nbsp;DNS&nbsp;Server`"]
-        subgraph DNS["`DNS`"]
-          DNS53["`DNS-over-UDP&NewLine;_Home&nbsp;Assistant&nbsp;IP_`"]
-          DNSDoH["`DNS-over-HTTPS&NewLine;_https&colon;&sol;&sol;homeassistant&period;local&sol;dns-query_`"]
-          DNSDoH3["`DNS-over-HTTPS3&NewLine;_h3&colon;&sol;&sol;homeassistant&period;local&sol;dns-query_`"]
-          DNSDoT["`DNS-over-TLS&NewLine;_homeassistant&period;local_`"]
-          DNSDoQ["`DNS-over-QUIC&NewLine;_homeassistant&period;local_`"]
-        end
+        DNS53["`DNS-over-UDP&NewLine;_Home&nbsp;Assistant&nbsp;IP_`"]
         F{"`dns_forwarders`"}
       end
     end
@@ -42,12 +33,7 @@ flowchart LR
   end
 
   LAN --> |"`🔓&nbsp;DNS&nbsp;53&sol;UDP`"| DNS53
-  LAN --> |"`🔐&nbsp;DoH&nbsp;443&sol;TCP`"| DNSDoH
-  LAN --> |"`🔐&nbsp;DoH&nbsp;443&sol;UDP`"| DNSDoH3
-  LAN --> |"`🔐&nbsp;DoQ&nbsp;853&sol;TCP`"| DNSDoQ
-  LAN --> |"`🔐&nbsp;DoT&nbsp;853&sol;UDP`"| DNSDoT
-  DNS --> F
+  DNS53 --> F
   F --> |"`🔓&nbsp;DNS&nbsp;53&sol;UDP`"| CFS53
   F --> |"`🔐&nbsp;DoH&nbsp;443&sol;TCP`"| CFSDoH
   F --> |"`🔐&nbsp;DoT&nbsp;853&sol;UDP`"| CFSDoT
-```
