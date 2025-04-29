@@ -1,7 +1,7 @@
 # hadolint global ignore=DL3006,DL3008,SC1091,SC2039,SC3009
 
 # Base image for Home Assistant add-ons
-ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:7.8.1
+ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:7.8.2
 
 # ============================================================================
 # BUILD STAGE
