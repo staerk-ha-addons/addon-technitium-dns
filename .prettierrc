@@ -1,5 +1,4 @@
 {
-  "plugins": ["prettier-plugin-jinja-template", "prettier-plugin-sh"],
   "printWidth": 120,
   "tabWidth": 2,
   "useTabs": false,
