@@ -2,11 +2,15 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "rebaseWhen": "behind-base-branch",
   "dependencyDashboard": true,
+  "dependencyDashboardApproval": false,
   "prCreation": "immediate",
+  "requireApproval": false,
   "labels": ["dependencies", "no-stale"],
   "commitMessagePrefix": "⬆️",
   "commitMessageTopic": "{{depName}}",
   "extends": ["config:best-practices"],
+  "prConcurrentLimit": 10,
+  "prHourlyLimit": 5,
   "packageRules": [
     {
       "matchDatasources": ["repology"],
