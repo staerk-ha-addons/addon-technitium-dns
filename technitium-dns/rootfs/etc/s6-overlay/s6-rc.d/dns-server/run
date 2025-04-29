@@ -13,9 +13,9 @@ set -o nounset -o errexit -o pipefail
 # Startup Banner
 # -----------------------------------------------------------------------------
 # Display a visual separator and startup message in debug logs
-bashio::log.debug "dns-server: ================================================="
-bashio::log.debug "dns-server:   Starting Technitium DNS Server"
-bashio::log.debug "dns-server: ================================================="
+bashio::log.info "dns-server: ================================================="
+bashio::log.info "dns-server:   Starting Technitium DNS Server"
+bashio::log.info "dns-server: ================================================="
 
 # -----------------------------------------------------------------------------
 # Environment Validation
@@ -32,6 +32,27 @@ fi
 
 # Disable .NET diagnostics
 DOTNET_EnableDiagnostics=0
+
+# -----------------------------------------------------------------------------
+# First Run Configuration
+# -----------------------------------------------------------------------------
+# Set up default DNS forwarders on first run
+FIRST_RUN_MARKER="/data/addon-first-run-completed"
+if [ ! -f "$FIRST_RUN_MARKER" ]; then
+    bashio::log.debug "First run detected - configuring default DNS settings"
+
+    # Set default DNS server name and domain
+    export DNS_SERVER_DOMAIN="$(bashio::info.hostname)"
+
+    # Set default forwarders (Cloudflare DoH)
+    export DNS_SERVER_FORWARDERS="https://cloudflare-dns.com/dns-query (1.1.1.1),https://cloudflare-dns.com/dns-query (1.0.0.1)"
+    export DNS_SERVER_FORWARDER_PROTOCOL="Https"
+
+    # Create marker file to indicate first run setup is complete
+    touch "$FIRST_RUN_MARKER"
+    bashio::log.debug "Default DNS server domain set to: $DNS_SERVER_DOMAIN"
+    bashio::log.debug "Default DNS forwarders configured: $DNS_SERVER_FORWARDERS (Protocol: $DNS_SERVER_FORWARDER_PROTOCOL)"
+fi
 
 # -----------------------------------------------------------------------------
 # Launch DNS Server
