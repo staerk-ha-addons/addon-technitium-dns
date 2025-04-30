@@ -3,6 +3,7 @@
   "rebaseWhen": "behind-base-branch",
   "dependencyDashboard": true,
   "dependencyDashboardApproval": false,
+  "dependencyDashboardAutoclose": true,
   "prCreation": "immediate",
   "labels": ["dependencies", "no-stale"],
   "commitMessagePrefix": "⬆️",
