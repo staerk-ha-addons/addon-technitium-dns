@@ -10,7 +10,7 @@ ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:7.8.3
 FROM ${BUILD_FROM} AS build
 
 # Version configuration
-ARG DNS_SERVER_VERSION=v13.6.0
+ARG DNS_SERVER_VERSION=v14.0.1
 ARG DNS_LIBRARY_VERSION=dns-server-${DNS_SERVER_VERSION}
 ARG DOTNET_SDK_VERSION=8.0
 
