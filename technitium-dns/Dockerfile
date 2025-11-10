@@ -1,7 +1,7 @@
 # hadolint global ignore=DL3006,DL3008,SC1091,SC2039,SC3009
 
 # Base image for Home Assistant add-ons
-ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:7.8.3
+ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:8.1.4
 
 # ============================================================================
 # BUILD STAGE
@@ -10,9 +10,9 @@ ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:7.8.3
 FROM ${BUILD_FROM} AS build
 
 # Version configuration
-ARG DNS_SERVER_VERSION=v13.6.0
+ARG DNS_SERVER_VERSION=v14.0.1
 ARG DNS_LIBRARY_VERSION=dns-server-${DNS_SERVER_VERSION}
-ARG DOTNET_SDK_VERSION=8.0
+ARG DOTNET_SDK_VERSION=9.0
 
 # .NET environment settings
 ENV DOTNET_ROOT=/usr/share/dotnet
@@ -42,7 +42,7 @@ RUN source /etc/os-release \
     libc6 \
     libgcc-s1 \
     libgssapi-krb5-2 \
-    libicu72 \
+    libicu76 \
     libssl3 \
     libstdc++6 \
     zlib1g \
@@ -56,6 +56,7 @@ RUN source /etc/os-release \
     # Build required libraries
     && dotnet build TechnitiumLibrary/TechnitiumLibrary.ByteTree/TechnitiumLibrary.ByteTree.csproj -c Release \
     && dotnet build TechnitiumLibrary/TechnitiumLibrary.Net/TechnitiumLibrary.Net.csproj -c Release \
+    && dotnet build TechnitiumLibrary/TechnitiumLibrary.Security.OTP/TechnitiumLibrary.Security.OTP.csproj -c Release \
     # Build and publish DNS server application
     && dotnet publish DnsServer/DnsServerApp/DnsServerApp.csproj -c Release \
     # Copy built application to final directory
@@ -76,7 +77,7 @@ RUN source /etc/os-release \
 FROM ${BUILD_FROM} AS install
 
 # Configure .NET runtime environment
-ARG DOTNET_SDK_VERSION=8.0
+ARG DOTNET_SDK_VERSION=9.0
 ENV DOTNET_ROOT=/usr/share/dotnet
 ENV DOTNET_NOLOGO=1
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
@@ -98,7 +99,7 @@ RUN source /etc/os-release \
     libc6 \
     libgcc-s1 \
     libgssapi-krb5-2 \
-    libicu72 \
+    libicu76 \
     libssl3 \
     libstdc++6 \
     zlib1g \
