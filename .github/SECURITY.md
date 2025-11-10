@@ -54,13 +54,11 @@ We take security issues seriously. Thank you for helping us maintain the securit
 ### Best Practices
 
 1. **Installation**
-
    - Change default password immediately
    - Use HTTPS for web interface
    - Enable encrypted DNS protocols
 
 2. **Configuration**
-
    - Use Let's Encrypt certificates in production
    - Enable query logging for auditing
    - Regular backups of configuration

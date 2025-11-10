@@ -146,13 +146,11 @@ Zone name: 1.168.192.in-addr.arpa
 ### ❌ Common Issues
 
 1. **Certificate Issues**
-
    - Check certificate paths are correct
    - Verify certificate permissions
    - Check logs for certificate conversion errors
 
 2. **Port Conflicts**
-
    - Ensure no other services use ports
    - Try alternative ports if needed
    - Check firewall settings
