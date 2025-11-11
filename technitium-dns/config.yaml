@@ -9,6 +9,7 @@ ingress_port: 5380
 panel_icon: mdi:dns
 startup: services
 init: false
+network_mode: true
 arch:
   - amd64
   - aarch64
