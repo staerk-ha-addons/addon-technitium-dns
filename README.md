@@ -2,7 +2,7 @@
 
 [![GitHub Release][releases-shield]][releases]
 ![Project Stage][project-stage-shield]
-[![License][license-shield]](LICENSE.md)
+[![License][license-shield]](LICENSE)
 
 > [!TIP]
 > ⭐ Love this add-on? Show your support by giving a [star on GitHub!][repository] Every star helps make this project more visible and encourages continued development.
