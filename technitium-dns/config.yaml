@@ -25,3 +25,7 @@ ports:
   853/udp: null
   5380/tcp: null
   53443/tcp: null
+options:
+  host_network: false
+schema:
+  host_network: bool?
