@@ -34,23 +34,56 @@ jobs:
             echo "should_release=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Checkout code
+        if: steps.check.outputs.should_release == 'true'
+        uses: actions/checkout@v4
+
+      - name: Compute addon version from DNS_SERVER_VERSION
+        if: steps.check.outputs.should_release == 'true'
+        id: version
+        run: |
+          # Extract DNS_SERVER_VERSION from Dockerfile (e.g., v14.3.0)
+          DNS_VERSION=$(grep -oP 'DNS_SERVER_VERSION=v\K[0-9]+\.[0-9]+' technitium-dns/Dockerfile)
+
+          # Parse major and minor from DNS version
+          DNS_MAJOR=$(echo "$DNS_VERSION" | cut -d. -f1)
+          DNS_MINOR=$(echo "$DNS_VERSION" | cut -d. -f2)
+
+          # Addon version: 1.{dns_major}.{dns_minor}
+          ADDON_VERSION="1.${DNS_MAJOR}.${DNS_MINOR}"
+
+          echo "DNS version: $DNS_VERSION"
+          echo "Addon version: $ADDON_VERSION"
+          echo "addon_version=$ADDON_VERSION" >> $GITHUB_OUTPUT
+
       - name: Wait for Release Drafter
         if: steps.check.outputs.should_release == 'true'
         run: sleep 30
 
-      - name: Publish draft release
+      - name: Update and publish release
         if: steps.check.outputs.should_release == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          VERSION="${{ steps.version.outputs.addon_version }}"
+          TAG="v${VERSION}"
+
           # Get the latest draft release
           DRAFT_RELEASE=$(gh api repos/${{ github.repository }}/releases \
             --jq '.[] | select(.draft == true) | .id' | head -1)
 
           if [ -n "$DRAFT_RELEASE" ]; then
-            echo "Publishing draft release: $DRAFT_RELEASE"
+            echo "Updating draft release $DRAFT_RELEASE with tag $TAG"
+
+            # Update the draft with correct tag and name, then publish
             gh api repos/${{ github.repository }}/releases/$DRAFT_RELEASE \
-              -X PATCH -f draft=false
+              -X PATCH \
+              -f tag_name="$TAG" \
+              -f name="$TAG" \
+              -f draft=false
           else
-            echo "No draft release found"
+            echo "No draft release found, creating new release"
+            gh release create "$TAG" \
+              --title "$TAG" \
+              --generate-notes
           fi
