@@ -38,23 +38,15 @@ jobs:
         if: steps.check.outputs.should_release == 'true'
         uses: actions/checkout@v4
 
-      - name: Compute addon version from DNS_SERVER_VERSION
+      - name: Get DNS_SERVER_VERSION
         if: steps.check.outputs.should_release == 'true'
         id: version
         run: |
-          # Extract DNS_SERVER_VERSION from Dockerfile (e.g., v14.3.0)
-          DNS_VERSION=$(grep -oP 'DNS_SERVER_VERSION=v\K[0-9]+\.[0-9]+' technitium-dns/Dockerfile)
-
-          # Parse major and minor from DNS version
-          DNS_MAJOR=$(echo "$DNS_VERSION" | cut -d. -f1)
-          DNS_MINOR=$(echo "$DNS_VERSION" | cut -d. -f2)
-
-          # Addon version: 1.{dns_major}.{dns_minor}
-          ADDON_VERSION="1.${DNS_MAJOR}.${DNS_MINOR}"
+          # Extract DNS_SERVER_VERSION from Dockerfile (e.g., 14.3.0)
+          DNS_VERSION=$(grep -oP 'DNS_SERVER_VERSION=v\K[0-9]+\.[0-9]+\.[0-9]+' technitium-dns/Dockerfile)
 
           echo "DNS version: $DNS_VERSION"
-          echo "Addon version: $ADDON_VERSION"
-          echo "addon_version=$ADDON_VERSION" >> $GITHUB_OUTPUT
+          echo "version=$DNS_VERSION" >> $GITHUB_OUTPUT
 
       - name: Wait for Release Drafter
         if: steps.check.outputs.should_release == 'true'
@@ -65,7 +57,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION="${{ steps.version.outputs.addon_version }}"
+          VERSION="${{ steps.version.outputs.version }}"
           TAG="v${VERSION}"
 
           # Get the latest draft release
