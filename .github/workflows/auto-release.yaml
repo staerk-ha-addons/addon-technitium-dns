@@ -1,6 +1,7 @@
 ---
 name: Auto Release
 
+# yamllint disable-line rule:truthy
 on:
   workflow_run:
     workflows: ["CI"]
