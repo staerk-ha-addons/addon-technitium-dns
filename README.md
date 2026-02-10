@@ -20,6 +20,9 @@ A fully featured DNS server for Home Assistant that:
 - ⚡ Provides fast DNS caching
 - 🛡️ Includes DNS filtering and blocking
 
+> [!IMPORTANT]
+> This add-on uses **host networking** mode to properly function as a DNS server. This means it binds directly to the host's network interfaces rather than using Docker's network isolation. Port 53 (DNS) must be available on your host system.
+
 ## 🏃 Quick Start
 
 1. Click the Home Assistant My button below to add the repository to your Home Assistant instance.
