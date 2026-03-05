@@ -1,6 +1,6 @@
 {
   "name": "Devcontainer for add-on repositories",
-  "image": "ghcr.io/home-assistant/devcontainer:2-addons",
+  "image": "ghcr.io/home-assistant/devcontainer:3-addons",
   "appPort": ["7123:8123", "7357:4357", "5380:5380", "53853:853", "53443:443"],
   "forwardPorts": [],
   "portsAttributes": {
