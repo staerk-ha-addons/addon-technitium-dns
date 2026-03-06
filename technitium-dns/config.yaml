@@ -16,7 +16,6 @@ map:
   - type: ssl
   - type: addon_config
     read_only: false
-host_network: true
 ports:
   53/tcp: null
   53/udp: 53

@@ -1,81 +1,81 @@
----
-name: Auto Release
+# ---
+# name: Auto Release
 
-# yamllint disable-line rule:truthy
-on:
-  workflow_run:
-    workflows: ["CI"]
-    branches:
-      - main
-    types:
-      - completed
+# # yamllint disable-line rule:truthy
+# on:
+#   workflow_run:
+#     workflows: ["CI"]
+#     branches:
+#       - main
+#     types:
+#       - completed
 
-jobs:
-  auto-release:
-    if: >
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check if triggered by DNS_SERVER_VERSION update
-        id: check
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Get the commit message from the workflow run
-          COMMIT_SHA="${{ github.event.workflow_run.head_sha }}"
-          COMMIT_MSG=$(gh api repos/${{ github.repository }}/commits/$COMMIT_SHA --jq '.commit.message')
+# jobs:
+#   auto-release:
+#     if: >
+#       github.event.workflow_run.conclusion == 'success' &&
+#       github.event.workflow_run.event == 'push'
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Check if triggered by DNS_SERVER_VERSION update
+#         id: check
+#         env:
+#           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         run: |
+#           # Get the commit message from the workflow run
+#           COMMIT_SHA="${{ github.event.workflow_run.head_sha }}"
+#           COMMIT_MSG=$(gh api repos/${{ github.repository }}/commits/$COMMIT_SHA --jq '.commit.message')
 
-          echo "Commit message: $COMMIT_MSG"
+#           echo "Commit message: $COMMIT_MSG"
 
-          if echo "$COMMIT_MSG" | grep -q "DNS_SERVER_VERSION"; then
-            echo "should_release=true" >> $GITHUB_OUTPUT
-          else
-            echo "should_release=false" >> $GITHUB_OUTPUT
-          fi
+#           if echo "$COMMIT_MSG" | grep -q "DNS_SERVER_VERSION"; then
+#             echo "should_release=true" >> $GITHUB_OUTPUT
+#           else
+#             echo "should_release=false" >> $GITHUB_OUTPUT
+#           fi
 
-      - name: Checkout code
-        if: steps.check.outputs.should_release == 'true'
-        uses: actions/checkout@v6
+#       - name: Checkout code
+#         if: steps.check.outputs.should_release == 'true'
+#         uses: actions/checkout@v6
 
-      - name: Get DNS_SERVER_VERSION
-        if: steps.check.outputs.should_release == 'true'
-        id: version
-        run: |
-          # Extract DNS_SERVER_VERSION from Dockerfile (e.g., 14.3.0)
-          DNS_VERSION=$(grep -oP 'DNS_SERVER_VERSION=v\K[0-9]+\.[0-9]+\.[0-9]+' technitium-dns/Dockerfile)
+#       - name: Get DNS_SERVER_VERSION
+#         if: steps.check.outputs.should_release == 'true'
+#         id: version
+#         run: |
+#           # Extract DNS_SERVER_VERSION from Dockerfile (e.g., 14.3.0)
+#           DNS_VERSION=$(grep -oP 'DNS_SERVER_VERSION=v\K[0-9]+\.[0-9]+\.[0-9]+' technitium-dns/Dockerfile)
 
-          echo "DNS version: $DNS_VERSION"
-          echo "version=$DNS_VERSION" >> $GITHUB_OUTPUT
+#           echo "DNS version: $DNS_VERSION"
+#           echo "version=$DNS_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Wait for Release Drafter
-        if: steps.check.outputs.should_release == 'true'
-        run: sleep 30
+#       - name: Wait for Release Drafter
+#         if: steps.check.outputs.should_release == 'true'
+#         run: sleep 30
 
-      - name: Update and publish release
-        if: steps.check.outputs.should_release == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          TAG="v${VERSION}"
+#       - name: Update and publish release
+#         if: steps.check.outputs.should_release == 'true'
+#         env:
+#           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         run: |
+#           VERSION="${{ steps.version.outputs.version }}"
+#           TAG="v${VERSION}"
 
-          # Get the latest draft release
-          DRAFT_RELEASE=$(gh api repos/${{ github.repository }}/releases \
-            --jq '.[] | select(.draft == true) | .id' | head -1)
+#           # Get the latest draft release
+#           DRAFT_RELEASE=$(gh api repos/${{ github.repository }}/releases \
+#             --jq '.[] | select(.draft == true) | .id' | head -1)
 
-          if [ -n "$DRAFT_RELEASE" ]; then
-            echo "Updating draft release $DRAFT_RELEASE with tag $TAG"
+#           if [ -n "$DRAFT_RELEASE" ]; then
+#             echo "Updating draft release $DRAFT_RELEASE with tag $TAG"
 
-            # Update the draft with correct tag and name, then publish
-            gh api repos/${{ github.repository }}/releases/$DRAFT_RELEASE \
-              -X PATCH \
-              -f tag_name="$TAG" \
-              -f name="$TAG" \
-              -f draft=false
-          else
-            echo "No draft release found, creating new release"
-            gh release create "$TAG" \
-              --title "$TAG" \
-              --generate-notes
-          fi
+#             # Update the draft with correct tag and name, then publish
+#             gh api repos/${{ github.repository }}/releases/$DRAFT_RELEASE \
+#               -X PATCH \
+#               -f tag_name="$TAG" \
+#               -f name="$TAG" \
+#               -f draft=false
+#           else
+#             echo "No draft release found, creating new release"
+#             gh release create "$TAG" \
+#               --title "$TAG" \
+#               --generate-notes
+#           fi
