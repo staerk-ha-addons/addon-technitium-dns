@@ -5,7 +5,10 @@ slug: technitium-dns
 description: Self-hosted DNS server with Home Assistant add-on integration.
 url: https://github.com/staerk-ha-addons/addon-technitium-dns
 ingress: true
-ingress_port: 5380
+# Host-network add-ons must use a dynamic ingress port (0). An nginx
+# proxy (see rootfs) listens on the assigned port and forwards to
+# Technitium on 127.0.0.1:5380.
+ingress_port: 0
 panel_icon: mdi:dns
 startup: services
 init: false

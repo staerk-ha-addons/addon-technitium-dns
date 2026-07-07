@@ -1,0 +1,42 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Home Assistant Add-on: Technitium DNS Server
+# Ingress reverse proxy: forwards the Supervisor-assigned ingress port to the
+# Technitium web console on 127.0.0.1:5380.
+#
+# Required because the add-on uses host networking, for which Home Assistant
+# assigns a dynamic ingress port (ingress_port: 0) that must be read at runtime.
+# ==============================================================================
+
+set -o nounset -o errexit -o pipefail
+
+# Port assigned by the Supervisor for this add-on's ingress session
+declare ingress_port
+ingress_port=$(bashio::addon.ingress_port)
+
+bashio::log.info "ingress: proxying port ${ingress_port} -> 127.0.0.1:5380"
+
+# Render the server block with the assigned port
+mkdir -p /etc/nginx/servers
+cat > /etc/nginx/servers/ingress.conf <<EOF
+server {
+    listen ${ingress_port} default_server;
+    server_name _;
+
+    location / {
+        proxy_pass http://127.0.0.1:5380;
+        proxy_http_version 1.1;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
+        proxy_read_timeout 3600s;
+        proxy_buffering off;
+    }
+}
+EOF
+
+exec nginx -g "daemon off;" -c /etc/nginx/nginx.conf
