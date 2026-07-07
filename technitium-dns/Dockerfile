@@ -10,9 +10,10 @@ ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:9.3.0
 FROM ${BUILD_FROM} AS build
 
 # Version configuration
-ARG DNS_SERVER_VERSION=v15.1.0
+ARG DNS_SERVER_VERSION=v15.3.0
 ARG DNS_LIBRARY_VERSION=dns-server-${DNS_SERVER_VERSION}
-ARG DOTNET_SDK_VERSION=9.0
+# Technitium DNS Server v15+ targets .NET 10
+ARG DOTNET_SDK_VERSION=10.0
 
 # .NET environment settings
 ENV DOTNET_ROOT=/usr/share/dotnet
@@ -77,7 +78,7 @@ RUN source /etc/os-release \
 FROM ${BUILD_FROM} AS install
 
 # Configure .NET runtime environment
-ARG DOTNET_SDK_VERSION=9.0
+ARG DOTNET_SDK_VERSION=10.0
 ENV DOTNET_ROOT=/usr/share/dotnet
 ENV DOTNET_NOLOGO=1
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
