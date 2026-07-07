@@ -36,7 +36,8 @@ jobs:
 
       - name: Checkout code
         if: steps.check.outputs.should_release == 'true'
-        uses: actions/checkout@v6
+        # actions/checkout v7.0.0 (SHA-pinned for zizmor unpinned-uses)
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
       - name: Get DNS_SERVER_VERSION
         if: steps.check.outputs.should_release == 'true'
@@ -55,7 +56,11 @@ jobs:
       - name: Update and publish release
         if: steps.check.outputs.should_release == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Publish with a PAT, not GITHUB_TOKEN: releases published by
+          # GITHUB_TOKEN do not emit a release event, so the stable deploy
+          # (deploy.yaml, on release:published) would never run and the
+          # add-on repository would stay on the previous version.
+          GH_TOKEN: ${{ secrets.DISPATCH_TOKEN }}
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           TAG="v${VERSION}"
@@ -67,12 +72,15 @@ jobs:
           if [ -n "$DRAFT_RELEASE" ]; then
             echo "Updating draft release $DRAFT_RELEASE with tag $TAG"
 
-            # Update the draft with correct tag and name, then publish
+            # Update the draft with correct tag and name, then publish.
+            # make_latest must be set explicitly: flipping draft=false via PATCH
+            # does not re-run GitHub's "latest release" evaluation on its own.
             gh api repos/${{ github.repository }}/releases/$DRAFT_RELEASE \
               -X PATCH \
               -f tag_name="$TAG" \
               -f name="$TAG" \
-              -f draft=false
+              -f draft=false \
+              -f make_latest=true
           else
             echo "No draft release found, creating new release"
             gh release create "$TAG" \
