@@ -17,37 +17,50 @@ jobs:
       github.event.workflow_run.event == 'push'
     runs-on: ubuntu-latest
     steps:
-      - name: Check if triggered by DNS_SERVER_VERSION update
+      - name: Check if the add-on changed
         id: check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          COMMIT_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
-          # Get the commit message from the workflow run
-          COMMIT_SHA="${{ github.event.workflow_run.head_sha }}"
-          COMMIT_MSG=$(gh api repos/${{ github.repository }}/commits/$COMMIT_SHA --jq '.commit.message')
-
-          echo "Commit message: $COMMIT_MSG"
-
-          if echo "$COMMIT_MSG" | grep -q "DNS_SERVER_VERSION"; then
-            echo "should_release=true" >> $GITHUB_OUTPUT
+          # Only cut a release when files under technitium-dns/ changed.
+          # CI/workflow/docs-only commits do not produce a release.
+          CHANGED=$(gh api "repos/${REPO}/commits/${COMMIT_SHA}" \
+            --jq '.files[].filename')
+          echo "Changed files:"
+          echo "${CHANGED}"
+          if echo "${CHANGED}" | grep -q '^technitium-dns/'; then
+            echo "should_release=true" >> "${GITHUB_OUTPUT}"
           else
-            echo "should_release=false" >> $GITHUB_OUTPUT
+            echo "should_release=false" >> "${GITHUB_OUTPUT}"
           fi
 
-      - name: Checkout code
-        if: steps.check.outputs.should_release == 'true'
-        # actions/checkout v7.0.0 (SHA-pinned for zizmor unpinned-uses)
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
-
-      - name: Get DNS_SERVER_VERSION
+      - name: Compute CalVer version
         if: steps.check.outputs.should_release == 'true'
         id: version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
         run: |
-          # Extract DNS_SERVER_VERSION from Dockerfile (e.g., 14.3.0)
-          DNS_VERSION=$(grep -oP 'DNS_SERVER_VERSION=v\K[0-9]+\.[0-9]+\.[0-9]+' technitium-dns/Dockerfile)
-
-          echo "DNS version: $DNS_VERSION"
-          echo "version=$DNS_VERSION" >> $GITHUB_OUTPUT
+          # Add-on version is CalVer (YYYY.M.PATCH), decoupled from the
+          # Technitium version (DNS_SERVER_VERSION stays the upstream pin).
+          # PATCH increments within a month; a new month starts back at 0.
+          PREFIX="$(date +%Y).$(date +%-m)"
+          ESC="${PREFIX//./\\.}"
+          MAX=$(gh api "repos/${REPO}/tags" --paginate --jq '.[].name' \
+            | sed -E 's/^v//' \
+            | grep -E "^${ESC}\.[0-9]+$" \
+            | sed -E "s/^${ESC}\.//" \
+            | sort -n | tail -1)
+          if [ -z "${MAX}" ]; then
+            PATCH=0
+          else
+            PATCH=$((MAX + 1))
+          fi
+          VERSION="${PREFIX}.${PATCH}"
+          echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+          echo "Computed release version: ${VERSION}"
 
       - name: Wait for Release Drafter
         if: steps.check.outputs.should_release == 'true'
@@ -58,32 +71,34 @@ jobs:
         env:
           # Publish with a PAT, not GITHUB_TOKEN: releases published by
           # GITHUB_TOKEN do not emit a release event, so the stable deploy
-          # (deploy.yaml, on release:published) would never run and the
-          # add-on repository would stay on the previous version.
+          # (deploy.yaml, on release:published) would never run.
           GH_TOKEN: ${{ secrets.DISPATCH_TOKEN }}
+          REPO: ${{ github.repository }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          VERSION="${{ steps.version.outputs.version }}"
           TAG="v${VERSION}"
 
-          # Get the latest draft release
-          DRAFT_RELEASE=$(gh api repos/${{ github.repository }}/releases \
+          # Reuse the Release Drafter draft (keeps its notes) if present,
+          # otherwise create a fresh release. make_latest must be set
+          # explicitly: flipping draft=false via PATCH does not re-run
+          # GitHub's "latest release" evaluation on its own.
+          DRAFT_RELEASE=$(gh api "repos/${REPO}/releases" \
             --jq '.[] | select(.draft == true) | .id' | head -1)
 
-          if [ -n "$DRAFT_RELEASE" ]; then
-            echo "Updating draft release $DRAFT_RELEASE with tag $TAG"
-
-            # Update the draft with correct tag and name, then publish.
-            # make_latest must be set explicitly: flipping draft=false via PATCH
-            # does not re-run GitHub's "latest release" evaluation on its own.
-            gh api repos/${{ github.repository }}/releases/$DRAFT_RELEASE \
+          if [ -n "${DRAFT_RELEASE}" ]; then
+            echo "Publishing draft ${DRAFT_RELEASE} as ${TAG}"
+            gh api "repos/${REPO}/releases/${DRAFT_RELEASE}" \
               -X PATCH \
-              -f tag_name="$TAG" \
-              -f name="$TAG" \
+              -f tag_name="${TAG}" \
+              -f name="${TAG}" \
+              -f target_commitish=main \
               -f draft=false \
               -f make_latest=true
           else
-            echo "No draft release found, creating new release"
-            gh release create "$TAG" \
-              --title "$TAG" \
-              --generate-notes
+            echo "No draft found, creating ${TAG}"
+            gh release create "${TAG}" \
+              --title "${TAG}" \
+              --target main \
+              --generate-notes \
+              --latest
           fi
