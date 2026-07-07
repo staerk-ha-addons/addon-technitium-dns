@@ -56,7 +56,11 @@ jobs:
       - name: Update and publish release
         if: steps.check.outputs.should_release == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Publish with a PAT, not GITHUB_TOKEN: releases published by
+          # GITHUB_TOKEN do not emit a release event, so the stable deploy
+          # (deploy.yaml, on release:published) would never run and the
+          # add-on repository would stay on the previous version.
+          GH_TOKEN: ${{ secrets.DISPATCH_TOKEN }}
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           TAG="v${VERSION}"
