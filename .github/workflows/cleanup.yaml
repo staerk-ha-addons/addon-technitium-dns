@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Delete old untagged versions of technitium-dns/amd64 package
-        uses: actions/delete-package-versions@v5
+        uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5
         continue-on-error: true
         with:
           package-name: "technitium-dns/amd64"
@@ -24,7 +24,7 @@ jobs:
           ignore-versions: "^stable$|^beta$|^edge$|^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
 
       - name: Delete old untagged versions of technitium-dns/aarch64 package
-        uses: actions/delete-package-versions@v5
+        uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5
         continue-on-error: true
         with:
           package-name: "technitium-dns/aarch64"
