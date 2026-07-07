@@ -79,9 +79,7 @@ jobs:
           TAG="v${VERSION}"
 
           # Reuse the Release Drafter draft (keeps its notes) if present,
-          # otherwise create a fresh release. make_latest must be set
-          # explicitly: flipping draft=false via PATCH does not re-run
-          # GitHub's "latest release" evaluation on its own.
+          # otherwise create a fresh release.
           DRAFT_RELEASE=$(gh api "repos/${REPO}/releases" \
             --jq '.[] | select(.draft == true) | .id' | head -1)
 
@@ -92,13 +90,17 @@ jobs:
               -f tag_name="${TAG}" \
               -f name="${TAG}" \
               -f target_commitish=main \
-              -f draft=false \
-              -f make_latest=true
+              -f draft=false
           else
             echo "No draft found, creating ${TAG}"
             gh release create "${TAG}" \
               --title "${TAG}" \
               --target main \
-              --generate-notes \
-              --latest
+              --generate-notes
           fi
+
+          # Set as latest in a SEPARATE call. GitHub does not reliably apply
+          # make_latest in the same PATCH that flips draft=false, which left
+          # a published release without the "Latest" badge (and off the
+          # add-on store's update radar). Setting it afterwards is reliable.
+          gh release edit "${TAG}" --latest
