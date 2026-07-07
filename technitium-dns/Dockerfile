@@ -96,6 +96,7 @@ RUN source /etc/os-release \
     && apt-get install -y --no-install-recommends \
     openssl \
     inotify-tools \
+    nginx-full \
     libmsquic \
     libc6 \
     libgcc-s1 \
