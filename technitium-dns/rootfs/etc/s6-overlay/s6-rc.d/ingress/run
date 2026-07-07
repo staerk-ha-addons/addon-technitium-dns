@@ -27,6 +27,16 @@ server {
     location / {
         proxy_pass http://127.0.0.1:5380;
         proxy_http_version 1.1;
+        # Technitium sends X-Frame-Options: DENY and CSP frame-ancestors 'none',
+        # which stop Home Assistant Ingress from embedding the console in its
+        # iframe. Ingress serves the console same-origin with the HA frontend,
+        # so relax framing to same-origin only (instead of removing the
+        # protection entirely): this lets Ingress embed it while still blocking
+        # cross-origin clickjacking, and keeps Technitium's script/style CSP.
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Content-Security-Policy;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'self';" always;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
