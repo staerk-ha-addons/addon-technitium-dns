@@ -25,7 +25,10 @@ rules:
   comments:
     level: error
     require-starting-space: true
-    min-spaces-from-content: 2
+    # 1 space (not 2) so Renovate's SHA-pin comments ("@<sha> # v1.2.3")
+    # pass; this also matches Prettier, which normalizes inline comments
+    # to a single leading space.
+    min-spaces-from-content: 1
   comments-indentation:
     level: error
   document-end:
