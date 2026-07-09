@@ -79,16 +79,18 @@ Recommended setup:
 | 443  | TCP      | DNS-over-HTTPS (HTTP/1.1 + HTTP/2) |
 | 443  | UDP      | DNS-over-HTTPS (HTTP/3)            |
 
-To change port mappings:
-
-1. Go to the add-on configuration page
-2. Scroll to "Network" section
-3. Click the port number you want to change
-4. Enter new port number (e.g., `8853` for DNS-over-TLS)
-5. Click "Save"
+> [!NOTE]
+> This add-on runs in **host network** mode, so ports are **not** mapped
+> through Home Assistant — Technitium binds directly to the host's ports.
+> There is no "Network" section on the add-on page; enable protocols and
+> change their ports in the Technitium web console under
+> **Settings → Optional Protocols**.
 
 > [!NOTE]
-> Only port 53 are enabled by default.
+> Only standard DNS on port 53 is enabled by default. Enable
+> DNS-over-TLS, DNS-over-HTTPS, and DNS-over-QUIC in the Technitium web
+> console (**Settings → Optional Protocols**), providing a TLS
+> certificate where required.
 
 ### 🏠 Local DNS Zones
 
