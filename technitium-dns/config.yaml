@@ -20,12 +20,3 @@ map:
   - type: addon_config
     read_only: false
 host_network: true
-ports:
-  53/tcp: null
-  53/udp: 53
-  443/tcp: null
-  443/udp: null
-  853/tcp: null
-  853/udp: null
-  5380/tcp: null
-  53443/tcp: null
