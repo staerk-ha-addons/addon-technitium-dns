@@ -94,6 +94,7 @@ jobs:
           else
             echo "No draft found, creating ${TAG}"
             gh release create "${TAG}" \
+              --repo "${REPO}" \
               --title "${TAG}" \
               --target main \
               --generate-notes
@@ -103,4 +104,6 @@ jobs:
           # make_latest in the same PATCH that flips draft=false, which left
           # a published release without the "Latest" badge (and off the
           # add-on store's update radar). Setting it afterwards is reliable.
-          gh release edit "${TAG}" --latest
+          # --repo is required: this job has no checkout, so gh cannot infer
+          # the repository from git context (gh api uses ${REPO} explicitly).
+          gh release edit "${TAG}" --repo "${REPO}" --latest
