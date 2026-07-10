@@ -55,6 +55,16 @@ if [ ! -f "$FIRST_RUN_MARKER" ]; then
 fi
 
 # -----------------------------------------------------------------------------
+# Web console access hint
+# -----------------------------------------------------------------------------
+# Technitium's own startup message (printed below) advertises its internal
+# container hostname, which isn't reachable from a browser. Log the correct
+# access paths first so users aren't misled by it.
+bashio::log.info "dns-server: Open the web console via the Ingress panel (sidebar / 'Open Web UI'),"
+bashio::log.info "dns-server: or directly at http://<your-home-assistant-host>:5380 (e.g. http://homeassistant.local:5380)."
+bashio::log.info "dns-server: Note: Technitium's line below shows its internal container hostname — you can ignore it."
+
+# -----------------------------------------------------------------------------
 # Launch DNS Server
 # -----------------------------------------------------------------------------
 # Start the DNS server with the .NET runtime
