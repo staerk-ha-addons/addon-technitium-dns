@@ -10,7 +10,7 @@ ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:9.3.0
 FROM ${BUILD_FROM} AS build
 
 # Version configuration
-ARG DNS_SERVER_VERSION=v15.3.0
+ARG DNS_SERVER_VERSION=v15.4.0
 ARG DNS_LIBRARY_VERSION=dns-server-${DNS_SERVER_VERSION}
 # Technitium DNS Server v15+ targets .NET 10
 ARG DOTNET_SDK_VERSION=10.0
