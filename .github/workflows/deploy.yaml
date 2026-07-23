@@ -14,6 +14,6 @@ on:
 
 jobs:
   workflows:
-    uses: hassio-addons/workflows/.github/workflows/addon-deploy.yaml@3df8e5b7f908b335001bc74ef5d05c313e9d5439 # main
+    uses: hassio-addons/workflows/.github/workflows/addon-deploy.yaml@796cb147d86e318da9cd7cfce970481c0ceb3e91 # main
     secrets:
       DISPATCH_TOKEN: ${{ secrets.DISPATCH_TOKEN }}
