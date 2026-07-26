@@ -14,6 +14,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Only untagged versions are pruned. Tagged versions (release CalVer
+      # tags plus the stable/beta/edge channel tags) MUST be preserved: the
+      # store config resolves installs via the per-arch image
+      # `ghcr.io/staerk-ha-addons/technitium-dns/{arch}:<version>`, so deleting
+      # a tagged release here 404s every install/update of that version.
+      # (This was the cause of #61 — delete-only-untagged-versions was false,
+      # so edge churn pushed release tags out of the keep window and pruned
+      # them. ignore-versions does not reliably match container tags, so it
+      # cannot be relied on as the safeguard.)
       - name: Delete old untagged versions of technitium-dns/amd64 package
         uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5
         continue-on-error: true
@@ -21,7 +30,7 @@ jobs:
           package-name: "technitium-dns/amd64"
           package-type: container
           min-versions-to-keep: 10
-          ignore-versions: "^stable$|^beta$|^edge$|^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+          delete-only-untagged-versions: true
 
       - name: Delete old untagged versions of technitium-dns/aarch64 package
         uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5
@@ -30,4 +39,4 @@ jobs:
           package-name: "technitium-dns/aarch64"
           package-type: container
           min-versions-to-keep: 10
-          ignore-versions: "^stable$|^beta$|^edge$|^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+          delete-only-untagged-versions: true
