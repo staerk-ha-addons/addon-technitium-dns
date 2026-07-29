@@ -15,4 +15,4 @@ on:
 
 jobs:
   workflows:
-    uses: hassio-addons/workflows/.github/workflows/addon-ci.yaml@a7f5dd351b9f7cb10a71ed32bbad1f6243a97000 # main
+    uses: hassio-addons/workflows/.github/workflows/addon-ci.yaml@dcf8cbb629dccbea059cb45661d0c871b900ab53 # main
