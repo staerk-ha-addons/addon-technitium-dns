@@ -162,6 +162,15 @@ Zone name: 1.168.192.in-addr.arpa
    - Check DNS server logs
    - Test with `dig` or `nslookup`
 
+4. **Install or update fails with `manifest ... not found` (404)**
+   - Home Assistant pinned an image digest that has since been removed from
+     the container registry, so the pull returns a 404 even though the
+     version still exists.
+   - Updating to the latest add-on version resolves it, because Home
+     Assistant re-resolves the image and pulls a digest that exists.
+   - If no update is offered and you are stuck, take a **backup** of the
+     add-on first, then uninstall and reinstall it to force a fresh pull.
+
 ## 💡 Support
 
 Got questions?
