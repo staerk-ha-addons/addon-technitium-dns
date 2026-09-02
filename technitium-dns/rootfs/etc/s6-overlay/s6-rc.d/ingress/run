@@ -13,7 +13,7 @@ set -o nounset -o errexit -o pipefail
 
 # Port assigned by the Supervisor for this add-on's ingress session
 declare ingress_port
-ingress_port=$(bashio::addon.ingress_port)
+ingress_port=$(bashio::app.ingress_port)
 
 bashio::log.info "ingress: proxying port ${ingress_port} -> 127.0.0.1:5380"
 
