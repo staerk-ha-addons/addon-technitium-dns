@@ -9,4 +9,4 @@ on:
 
 jobs:
   workflows:
-    uses: hassio-addons/workflows/.github/workflows/labels.yaml@255b50660f62bfbe2a37b67b558892903db74a66 # main
+    uses: hassio-addons/workflows/.github/workflows/labels.yaml@de69b49faca92bdbe7f4d8c5ad96f0699378b24d # main
