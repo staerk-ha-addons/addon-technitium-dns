@@ -9,4 +9,4 @@ on:
 
 jobs:
   workflows:
-    uses: hassio-addons/workflows/.github/workflows/release-drafter.yaml@255b50660f62bfbe2a37b67b558892903db74a66 # main
+    uses: hassio-addons/workflows/.github/workflows/release-drafter.yaml@10fd291f498f7ab774281dc358f3bcbc87576c59 # main
